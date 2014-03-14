@@ -73,6 +73,7 @@ namespace Biggy
         public virtual T Add(T item)
         {
             _store.Add(item);
+            _items.Add(item);
             Fire(ItemAdded, item: item);
             return item;
         }
@@ -80,6 +81,10 @@ namespace Biggy
         public virtual IList<T> Add(IList<T> items)
         {
             _store.Add(items);
+            foreach (var item in items)
+            {
+                _items.Add(item);
+            }
             Fire(ItemAdded, items: items);
             return items;
         }
