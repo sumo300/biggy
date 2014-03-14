@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Biggy {
   public class BiggyEventArgs<T> : EventArgs {
-    public List<T> Items { get; set; }
+    public IList<T> Items { get; set; }
     public dynamic Item { get; set; }
 
     public BiggyEventArgs() {

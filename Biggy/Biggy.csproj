@@ -33,6 +33,9 @@
     <Reference Include="Inflector">
       <HintPath>..\packages\Inflector.1.0.0.0\lib\net45\Inflector.dll</HintPath>
     </Reference>
+    <Reference Include="MongoDB.Driver">
+      <HintPath>..\Biggy.Mongo\bin\Debug\MongoDB.Driver.dll</HintPath>
+    </Reference>
     <Reference Include="Mono.Security">
       <HintPath>..\packages\Npgsql.2.0.14.3\lib\net45\Mono.Security.dll</HintPath>
     </Reference>
@@ -55,10 +58,13 @@
   <ItemGroup>
     <Compile Include="Attributes.cs" />
     <Compile Include="BiggyEventArgs.cs" />
+    <Compile Include="BiggyList.cs" />
     <Compile Include="DbColumnMapping.cs" />
     <Compile Include="DbColumnMappingLookup.cs" />
     <Compile Include="DBDocumentList.cs" />
     <Compile Include="DBList.cs" />
+    <Compile Include="IBiggy.cs" />
+    <Compile Include="IBiggyStore.cs" />
     <Compile Include="InMemoryList.cs" />
     <Compile Include="JSON\BiggyList.cs" />
     <Compile Include="JSON\BiggyDB.cs" />

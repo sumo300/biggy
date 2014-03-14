@@ -7,14 +7,14 @@ using System.Threading.Tasks;
 
 namespace Biggy.JSON {
   
-  public class BiggyDB : DynamicObject {
+  //public class BiggyDB : DynamicObject {
 
-    BiggyList<dynamic> _existing;
-    public override bool TryGetMember(GetMemberBinder binder, out object result) {
-      //return base.TryGetMember(binder, out result);
-      _existing = _existing ?? new BiggyList<dynamic>(dbName: binder.Name);
-      result = _existing;
-      return true;
-    }
-  }
+  //  BiggyList<dynamic> _existing;
+  //  public override bool TryGetMember(GetMemberBinder binder, out object result) {
+  //    //return base.TryGetMember(binder, out result);
+  //    _existing = _existing ?? new BiggyList<dynamic>(dbName: binder.Name);
+  //    result = _existing;
+  //    return true;
+  //  }
+  //}
 }
