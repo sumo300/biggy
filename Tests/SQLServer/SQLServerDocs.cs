@@ -123,7 +123,9 @@ namespace Tests.SQLServer {
         bulkList.Add(newClientDocument);
       }
       int inserted = ClientDocuments.AddRange(bulkList);
-      Assert.True(inserted == insertQty && ClientDocuments.Last().ClientDocumentId > insertQty);
+
+      var last = ClientDocuments.Last();
+      Assert.True(inserted == insertQty && last.ClientDocumentId >= insertQty);
     }
 
 

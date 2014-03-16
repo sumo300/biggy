@@ -19,9 +19,20 @@ namespace Tests.SQLServer
     public SQLServerList_CRUD() {
       // Drops and re-creates table each time:
       this.SetUpClientTable();
-      _Clients = new SQLServerList<Client>(connectionStringName: _connectionStringName, tableName: "Clients", primaryKeyName: "ClientId");
+      _Clients = new SQLServerList<Client>(connectionStringName: _connectionStringName, tableName: "Clients");
     }
 
+    [Fact(DisplayName = "Pulls things dynamically")]
+    public void PullsThingsDynamically()
+    {
+        var list = new SQLServerList<dynamic>(_connectionStringName);
+        var results = list.Query(@"select Artist.Name AS ArtistName, Track.Name, Track.UnitPrice
+                                   from Artist inner join
+                                   Album on Artist.ArtistId = Album.ArtistId inner join
+                                   Track on Album.AlbumId = Track.AlbumId
+                                   where (Artist.Name = @0)", "ac/dc");
+        Assert.True(results.Count() > 0);
+    }
 
     [Fact(DisplayName = "Loads Empty Table into memory")]
     public void Loads_Data_Into_Memory() {
@@ -36,7 +47,7 @@ namespace Tests.SQLServer
       var newClient = new Client() { FirstName = "John", LastName = "Atten", Email = "jatten@example.com" };
       _Clients.Add(newClient);
       int idToFind = newClient.ClientId;
-      _Clients = new SQLServerList<Client>(connectionStringName: _connectionStringName, tableName: "Clients", primaryKeyName: "ClientId");
+      _Clients = new SQLServerList<Client>(connectionStringName: _connectionStringName, tableName: "Clients");
       var found = _Clients.FirstOrDefault(c => c.ClientId == idToFind);
       Assert.True(found.Email == "jatten@example.com" && _Clients.Count > initialCount);
     }

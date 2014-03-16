@@ -25,7 +25,7 @@ namespace Biggy.Postgres {
     }
 
     public override void SetModel() {
-      this.Model = new PGTable<dynamic>(this.ConnectionStringName,tableName:this.TableName,primaryKeyField:this.PrimaryKeyField, pkIsIdentityColumn: this.PKIsIdentity);
+      this.Model = new PGTable<dynamic>(this.ConnectionStringName,tableName:this.TableName);
     }
     internal override void TryLoadData() {
       try {
@@ -34,12 +34,12 @@ namespace Biggy.Postgres {
         if (x.Message.Contains("does not exist")) {
 
           //create the table
-          var idType = this.PrimaryKeyType == typeof(int) ? " serial" : "varchar(255)";
+          var idType = Model.PrimaryKeyMapping.DataType == typeof(int) ? " serial" : "varchar(255)";
           string fullTextColumn = "";
           if (this.FullTextFields.Length > 0) {
             fullTextColumn = ", search tsvector";
           }
-          var sql = string.Format("CREATE TABLE {0} ({1} {2} primary key not null, body json not null {3});", Model.DelimitedTableName, Model.DelimitedPkColumnName, idType, fullTextColumn);
+          var sql = string.Format("CREATE TABLE {0} ({1} {2} primary key not null, body json not null {3});", Model.DelimitedTableName, Model.PrimaryKeyMapping.DelimitedColumnName, idType, fullTextColumn);
           this.Model.Execute(sql);
           TryLoadData();
         } else {
@@ -54,9 +54,9 @@ namespace Biggy.Postgres {
     /// <param name="item"></param>
     public override void Add(T item) {
       this.addItem(item);
-      if(PKIsIdentity) {
-        // Sync the JSON ID with the serial PK:
-        var ex = this.SetDataForDocument(item);
+      if(Model.PrimaryKeyMapping.IsAutoIncementing) {
+        //// Sync the JSON ID with the serial PK:
+        //var ex = this.SetDataForDocument(item);
         this.Update(item);
       }
     }
@@ -68,8 +68,8 @@ namespace Biggy.Postgres {
       var args = new List<object>();
       var index = 0;
 
-      var keyColumn = dc.FirstOrDefault(x => x.Key.Equals(this.PrimaryKeyField, StringComparison.OrdinalIgnoreCase));
-      if (this.Model.PkIsIdentityColumn) {
+      var keyColumn = dc.FirstOrDefault(x => x.Key.Equals(Model.PrimaryKeyMapping.PropertyName, StringComparison.OrdinalIgnoreCase));
+      if (this.Model.PrimaryKeyMapping.IsAutoIncementing) {
         //don't update the Primary Key
         dc.Remove(keyColumn);
       }
@@ -83,23 +83,13 @@ namespace Biggy.Postgres {
         index++;
       }
       var sb = new StringBuilder();
-      sb.AppendFormat("INSERT INTO {0} ({1}) VALUES ({2}) RETURNING {3} as newID;", Model.DelimitedTableName, string.Join(",", dc.Keys), string.Join(",", vals), Model.DelimitedPkColumnName);
+      sb.AppendFormat("INSERT INTO {0} ({1}) VALUES ({2}) RETURNING {3} as newID;", Model.DelimitedTableName, string.Join(",", dc.Keys), string.Join(",", vals), Model.PrimaryKeyMapping.DelimitedColumnName);
       var sql = sb.ToString();
       var newKey = this.Model.Scalar(sql, args.ToArray());
       //set the key
       this.Model.SetPrimaryKey(item, newKey);
       base.Add(item);
     }
-
-    internal int getNextSerialPk(T item) {
-      this.addItem(item);
-      this.Remove(item);
-
-      var props = item.GetType().GetProperties();
-      var pk = props.First(p => p.Name == this.PrimaryKeyField);
-      return (int)pk.GetValue(item) + 1;
-    }
-
 
     /// <summary>
     /// A high-performance bulk-insert that can drop 10,000 documents in about 900 ms
@@ -110,13 +100,6 @@ namespace Biggy.Postgres {
       int rowsAffected = 0;
 
       var first = items.First();
-
-      // We need to add and remove an item to get the starting serial pk:
-      int nextSerialPk = 0;
-      if (this.PKIsIdentity) {
-        // HACK: This is SO bad, but don't see ANY other way to do this:
-        nextSerialPk = this.getNextSerialPk(first);
-      }
       string insertClause = "";
       var sbSql = new StringBuilder("");
 
@@ -129,13 +112,27 @@ namespace Biggy.Postgres {
           dbCommand.Transaction = tdbTransaction;
           dbCommand.ExecuteNonQuery();
 
+          int nextSerialPk = 0;
+          if(Model.PrimaryKeyMapping.IsAutoIncementing) {
+            // Now get the next serial Id. ** Need to do this within the transaction/table lock scope **:
+            string sequence = string.Format("\"{0}_{1}_seq\"", this.TableName, Model.PrimaryKeyMapping.ColumnName);
+            var sql_get_seq = string.Format("SELECT last_value FROM {0}", sequence);
+            dbCommand.CommandText = sql_get_seq;
+            // if this is a fresh sequence, the "seed" value is returned. We will assume 1:
+            nextSerialPk = Convert.ToInt32(dbCommand.ExecuteScalar());
+            // If this is not a fresh sequence, increment:
+            if(nextSerialPk > 1) {
+              nextSerialPk++;
+            }
+          }
+
           var paramCounter = 0;
           var rowValueCounter = 0;
           foreach (var item in items) {
             // Set the soon-to-be inserted serial int value:
-            if (this.PKIsIdentity) {
+            if (Model.PrimaryKeyMapping.IsAutoIncementing) {
               var props = item.GetType().GetProperties();
-              var pk = props.First(p => p.Name == this.PrimaryKeyField);
+              var pk = props.First(p => p.Name == Model.PrimaryKeyMapping.PropertyName);
               pk.SetValue(item, nextSerialPk);
               nextSerialPk++;
             }
@@ -143,7 +140,9 @@ namespace Biggy.Postgres {
             var itemEx = SetDataForDocument(item);
             var itemSchema = itemEx as IDictionary<string, object>;
             var sbParamGroup = new StringBuilder();
-
+            if (itemSchema.ContainsKey(Model.PrimaryKeyMapping.PropertyName) && Model.PrimaryKeyMapping.IsAutoIncementing) {
+              itemSchema.Remove(Model.PrimaryKeyMapping.PropertyName);
+            }
             if (ReferenceEquals(item, first)) {
               var sbFieldNames = new StringBuilder();
               foreach (var field in itemSchema) {
@@ -217,7 +216,7 @@ namespace Biggy.Postgres {
       }
       sb.Append(";");
       var sql = sb.ToString();
-      this.Model.Execute(sql, args.ToArray());
+      //this.Model.Execute(sql, args.ToArray());
       base.Update(item);
       return this.Model.Update(expando);
     }

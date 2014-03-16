@@ -14,8 +14,6 @@ using Biggy.Extensions;
 
 namespace Biggy
 {
-
-
   /// <summary>
   /// A class that wraps your database table in Dynamic Funtime
   /// </summary>
@@ -23,68 +21,81 @@ namespace Biggy
     
     protected string ConnectionString;
 
+    /// <summary>
+    /// Returns an Open Connection
+    /// </summary>
+    internal abstract DbConnection OpenConnection();
+    protected abstract string BuildSelect(string where, string orderBy = "", int limit = 0);
+    protected abstract string GetSingleSelect(string where);
+    public abstract string GetInsertReturnValueSQL();
     protected abstract string DbDelimiterFormatString { get; }
-    public virtual DbColumnMappingLookup PropertyColumnMappings { get; private set; }
-    //protected void mapDbColumns() {
-    //  var columnNames = this.getTableColumns();
-    //  if (this.PropertyColumnMappings == null) {
-    //    this.PropertyColumnMappings = new DbColumnMappingLookup(this.DbDelimiterFormatString);
-    //  }
-    //  var item = new T();
-    //  var props = item.GetType().GetProperties();
-    //  string replaceString = "[^a-zA-Z1-9]";
-    //  var rgx = new Regex(replaceString);
+    protected abstract bool columnIsAutoIncrementing(string columnName);
 
-    //  foreach (var property in props) {
-    //    string propertyName = rgx.Replace(property.Name.ToLower(), "");
-    //    string columnName = columnNames.FirstOrDefault(c => rgx.Replace(c.ToLower(), "") == propertyName);
-    //    if (!string.IsNullOrWhiteSpace(columnName)) {
-    //      this.PropertyColumnMappings.Add(columnName, property.Name);
-    //    } else {
-    //      DbColumnNameAttribute mappedColumnAttribute = null;
-    //      var attribute = property.GetCustomAttributes(false).FirstOrDefault(a => a.GetType() == typeof(DbColumnNameAttribute));
-    //      if (attribute != null) {
-    //        // Use the column name found in the attribute:
-    //        mappedColumnAttribute = attribute as DbColumnNameAttribute;
-    //        columnName = string.Format(this.DbDelimiterFormatString, mappedColumnAttribute.Name);
-    //        this.PropertyColumnMappings.Add(columnName, property.Name);
-    //      }
-    //    }
-    //  }
-    //}
 
-    protected void mapDbColumns()
-    {
-      var columnNames = this.getTableColumns();
-      if (this.PropertyColumnMappings == null) {
-        this.PropertyColumnMappings = new DbColumnMappingLookup(this.DbDelimiterFormatString);
+    public virtual string DelimitedTableName {
+      get {
+        return string.Format(this.DbDelimiterFormatString, this.TableName);
       }
-      var item = new T();
-      var props = item.GetType().GetProperties();
-      string replaceString = "[^a-zA-Z1-9]";
-      var rgx = new Regex(replaceString);
+    }
 
-      foreach (var property in props) {
-        string propertyName = rgx.Replace(property.Name.ToLower(), "");
-        string columnName = columnNames.FirstOrDefault(c => rgx.Replace(c.ToLower(), "") == propertyName);
+    public virtual DbColumnMapping PrimaryKeyMapping { get; set; }
+    public virtual string TableName { get; set; }
+    public string DescriptorField { get; protected set; }
+    public virtual DbColumnMappingLookup PropertyColumnMappings { get; private set; }
 
-        // Hateful as this is, if we allow setting of attributes, we need to check for those FIRST,
-        // otherwise the client will be confused by inconsistent behavior. 
-        DbColumnNameAttribute mappedColumnAttribute = null;
-        var attribute = property.GetCustomAttributes(false).FirstOrDefault(a => a.GetType() == typeof(DbColumnNameAttribute));
-        if (attribute != null) {
-          // Use the column name found in the attribute:
-          mappedColumnAttribute = attribute as DbColumnNameAttribute;
-          columnName = mappedColumnAttribute.Name;
-          this.PropertyColumnMappings.Add(columnName, property.Name);
+    protected void mapDbColumns() {
+      this.PropertyColumnMappings = new DbColumnMappingLookup(this.DbDelimiterFormatString);
+      var columnNames = this.getTableColumns();
+      if(columnNames.Count > 0) {
+        var item = new T();
+        var itemType = item.GetType();
+        var props = itemType.GetProperties();
+        string replaceString = "[^a-zA-Z1-9]";
+        var rgx = new Regex(replaceString);
+
+        // First map all the columns. If an explicit attribute mapping exists, use it. Otherwise, math 'em up:
+        foreach (var property in props) {
+          string propertyName = rgx.Replace(property.Name.ToLower(), "");
+          string columnName = columnNames.FirstOrDefault(c => rgx.Replace(c.ToLower(), "") == propertyName);
+
+          if (columnName != null) {
+            // Just map it:
+            var newMapping = this.PropertyColumnMappings.Add(columnName, property.Name);
+            newMapping.DataType = property.GetType();
+          } else {
+            // Look for a custom column name attribute:
+            DbColumnAttribute mappedColumnAttribute = null;
+            var attribute = property.GetCustomAttributes(false).FirstOrDefault(a => a.GetType() == typeof(DbColumnAttribute));
+            if (attribute != null) {
+              // Use the column name found in the attribute:
+              mappedColumnAttribute = attribute as DbColumnAttribute;
+              columnName = mappedColumnAttribute.Name;
+            }
+            var newMapping = this.PropertyColumnMappings.Add(columnName, property.Name);
+            newMapping.DataType = property.GetType();
+          }
+        }
+
+        // Now, find the PK  column. If one is explicitly set with an attribute, use that:
+        var pkProperty = props.FirstOrDefault(p => p.GetCustomAttributes(false).Any(a => a.GetType() == typeof(PrimaryKeyAttribute)));
+        PrimaryKeyAttribute pkAttribute = null;
+        if (pkProperty != null) {
+          pkAttribute = pkProperty.GetCustomAttributes(false).FirstOrDefault(a => a.GetType() == typeof(PrimaryKeyAttribute)) as PrimaryKeyAttribute;
+          this.PrimaryKeyMapping = this.PropertyColumnMappings.FindByProperty(pkProperty.Name);
+          this.PrimaryKeyMapping.IsPrimaryKey = true;
+          this.PrimaryKeyMapping.IsAutoIncementing = pkAttribute.IsAutoIncrementing;
         } else {
-          if (!string.IsNullOrWhiteSpace(columnName)) {
-            this.PropertyColumnMappings.Add(columnName, property.Name);
+          // Otherwise, try to find one:
+          string pkCandidate = rgx.Replace(itemType.Name.ToLower(), "") + "id";
+          string columnMatch = columnNames.FirstOrDefault(c => rgx.Replace(c.ToLower(), "") == pkCandidate);
+          if (columnMatch != null) {
+            this.PrimaryKeyMapping = this.PropertyColumnMappings.FindByColumn(columnMatch);
+            bool isAuto = this.columnIsAutoIncrementing(this.PrimaryKeyMapping.ColumnName);
+            this.PrimaryKeyMapping.IsAutoIncementing = isAuto;
           }
         }
       }
     }
-
 
     protected virtual List<string> getTableColumns() {
       var result = new List<string>();
@@ -98,23 +109,18 @@ namespace Biggy
       return result;
     }
 
-    public DBTable(string connectionStringName, string primaryKeyField) {
+    public DBTable(string connectionStringName) {
       var thingyType = this.GetType().GenericTypeArguments[0].Name;
       this.TableName = Inflector.Inflector.Pluralize(thingyType);
-      this.PkIsIdentityColumn = true;
-      this.PrimaryKeyField = primaryKeyField;
       ConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
       this.mapDbColumns();
-
     }
-
+    
     public DBTable(string connectionStringName, string tableName = "",
       string primaryKeyField = "", bool pkIsIdentityColumn = true)
     {
-      TableName = tableName == "" ? this.GetType().Name : tableName;
-      PrimaryKeyField = string.IsNullOrEmpty(primaryKeyField) ? "ID" : primaryKeyField;
-      PkIsIdentityColumn = pkIsIdentityColumn;
       ConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
+      TableName = tableName == "" ? this.GetType().Name : tableName;
       this.mapDbColumns();
     }
 
@@ -124,7 +130,7 @@ namespace Biggy
     /// </summary>
     public bool HasPrimaryKey(object o)
     {
-      return o.ToDictionary().ContainsKey(PrimaryKeyField);
+      return o.ToDictionary().ContainsKey(this.PrimaryKeyMapping.PropertyName);
     }
 
     /// <summary>
@@ -134,7 +140,7 @@ namespace Biggy
     public object GetPrimaryKey(object o) {
       object result = null;
       var lookup = o.ToDictionary();
-      string propName = this.PropertyColumnMappings.FindByColumn(this.PrimaryKeyField).PropertyName;
+      string propName = this.PrimaryKeyMapping.PropertyName;
       var found = lookup.FirstOrDefault(x => x.Key.Equals(propName, StringComparison.OrdinalIgnoreCase));
       result = found.Value;
       return result;
@@ -144,33 +150,16 @@ namespace Biggy
       var props = item.GetType().GetProperties();
       if (item is ExpandoObject) {
         var d = item as IDictionary<string, object>;
-        d[PrimaryKeyField] = value;
+        d[this.PrimaryKeyMapping.PropertyName] = value;
       } else {
         // Find the property the PK maps to:
-        string mappedPropertyName = this.PropertyColumnMappings.FindByColumn(this.PrimaryKeyField).PropertyName;
+        string mappedPropertyName = this.PrimaryKeyMapping.PropertyName;
         var pkProp = props.FirstOrDefault(x => x.Name.Equals(mappedPropertyName, StringComparison.OrdinalIgnoreCase));
         var converted = Convert.ChangeType(value, pkProp.PropertyType);
         pkProp.SetValue(item, converted);
       }
     }
 
-    public virtual string DelimitedTableName {
-      get {
-        return string.Format(this.DbDelimiterFormatString, this.TableName);
-      }
-    }
-
-    public string DelimitedPkColumnName {
-      get {
-        return string.Format(this.DbDelimiterFormatString, this.PrimaryKeyField);
-      }
-    }
-
-    public virtual string PrimaryKeyField { get; set; }
-    public virtual bool PkIsIdentityColumn { get; set; }
-    public virtual string TableName { get; set; }
-
-    public string DescriptorField { get; protected set; }
 
 
     public IEnumerable<T> Where(string where, params object[] args) {
@@ -200,7 +189,6 @@ namespace Biggy
         var rdr = CreateCommand(sql, conn, args).ExecuteReader();
         while (rdr.Read()) {
           yield return this.MapReaderToObject<T>(rdr);
-          //yield return rdr.ToSingle<T>();
         }
       }
     }
@@ -209,7 +197,6 @@ namespace Biggy
       using (var rdr = CreateCommand(sql, connection, args).ExecuteReader()) {
         while (rdr.Read()) {
           yield return this.MapReaderToObject<T>(rdr);
-          //yield return rdr.ToSingle<T>();
         }
       }
     }
@@ -255,10 +242,7 @@ namespace Biggy
       return result;
     }
 
-    /// <summary>
-    /// Returns and OpenConnection
-    /// </summary>
-    internal abstract DbConnection OpenConnection();
+
 
     /// <summary>
     /// Builds a set of Insert and Update commands based on the passed-on objects.
@@ -314,9 +298,6 @@ namespace Biggy
       return Query<T>(formatted, args);
     }
 
-    protected abstract string BuildSelect(string where, string orderBy="", int limit=0);
-
-    protected abstract string GetSingleSelect(string where);
     /// <summary>
     /// Returns a single row from the database
     /// </summary>
@@ -331,7 +312,7 @@ namespace Biggy
     /// </summary>
     public T Find<T>(object key) where T : new() {
       var result = new T();
-      var sql = GetSingleSelect(this.DelimitedPkColumnName + "=@0");
+      var sql = GetSingleSelect(this.PrimaryKeyMapping.DelimitedColumnName + "=@0");
       return Query<T>(sql, key).FirstOrDefault();
     }
 
@@ -368,8 +349,8 @@ namespace Biggy
       var stub = "INSERT INTO {0} ({1}) \r\n VALUES ({2})";
       result = CreateCommand(stub, null);
       int counter = 0;
-      if (PkIsIdentityColumn) {
-        string mappedPropertyName = this.PropertyColumnMappings.FindByColumn(this.PrimaryKeyField).PropertyName;
+      if (this.PrimaryKeyMapping.IsAutoIncementing) {
+        string mappedPropertyName = this.PrimaryKeyMapping.PropertyName;
         var col = settings.FirstOrDefault(x => x.Key.Equals(mappedPropertyName, StringComparison.OrdinalIgnoreCase));
         settings.Remove(col);
       }
@@ -407,7 +388,7 @@ namespace Biggy
       var args = new List<object>();
       var result = CreateCommand(stub, null);
       int counter = 0;
-      string mappedPkPropertyName = this.PropertyColumnMappings.FindByColumn(this.PrimaryKeyField).PropertyName;
+      string mappedPkPropertyName = this.PrimaryKeyMapping.PropertyName;
       foreach (var item in settings) {
         var val = item.Value;
         // Find the property name mapped to this column name:
@@ -424,7 +405,7 @@ namespace Biggy
         result.AddParam(key);
         //strip the last commas
         var keys = sbKeys.ToString().Substring(0, sbKeys.Length - 4);
-        result.CommandText = string.Format(stub, this.DelimitedTableName, keys, this.DelimitedPkColumnName, counter);
+        result.CommandText = string.Format(stub, this.DelimitedTableName, keys, this.PrimaryKeyMapping.DelimitedColumnName, counter);
       } else {
         throw new InvalidOperationException("No parsable object was sent in - could not divine any name/value pairs");
       }
@@ -437,7 +418,7 @@ namespace Biggy
     DbCommand CreateDeleteCommand(string where = "", object key = null, params object[] args) {
       var sql = string.Format("DELETE FROM {0} ", this.DelimitedTableName);
       if (key != null) {
-        sql += string.Format("WHERE {0}=@0", this.DelimitedPkColumnName);
+        sql += string.Format("WHERE {0}=@0", this.PrimaryKeyMapping.DelimitedColumnName);
         args = new object[] { key };
       }
       else if (!string.IsNullOrEmpty(where)) {
@@ -449,7 +430,6 @@ namespace Biggy
     //Temporary holder for error messages
     public IList<string> Errors = new List<string>();
 
-    public abstract string GetInsertReturnValueSQL();
 
     public T Insert (T item) {
       if (BeforeSave(item)) {
@@ -490,9 +470,9 @@ namespace Biggy
             var itemEx = item.ToExpando();
             var itemSchema = itemEx as IDictionary<string, object>;
             var sbParamGroup = new StringBuilder();
-            if (this.PkIsIdentityColumn) {
+            if (this.PrimaryKeyMapping.IsAutoIncementing) {
               // Don't insert against a serial id:
-              string mappedPkPropertyName = this.PropertyColumnMappings.FindByColumn(this.PrimaryKeyField).PropertyName;
+              string mappedPkPropertyName = this.PrimaryKeyMapping.PropertyName;
               string key = itemSchema.Keys.First(k => k.ToString().Equals(mappedPkPropertyName, StringComparison.OrdinalIgnoreCase));
               itemSchema.Remove(key);
             }
