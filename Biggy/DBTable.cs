@@ -431,7 +431,7 @@ namespace Biggy
     public IList<string> Errors = new List<string>();
 
 
-    public T Insert (T item) {
+    public virtual T Insert (T item) {
       if (BeforeSave(item)) {
         using (var conn = OpenConnection()) {
           var cmd = (DbCommand)CreateInsertCommand(item);
