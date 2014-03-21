@@ -18,130 +18,130 @@
 
 
 -- ----------------------------
--- Sequence structure for album_albumid_seq
+-- Sequence structure for album_album_id_seq
 -- ----------------------------
-CREATE SEQUENCE "album_albumid_seq"
+CREATE SEQUENCE "album_album_id_seq"
  INCREMENT 1
  MINVALUE 1
  MAXVALUE 9223372036854775807
  START 347
  CACHE 1;
-SELECT setval('"public"."album_albumid_seq"', 347, true);
+SELECT setval('"public"."album_album_id_seq"', 347, true);
 
 
 -- ----------------------------
--- Sequence structure for artist_artistid_seq
+-- Sequence structure for artist_artist_id_seq
 -- ----------------------------
-CREATE SEQUENCE "artist_artistid_seq"
+CREATE SEQUENCE "artist_artist_id_seq"
  INCREMENT 1
  MINVALUE 1
  MAXVALUE 9223372036854775807
  START 275
  CACHE 1;
-SELECT setval('"public"."artist_artistid_seq"', 275, true);
+SELECT setval('"public"."artist_artist_id_seq"', 275, true);
 
 
 -- ----------------------------
--- Sequence structure for customer_customerid_seq
+-- Sequence structure for customer_customer_id_seq
 -- ----------------------------
-CREATE SEQUENCE "customer_customerid_seq"
+CREATE SEQUENCE "customer_customer_id_seq"
  INCREMENT 1
  MINVALUE 1
  MAXVALUE 9223372036854775807
  START 59
  CACHE 1;
-SELECT setval('"public"."customer_customerid_seq"', 59, true);
+SELECT setval('"public"."customer_customer_id_seq"', 59, true);
 
 
 -- ----------------------------
--- Sequence structure for genre_genreid_seq
+-- Sequence structure for genre_genre_id_seq
 -- ----------------------------
-CREATE SEQUENCE "genre_genreid_seq"
+CREATE SEQUENCE "genre_genre_id_seq"
  INCREMENT 1
  MINVALUE 1
  MAXVALUE 9223372036854775807
  START 25
  CACHE 1;
-SELECT setval('"public"."genre_genreid_seq"', 25, true);
+SELECT setval('"public"."genre_genre_id_seq"', 25, true);
 
 
 -- ----------------------------
--- Sequence structure for employee_employeeid_seq
+-- Sequence structure for employee_employee_id_seq
 -- ----------------------------
-CREATE SEQUENCE "employee_employeeid_seq"
+CREATE SEQUENCE "employee_employee_id_seq"
  INCREMENT 1
  MINVALUE 1
  MAXVALUE 9223372036854775807
  START 8
  CACHE 1;
-SELECT setval('"public"."employee_employeeid_seq"', 8, true);
+SELECT setval('"public"."employee_employee_id_seq"', 8, true);
 
 
 -- ----------------------------
--- Sequence structure for invoice_invoiceid_seq
+-- Sequence structure for invoice_invoice_id_seq
 -- ----------------------------
-CREATE SEQUENCE "invoice_invoiceid_seq"
+CREATE SEQUENCE "invoice_invoice_id_seq"
  INCREMENT 1
  MINVALUE 1
  MAXVALUE 9223372036854775807
  START 412
  CACHE 1;
-SELECT setval('"public"."invoice_invoiceid_seq"', 412, true);
+SELECT setval('"public"."invoice_invoice_id_seq"', 412, true);
 
 
 -- ----------------------------
--- Sequence structure for invoiceline_invoicelineid_seq
+-- Sequence structure for invoiceline_invoiceline_id_seq
 -- ----------------------------
-CREATE SEQUENCE "invoiceline_invoicelineid_seq"
+CREATE SEQUENCE "invoiceline_invoiceline_id_seq"
  INCREMENT 1
  MINVALUE 1
  MAXVALUE 9223372036854775807
  START 2240
  CACHE 1;
-SELECT setval('"public"."invoiceline_invoicelineid_seq"', 2240, true);
+SELECT setval('"public"."invoiceline_invoiceline_id_seq"', 2240, true);
 
 
 -- ----------------------------
--- Sequence structure for mediatype_mediatypeid_seq
+-- Sequence structure for mediatype_mediatype_id_seq
 -- ----------------------------
-CREATE SEQUENCE "mediatype_mediatypeid_seq"
+CREATE SEQUENCE "mediatype_mediatype_id_seq"
  INCREMENT 1
  MINVALUE 1
  MAXVALUE 9223372036854775807
  START 5
  CACHE 1;
-SELECT setval('"public"."mediatype_mediatypeid_seq"', 5, true);
+SELECT setval('"public"."mediatype_mediatype_id_seq"', 5, true);
 
 
 -- ----------------------------
--- Sequence structure for playlist_playlistid_seq
+-- Sequence structure for playlist_playlist_id_seq
 -- ----------------------------
-CREATE SEQUENCE "playlist_playlistid_seq"
+CREATE SEQUENCE "playlist_playlist_id_seq"
  INCREMENT 1
  MINVALUE 1
  MAXVALUE 9223372036854775807
  START 18
  CACHE 1;
-SELECT setval('"public"."playlist_playlistid_seq"', 18, true);
+SELECT setval('"public"."playlist_playlist_id_seq"', 18, true);
 
 
 -- ----------------------------
--- Sequence structure for track_trackid_seq
+-- Sequence structure for track_track_id_seq
 -- ----------------------------
-CREATE SEQUENCE "track_trackid_seq"
+CREATE SEQUENCE "track_track_id_seq"
  INCREMENT 1
  MINVALUE 1
  MAXVALUE 9223372036854775807
  START 3503
  CACHE 1;
-SELECT setval('"public"."track_trackid_seq"', 3503, true);
+SELECT setval('"public"."track_track_id_seq"', 3503, true);
 
 /*******************************************************************************
    Create Tables
 ********************************************************************************/
 CREATE TABLE album
 (
-    album_id int DEFAULT nextval('album_albumid_seq'::regclass) NOT NULL,
+    album_id int DEFAULT nextval('album_album_id_seq'::regclass) NOT NULL,
     title VARCHAR(160) NOT NULL,
     artist_id INT NOT NULL,
     CONSTRAINT pk_album PRIMARY KEY  (album_id)
@@ -149,14 +149,14 @@ CREATE TABLE album
 
 CREATE TABLE artist
 (
-    artist_id int DEFAULT nextval('artist_artistid_seq'::regclass) NOT NULL,
+    artist_id int DEFAULT nextval('artist_artist_id_seq'::regclass) NOT NULL,
     name VARCHAR(120),
     CONSTRAINT pk_artist PRIMARY KEY  (artist_id)
 );
 
 CREATE TABLE customer
 (
-    customer_id int DEFAULT nextval('customer_customerid_seq'::regclass) NOT NULL,
+    customer_id int DEFAULT nextval('customer_customer_id_seq'::regclass) NOT NULL,
     first_name VARCHAR(40) NOT NULL,
     last_name VARCHAR(20) NOT NULL,
     company VARCHAR(80),
@@ -174,7 +174,7 @@ CREATE TABLE customer
 
 CREATE TABLE employee
 (
-    employee_id int DEFAULT nextval('employee_employeeid_seq'::regclass) NOT NULL,
+    employee_id int DEFAULT nextval('employee_employee_id_seq'::regclass) NOT NULL,
     last_name VARCHAR(20) NOT NULL,
     first_name VARCHAR(20) NOT NULL,
     title VARCHAR(30),
@@ -194,14 +194,14 @@ CREATE TABLE employee
 
 CREATE TABLE genre
 (
-    genre_id int DEFAULT nextval('genre_genreid_seq'::regclass) NOT NULL,
+    genre_id int DEFAULT nextval('genre_genre_id_seq'::regclass) NOT NULL,
     name VARCHAR(120),
     CONSTRAINT pk_genre PRIMARY KEY  (genre_id)
 );
 
 CREATE TABLE invoice
 (
-    invoice_id int DEFAULT nextval('invoice_invoiceid_seq'::regclass) NOT NULL,
+    invoice_id int DEFAULT nextval('invoice_invoice_id_seq'::regclass) NOT NULL,
     customer_id INT NOT NULL,
     invoice_date TIMESTAMP NOT NULL,
     billing_address VARCHAR(70),
@@ -215,7 +215,7 @@ CREATE TABLE invoice
 
 CREATE TABLE invoice_line
 (
-    invoice_line_id int DEFAULT nextval('invoiceline_invoicelineid_seq'::regclass) NOT NULL,
+    invoice_line_id int DEFAULT nextval('invoiceline_invoiceline_id_seq'::regclass) NOT NULL,
     invoice_id INT NOT NULL,
     track_id INT NOT NULL,
     unit_price NUMERIC(10,2) NOT NULL,
@@ -225,14 +225,14 @@ CREATE TABLE invoice_line
 
 CREATE TABLE media_type
 (
-    media_type_id int DEFAULT nextval('mediatype_mediatypeid_seq'::regclass) NOT NULL,
+    media_type_id int DEFAULT nextval('mediatype_mediatype_id_seq'::regclass) NOT NULL,
     name VARCHAR(120),
     CONSTRAINT pk_media_type PRIMARY KEY  (media_type_id)
 );
 
 CREATE TABLE playlist
 (
-    playlist_id int DEFAULT nextval('playlist_playlistid_seq'::regclass) NOT NULL,
+    playlist_id int DEFAULT nextval('playlist_playlist_id_seq'::regclass) NOT NULL,
     name VARCHAR(120),
     CONSTRAINT pk_playlist PRIMARY KEY  (playlist_id)
 );
@@ -246,7 +246,7 @@ CREATE TABLE playlist_track
 
 CREATE TABLE track
 (
-    track_id int DEFAULT nextval('track_trackid_seq'::regclass) NOT NULL,
+    track_id int DEFAULT nextval('track_track_id_seq'::regclass) NOT NULL,
     name VARCHAR(200) NOT NULL,
     album_id INT,
     media_type_id INT NOT NULL,
