@@ -24,7 +24,7 @@ namespace Biggy
     /// <summary>
     /// Returns an Open Connection
     /// </summary>
-    internal abstract DbConnection OpenConnection();
+    protected internal abstract DbConnection OpenConnection();
     protected abstract string BuildSelect(string where, string orderBy = "", int limit = 0);
     protected abstract string GetSingleSelect(string where);
     public abstract string GetInsertReturnValueSQL();
@@ -120,7 +120,7 @@ namespace Biggy
       string primaryKeyField = "", bool pkIsIdentityColumn = true)
     {
       ConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
-      TableName = tableName == "" ? this.GetType().Name : tableName;
+      TableName = tableName == "" ? this.GetType().GenericTypeArguments[0].Name : tableName;
       this.mapDbColumns();
     }
 
@@ -431,7 +431,7 @@ namespace Biggy
     public IList<string> Errors = new List<string>();
 
 
-    public T Insert (T item) {
+    public virtual T Insert (T item) {
       if (BeforeSave(item)) {
         using (var conn = OpenConnection()) {
           var cmd = (DbCommand)CreateInsertCommand(item);
