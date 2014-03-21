@@ -9,7 +9,13 @@ namespace Biggy
   public class DbColumnMappingLookup {
     Dictionary<string, DbColumnMapping> ByProperty;
     Dictionary<string, DbColumnMapping> ByColumn;
-    string _delimiterFormatString = "{0}";
+    string _delimiterFormatString;
+
+    //public DbColumnMappingLookup()
+    //{
+    //  this.ByProperty = new Dictionary<string, DbColumnMapping>(StringComparer.InvariantCultureIgnoreCase);
+    //  this.ByColumn = new Dictionary<string, DbColumnMapping>(StringComparer.InvariantCultureIgnoreCase);
+    //}
 
     public DbColumnMappingLookup(string NameDelimiterFormatString) {
       _delimiterFormatString = NameDelimiterFormatString;
@@ -22,11 +28,22 @@ namespace Biggy
       return this.ByProperty.Count();
     }
 
-    public DbColumnMapping Add(string columnName, string propertyName) {
-      string delimited = string.Format(_delimiterFormatString, columnName);  
-      var mapping = new DbColumnMapping(columnName, propertyName, delimited);
+    public DbColumnMapping Add(string columnName, string propertyName)
+    {
+      string delimited = string.Format(_delimiterFormatString, columnName);
+      var mapping = new DbColumnMapping(_delimiterFormatString);
+      mapping.ColumnName = columnName;
+      mapping.PropertyName = propertyName;
 
       // add the same instance to both dictionaries:
+      this.ByColumn.Add(mapping.ColumnName, mapping);
+      this.ByProperty.Add(mapping.PropertyName, mapping);
+      return mapping;
+    }
+
+
+    public DbColumnMapping Add(DbColumnMapping mapping)
+    {
       this.ByColumn.Add(mapping.ColumnName, mapping);
       this.ByProperty.Add(mapping.PropertyName, mapping);
       return mapping;
