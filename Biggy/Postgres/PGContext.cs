@@ -92,5 +92,21 @@ namespace Biggy.Postgres
       }
       return sql;
     }
+
+    // TODO: Somehow handle the inconsistent useage of delimited/not delimited table name:
+    public override bool TableExists(string notDelimitedTableName) {
+      bool exists = false;
+      string select = ""
+          + "SELECT COUNT(TABLE_NAME) FROM INFORMATION_SCHEMA.TABLES "
+          + "WHERE TABLE_SCHEMA = 'public' "
+          + "AND  TABLE_NAME = '{0}'";
+      string sql = string.Format(select, notDelimitedTableName);
+      var result = Convert.ToInt32(this.Scalar(sql));
+      if (result > 0)
+      {
+        exists = true;
+      }
+      return exists;
+    }
   }
 }

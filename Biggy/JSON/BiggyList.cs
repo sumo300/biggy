@@ -23,7 +23,7 @@ namespace Biggy.JSON
             SetDataDirectory(dbPath);            
         }
 
-        IList<T> IBiggyStore<T>.Load()
+        List<T> IBiggyStore<T>.Load()
         {
             if (File.Exists(DbPath))
             {
@@ -34,7 +34,7 @@ namespace Biggy.JSON
             return new List<T>();
         }
 
-        void IBiggyStore<T>.SaveAll(IList<T> items)
+        void IBiggyStore<T>.SaveAll(List<T> items)
         {
             var json = JsonConvert.SerializeObject(items);            
             var buff = Encoding.Default.GetBytes(json);
@@ -59,7 +59,7 @@ namespace Biggy.JSON
             return item;
         }
 
-        IEnumerable<T> IBiggyStore<T>.Add(IEnumerable<T> items)
+        List<T> IBiggyStore<T>.Add(List<T> items)
         {
             foreach (var item in items)
             {

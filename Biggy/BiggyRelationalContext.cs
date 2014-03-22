@@ -19,6 +19,8 @@ namespace Biggy
     public abstract string GetInsertReturnValueSQL(string delimitedPkColumn);
     public abstract string GetSingleSelect(string delimitedTableName, string where);
     public abstract string BuildSelect(string where, string orderBy = "", int limit = 0);
+    public abstract bool TableExists(string delimitedTableName);
+
 
     public string ConnectionString { get; set; }
     public List<DbColumnMapping> DbColumnsList { get; set; }
@@ -27,6 +29,10 @@ namespace Biggy
 
     public BiggyRelationalContext(string connectionStringName) {
       ConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
+      this.LoadSchemaInfo();
+    }
+
+    public void LoadSchemaInfo() {
       this.LoadDbTableNames();
       this.LoadDbColumnsList();
     }
@@ -78,9 +84,11 @@ namespace Biggy
             columnMapping.DataType = itemType;
           }
         }
-        result.ColumnMappings.Add(columnMapping);
-        if(columnMapping.IsPrimaryKey) {
-          result.PrimaryKeyMapping.Add(columnMapping);
+        if (columnMapping != null) {
+          result.ColumnMappings.Add(columnMapping);
+          if (columnMapping.IsPrimaryKey) {
+            result.PrimaryKeyMapping.Add(columnMapping);
+          }
         }
       }
       return result;
@@ -135,5 +143,20 @@ namespace Biggy
       }
       return result;
     }
+
+    // TODO: Clean this up and make it consistent with TableExists. Handle the Delimited/not delimited table name mismatch
+    public void DropTable(string delimitedTableName) {
+      string sql = string.Format("DROP TABLE {0}", delimitedTableName);
+      this.Execute(sql);
+    }
+
+    // TODO: This can be made mo' bettah by passing in ColumnDef objects to handle delimiting and such:
+    public void CreateTable(string delimitedTableName, List<string> columnDefs) {
+      string columnDefinitions = string.Join(",", columnDefs.ToArray());
+      var sql = string.Format("CREATE TABLE {0} ({1});", delimitedTableName, columnDefinitions);
+      this.Execute(sql);
+      this.LoadSchemaInfo();
+    }
+
   }
 }

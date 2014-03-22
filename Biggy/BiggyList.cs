@@ -10,7 +10,7 @@ namespace Biggy
         private readonly IBiggyStore<T> _store;
         private readonly IQueryableBiggyStore<T> _queryableStore;
         private readonly IUpdateableBiggyStore<T> _updateableBiggyStore; 
-        private readonly IList<T> _items;
+        private List<T> _items;
 
         public BiggyList(IBiggyStore<T> store)
         {
@@ -70,6 +70,20 @@ namespace Biggy
             return item;
         }
 
+
+        public List<T> Remove(List<T> items) {
+          if (_updateableBiggyStore != null) {
+            foreach (var item in items)
+            {
+              _items.Remove(item);
+            }
+            _updateableBiggyStore.Remove(items);
+          } else {
+            throw new InvalidOperationException("You must Implement IUpdatableBiggySotre to call this operation");
+          }
+          return items;
+        }
+
         public virtual T Add(T item)
         {
             _store.Add(item);
@@ -78,14 +92,15 @@ namespace Biggy
             return item;
         }
 
-        public virtual IList<T> Add(IList<T> items)
+        public virtual List<T> Add(List<T> items)
         {
             _store.Add(items);
-            foreach (var item in items)
-            {
-                _items.Add(item);
-            }
-            Fire(ItemAdded, items: items);
+            _items.AddRange(items);
+            //foreach (var item in items)
+            //{
+            //    _items.Add(item);
+            //}
+            Fire(ItemsAdded, items: items);
             return items;
         }
 
@@ -109,6 +124,8 @@ namespace Biggy
      
         public event EventHandler<BiggyEventArgs<T>> ItemRemoved;
         public event EventHandler<BiggyEventArgs<T>> ItemAdded;
+        public event EventHandler<BiggyEventArgs<T>> ItemsAdded;
+
         public event EventHandler<BiggyEventArgs<T>> Changed;
         public event EventHandler<BiggyEventArgs<T>> Loaded;
         public event EventHandler<BiggyEventArgs<T>> Saved;

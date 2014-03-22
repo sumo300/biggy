@@ -100,7 +100,7 @@ namespace Biggy.Postgres
           int nextSerialPk = 0;
           if (Model.PrimaryKeyMapping.IsAutoIncementing) {
             // Now get the next serial Id. ** Need to do this within the transaction/table lock scope **:
-            string sequence = string.Format("\"{0}_{1}_seq\"", this.TableMapping.DelimitedTableName, this.PrimaryKeyMapping.ColumnName);
+            string sequence = string.Format("\"{0}_{1}_seq\"", this.TableMapping.DBTableName, this.PrimaryKeyMapping.ColumnName);
             var sql_get_seq = string.Format("SELECT last_value FROM {0}", sequence);
             dbCommand.CommandText = sql_get_seq;
             // if this is a fresh sequence, the "seed" value is returned. We will assume 1:
@@ -204,6 +204,18 @@ namespace Biggy.Postgres
       //this.Model.Execute(sql, args.ToArray());
       this.Model.Update(expando);
       return item;
+    }
+
+    public override T Delete(T item)
+    {
+      Model.Delete(item);
+      return item;
+    }
+
+    public override List<T> Delete(List<T> items)
+    {
+      Model.Delete(items);
+      return items;
     }
   }
 }

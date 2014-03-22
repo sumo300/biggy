@@ -87,5 +87,19 @@ namespace Biggy.SQLServer
     public override string GetSingleSelect(string delimitedTableName, string where) {
       return string.Format("SELECT TOP 2 * FROM {0} WHERE {1}", delimitedTableName, where);
     }
+
+    public override bool TableExists(string delimitedTableName) {
+      bool exists = false;
+      string select = ""
+          + "SELECT COUNT(TABLE_NAME) FROM INFORMATION_SCHEMA.TABLES "
+          + "WHERE TABLE_SCHEMA = 'dbo' "
+          + "AND  TABLE_NAME = '{0}'";
+      string sql = string.Format(select, delimitedTableName);
+      var result = Convert.ToInt32(this.Scalar(sql));
+      if (result > 0) {
+        exists = true;
+      }
+      return exists;
+    }
   }
 }

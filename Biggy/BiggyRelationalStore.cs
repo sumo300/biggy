@@ -11,8 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace Biggy
 {
-  public class BiggyRelationalStore<T> : IBiggyStore<T>, IUpdateableBiggyStore<T>, IQueryableBiggyStore<T> where T : new()
-  {
+  public class BiggyRelationalStore<T> : IBiggyStore<T>, IUpdateableBiggyStore<T>, IQueryableBiggyStore<T> where T : new() {
     public BiggyRelationalContext Context { get; set; }
     public virtual  string ConnectionString { get { return this.Context.ConnectionString; } }
 
@@ -35,30 +34,7 @@ namespace Biggy
     }
 
 
-    //public BiggyRelationalStore(BiggyRelationalContext context, string tableName) {
-    //  Context = context;
-    //  this.tableMapping = new DBTableMapping(this.Context.DbDelimiterFormatString);
-    //  string replaceString = "[^a-zA-Z1-9]";
-    //  var rgx = new Regex(replaceString);
-
-    //  string flattenedItemTypeName = rgx.Replace(itemType.Name.ToLower(), "");
-    //  string plural = Inflector.Inflector.Pluralize(flattenedItemTypeName);
-    //  var dbTableName = this.DbTableNames.FirstOrDefault(t => rgx.Replace(t.ToLower(), "") == flattenedItemTypeName);
-    //  if (dbTableName == null)
-    //  {
-    //    dbTableName = this.DbTableNames.FirstOrDefault(t => rgx.Replace(t.ToLower(), "") == plural);
-    //  }
-
-    //  // Is there an auto PK? If so, set the member variable:
-    //  if (this.tableMapping.PrimaryKeyMapping.Count == 1) {
-    //    if (this.tableMapping.PrimaryKeyMapping[0].IsAutoIncementing) {
-    //      this.PrimaryKeyMapping = this.tableMapping.PrimaryKeyMapping[0];
-    //    }
-    //  }
-    //}
-
-    public virtual DBTableMapping getTableMappingForT()
-    {
+    public virtual DBTableMapping getTableMappingForT() {
       return this.Context.getTableMappingFor<T>();
     }
 
@@ -121,10 +97,28 @@ namespace Biggy
     }
 
     /// <summary>
+    /// Drops all data from the table - BEWARE
+    /// </summary>
+    public virtual int Delete(List<T> items)
+    {
+      var removed = 0;
+      if (items.Count() > 0) {
+        //remove from the DB
+        var keyList = new List<string>();
+        foreach (var item in items) {
+          keyList.Add(this.GetPrimaryKey(item).ToString());
+        }
+        var keySet = String.Join(",", keyList.ToArray());
+        var inStatement = this.PrimaryKeyMapping.DelimitedColumnName + " IN (" + keySet + ")";
+        removed = this.DeleteWhere(inStatement, "");
+      }
+      return removed;
+    }
+
+    /// <summary>
     /// Removes one or more records from the DB according to the passed-in WHERE
     /// </summary>
-    public int DeleteWhere(string where = "", params object[] args)
-    {
+    public int DeleteWhere(string where = "", params object[] args) {
       return Execute(CreateDeleteCommand(where: where, args: args));
     }
 
@@ -409,7 +403,6 @@ namespace Biggy
     public virtual bool BeforeSave(T item) { return true; }
 
 
-
     // INCLUDED TO MAINTAIN MASSIVE API - THESE NOW (MOSTLY) CALL DIRECTLY INTO COUTERPARTS IN THE CONTEXT OBJECT:
 
     public virtual DbCommand CreateCommand(string sql, DbConnection conn, params object[] args) {
@@ -436,13 +429,11 @@ namespace Biggy
       return (int)this.Context.Scalar("SELECT COUNT(1) FROM " + delimitedTableName + " " + where, args);
     }
 
-    public virtual int Execute(DbCommand command)
-    {
+    public virtual int Execute(DbCommand command) {
       return this.Context.Execute(command);
     }
 
-    public int Execute(string sql, params object[] args)
-    {
+    public int Execute(string sql, params object[] args) {
       return this.Execute(CreateCommand(sql, null, args));
     }
 
@@ -479,11 +470,11 @@ namespace Biggy
 
     // IMPLEMENTATION FOR IBIGGYSTORE<T>:
 
-    IList<T> IBiggyStore<T>.Load() {
+    List<T> IBiggyStore<T>.Load() {
       return this.All<T>().ToList();
     }
 
-    void IBiggyStore<T>.SaveAll(IList<T> items) {
+    void IBiggyStore<T>.SaveAll(List<T> items) {
       throw new NotImplementedException();
     }
 
@@ -495,8 +486,8 @@ namespace Biggy
       return this.Insert(item);
     }
 
-    IEnumerable<T> IBiggyStore<T>.Add(IEnumerable<T> items) {
-      this.BulkInsert(items.ToList());
+    List<T> IBiggyStore<T>.Add(List<T> items) {
+      this.BulkInsert(items);
       return items;
     }
 
@@ -513,11 +504,18 @@ namespace Biggy
       return item;
     }
 
+    List<T> IUpdateableBiggyStore<T>.Remove(List<T> items) {
+      this.Delete(items.ToList());
+      return items;
+    }
+
     // IMPLEMENTATION FOR IQUERYABLEBIGGYSTORE<T>:
 
-    IQueryable<T> IQueryableBiggyStore<T>.AsQueryable()
-    {
+    IQueryable<T> IQueryableBiggyStore<T>.AsQueryable() {
       return this.All<T>().AsQueryable();
     }
+
+
+
   }
 }

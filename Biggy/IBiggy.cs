@@ -10,12 +10,15 @@ namespace Biggy
         int Count();
         T Update(T item);
         T Remove(T item);
+        List<T> Remove(List<T> items);
         T Add(T item);
-        IList<T> Add(IList<T> items);
+        List<T> Add(List<T> items);
         IQueryable<T> AsQueryable();
 
         event EventHandler<BiggyEventArgs<T>> ItemRemoved;
         event EventHandler<BiggyEventArgs<T>> ItemAdded;
+        event EventHandler<BiggyEventArgs<T>> ItemsAdded;
+
         event EventHandler<BiggyEventArgs<T>> Changed;
         event EventHandler<BiggyEventArgs<T>> Loaded;
         event EventHandler<BiggyEventArgs<T>> Saved;

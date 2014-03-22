@@ -21,4 +21,11 @@ namespace Biggy {
     }
   }
 
+  public class DbTableAttribute : Attribute {
+    public string Name { get; protected set; }
+    public DbTableAttribute(string name) {
+      this.Name = name;
+    }
+  }
+
 }

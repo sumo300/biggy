@@ -232,5 +232,15 @@ namespace Biggy.SQLServer
       this.Model.Update(expando);
       return item;
     }
+
+    public override T Delete(T item) {
+      Model.Delete(item);
+      return item;
+    }
+
+    public override List<T> Delete(List<T> items) {
+      Model.Delete(items);
+      return items;
+    }
   }
 }

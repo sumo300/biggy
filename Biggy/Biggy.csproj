@@ -62,7 +62,6 @@
     <Compile Include="BiggyEventArgs.cs" />
     <Compile Include="BiggyList.cs" />
     <Compile Include="BiggyRelationalStore.cs" />
-    <Compile Include="BiggyStore.cs" />
     <Compile Include="DbColumnMapping.cs" />
     <Compile Include="DbColumnMappingLookup.cs" />
     <Compile Include="DBDocumentList.cs" />

@@ -9,11 +9,13 @@ using Newtonsoft.Json;
 
 namespace Biggy
 {
-  public abstract class BiggyDocumentStore<T> : IBiggyStore<T> where T : new()
+  public abstract class BiggyDocumentStore<T> : IBiggyStore<T>, IUpdateableBiggyStore<T>, IQueryableBiggyStore<T> where T : new()
   {
     public abstract T Insert(T item);
     public abstract List<T> BulkInsert(List<T> items);
     public abstract T Update(T item);
+    public abstract T Delete(T item);
+    public abstract List<T> Delete(List<T> items);
     protected abstract List<T> TryLoadData();
 
       public string[] FullTextFields { get; set; }
@@ -111,12 +113,14 @@ namespace Biggy
         if (foundProp != null) {
           result.ColumnName = foundProp.Name;
           result.DataType = foundProp.PropertyType;
+          result.PropertyName = foundProp.Name;
         }
       } else {
         result.DataType = typeof(int);
         result.ColumnName = conventionalKey.Name;
         result.PropertyName = conventionalKey.Name;
       }
+      result.IsPrimaryKey = true;
       result.IsAutoIncementing = result.DataType == typeof(int);
       if (String.IsNullOrWhiteSpace(result.ColumnName)) {
         throw new InvalidOperationException("Can't tell what the primary key is. You can use ID, " + baseName + "ID, or specify with the PrimaryKey attribute");
@@ -165,11 +169,11 @@ namespace Biggy
       return list;
     }
 
-    IList<T> IBiggyStore<T>.Load() {
+    List<T> IBiggyStore<T>.Load() {
       return this.LoadAll();
     }
 
-    void IBiggyStore<T>.SaveAll(IList<T> items) {
+    void IBiggyStore<T>.SaveAll(List<T> items) {
       throw new NotImplementedException();
     }
 
@@ -182,8 +186,25 @@ namespace Biggy
       return this.Insert(item);
     }
 
-    IEnumerable<T> IBiggyStore<T>.Add(IEnumerable<T> items) {
+    List<T> IBiggyStore<T>.Add(List<T> items) {
       return this.BulkInsert(items.ToList());
+    }
+
+    T IUpdateableBiggyStore<T>.Update(T item) {
+      return this.Update(item);
+    }
+
+    T IUpdateableBiggyStore<T>.Remove(T item) {
+      return this.Delete(item);
+    }
+
+    List<T> IUpdateableBiggyStore<T>.Remove(List<T> items) {
+      return this.Delete(items.ToList());
+    }
+
+    IQueryable<T> IQueryableBiggyStore<T>.AsQueryable()
+    {
+      return this.LoadAll().AsQueryable();
     }
   }
 }
