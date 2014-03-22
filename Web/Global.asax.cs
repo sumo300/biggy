@@ -6,20 +6,21 @@ using System.Web.Mvc;
 using System.Web.Optimization;
 using System.Web.Routing;
 using Biggy;
-using Biggy.JSON;
+//using Biggy.JSON;
 using Biggy.Postgres;
 using Web.Models;
 
-namespace Web {
+namespace Web
+{
 
-  public class StoreDB {
+  public class StoreDB { 
 
     public BiggyList<Product> Products;
     public BiggyList<Customer> Customers;
 
     public StoreDB() {
-      //Products = new BiggyList<Product>(dbPath: HttpRuntime.AppDomainAppPath);
-      //Customers = new BiggyList<Customer>(dbPath: HttpRuntime.AppDomainAppPath);
+      Products = new BiggyList<Product>(dbPath: HttpRuntime.AppDomainAppPath);
+      Customers = new BiggyList<Customer>(dbPath: HttpRuntime.AppDomainAppPath);
     }
   }
 
