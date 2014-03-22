@@ -44,14 +44,11 @@
   <ItemGroup>
     <Compile Include="FileStore\Benchmarks.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="IBiggyExamples\SQLIBiggyDocumentUsageExamples.cs" />
     <Compile Include="IBiggyExamples\SQLIBiggyContextUsageExamples.cs" />
     <Compile Include="IBiggyExamples\SQLIBiggyUsageExamples.cs" />
-    <Compile Include="PGDocuments\Benchmarks.cs" />
-    <Compile Include="PGList\Benchmarks.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SQLDocument\Benchmarks.cs" />
-    <Compile Include="SQLList\Benchmarks.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
