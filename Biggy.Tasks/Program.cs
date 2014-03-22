@@ -18,7 +18,6 @@ namespace Biggy.Perf {
   class Program {
     static void Main(string[] args) {
       FileStore.Benchmarks.Run();
-      Console.WriteLine("**********************************************");
       PGDocuments.Benchmarks.Run();
       Console.WriteLine("**********************************************");
       PGList.Benchmarks.Run();

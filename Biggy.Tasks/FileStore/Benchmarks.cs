@@ -44,7 +44,7 @@ namespace Biggy.Perf.FileStore {
       Console.WriteLine("Loading {0}...", monkies.Count);
       monkies.Reload();
       sw.Stop();
-      Console.WriteLine("Loaded {0} documents from Postgres in {1}ms", monkies.Count, sw.ElapsedMilliseconds);
+      Console.WriteLine("Loaded {0} documents from JSON File Store in {1}ms", monkies.Count, sw.ElapsedMilliseconds);
       
       sw.Reset();
       sw.Start();
