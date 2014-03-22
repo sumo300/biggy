@@ -17,18 +17,20 @@ namespace Biggy.Perf {
 
   class Program {
     static void Main(string[] args) {
-      FileStore.Benchmarks.Run();
-      PGDocuments.Benchmarks.Run();
-      Console.WriteLine("**********************************************");
-      PGList.Benchmarks.Run();
-      Console.WriteLine("**********************************************");
-      SQLDocument.Benchmarks.Run();
-      Console.WriteLine("**********************************************");
-      SQLList.Benchmarks.Run();
-      Console.WriteLine("**********************************************");
-      Console.WriteLine("DONE");
+      //FileStore.Benchmarks.Run();
+      //Console.WriteLine("**********************************************");
+      //PGDocuments.Benchmarks.Run();
+      //Console.WriteLine("**********************************************");
+      //PGList.Benchmarks.Run();
+      //Console.WriteLine("**********************************************");
+      //SQLDocument.Benchmarks.Run();
+      //Console.WriteLine("**********************************************");
+      //SQLList.Benchmarks.Run();
+      //Console.WriteLine("**********************************************");
+      //Console.WriteLine("DONE");
+      //Console.Read();
+      SQLIBiggyContextUsageExamples.Run();
       Console.Read();
-
     }
 
   }

@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace Biggy.Perf {
 
-  class Track {
+  public class Track {
     [PrimaryKey]
     public int TrackID { get; set; }
     public int AlbumId { get; set; }
@@ -15,13 +15,13 @@ namespace Biggy.Perf {
     public decimal UnitPrice { get; set; }
   }
 
-  class Artist {
+  public class Artist {
     [PrimaryKey]
     public int ArtistId { get; set; }
     public string Name { get; set; }
   }
 
-  class Album {
+  public class Album {
     [PrimaryKey]
     public int AlbumId { get; set; }
     public string Title { get; set; }
@@ -78,7 +78,7 @@ namespace Biggy.Perf {
     public string Email { get; set; }
   }
 
-  class Monkey {
+  public class Monkey {
     [PrimaryKey]
     public int ID { get; set; }
     public string Name { get; set; }

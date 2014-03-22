@@ -44,6 +44,8 @@
   <ItemGroup>
     <Compile Include="FileStore\Benchmarks.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="IBiggyExamples\SQLIBiggyContextUsageExamples.cs" />
+    <Compile Include="IBiggyExamples\SQLIBiggyUsageExamples.cs" />
     <Compile Include="PGDocuments\Benchmarks.cs" />
     <Compile Include="PGList\Benchmarks.cs" />
     <Compile Include="Program.cs" />

@@ -48,16 +48,26 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Helpers.cs" />
+    <Compile Include="Postgres\BiggyListWithPG.cs" />
+    <Compile Include="Postgres\BiggyListWithPGDocuments.cs" />
     <Compile Include="Postgres\FullText.cs" />
     <Compile Include="Postgres\PGList.cs" />
     <Compile Include="Postgres\PGDocs.cs" />
     <Compile Include="Postgres\PGList_Column_Mapping.cs" />
     <Compile Include="Postgres\PGList_Attribute_Mapping.cs" />
+    <Compile Include="Postgres\PostgresContext.cs" />
+    <Compile Include="Postgres\PostgresStore.cs" />
+    <Compile Include="Postgres\PostgresDocumentStore.cs" />
+    <Compile Include="SQLServer\BiggyListWithSQL.cs" />
+    <Compile Include="SQLServer\BiggyListWithSQLDocuments.cs" />
+    <Compile Include="SQLServer\SQLContext.cs" />
+    <Compile Include="SQLServer\SQLServerDocumentStore.cs" />
     <Compile Include="SQLServer\SQLServerList_Attribute_Mapping.cs" />
     <Compile Include="SQLServer\SQLServerList_Column_Mapping.cs" />
     <Compile Include="SQLServer\SQLServerList.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SQLServer\SQLServerDocs.cs" />
+    <Compile Include="SQLServer\SQLStore.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />

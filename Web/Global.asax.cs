@@ -18,8 +18,8 @@ namespace Web {
     public BiggyList<Customer> Customers;
 
     public StoreDB() {
-      Products = new BiggyList<Product>(dbPath: HttpRuntime.AppDomainAppPath);
-      Customers = new BiggyList<Customer>(dbPath: HttpRuntime.AppDomainAppPath);
+      //Products = new BiggyList<Product>(dbPath: HttpRuntime.AppDomainAppPath);
+      //Customers = new BiggyList<Customer>(dbPath: HttpRuntime.AppDomainAppPath);
     }
   }
 
