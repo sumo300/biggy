@@ -8,11 +8,20 @@ namespace Biggy.SqlCe
 {
     public class SqlCeDocumentStore<T> : BiggyDocumentStore<T> where T : new()
     {
-        public SqlCeDocumentStore(BiggyRelationalContext context) : base(context) { }
-        public SqlCeDocumentStore(BiggyRelationalContext context, string tableName) : base(context, tableName) { }
+        public SqlCeDocumentStore(BiggyRelationalContext context) : this(context, null) { }
 
-        public SqlCeDocumentStore(string connectionStringName) : base(new SqlCeContext(connectionStringName)) { }
-        public SqlCeDocumentStore(string connectionStringName, string tableName) : base(new SqlCeContext(connectionStringName), tableName) { }
+        public SqlCeDocumentStore(string connectionStringName) : this(new SqlCeContext(connectionStringName)) { }
+        public SqlCeDocumentStore(string connectionStringName, string tableName) : this(new SqlCeContext(connectionStringName), tableName) { }
+
+        public SqlCeDocumentStore(BiggyRelationalContext context, string tableName) : base(context, tableName) {
+            // Inject SqlCe specific store, unnecessary if we can SetModel
+            var model = new SqlCeStore<dynamic>((SqlCeContext)context)
+            {
+                tableMapping = this.TableMapping,
+                PrimaryKeyMapping = this.PrimaryKeyMapping
+            };
+            this.Model = model;
+        }
 
         // Need overidable SetModel to set specific RelationalStore
 
@@ -69,9 +78,13 @@ namespace Biggy.SqlCe
                     //create the table
                     var idType = Model.PrimaryKeyMapping.IsAutoIncementing
                                ? " int identity(1,1)" : " nvarchar(255)";
+                    string fullTextColumn = string.Empty;
+                    if (this.FullTextFields.Length > 0) {
+                        fullTextColumn = ", search ntext";
+                    }
                     var sql = string.Format(
-                        "CREATE TABLE {0} ({1} {2} primary key not null, body ntext not null);",
-                        this.TableMapping.DelimitedTableName, this.PrimaryKeyMapping.DelimitedColumnName, idType);
+                        "CREATE TABLE {0} ({1} {2} primary key not null, body ntext not null{3});",
+                        this.TableMapping.DelimitedTableName, this.PrimaryKeyMapping.DelimitedColumnName, idType, fullTextColumn);
                     this.Model.Execute(sql);
 
                     return TryLoadData();
