@@ -24,9 +24,9 @@ namespace Biggy.SqlCe.Tests {
 
       var columnDefs = new List<string>();
       columnDefs.Add("ClientId int IDENTITY(1,1) PRIMARY KEY NOT NULL");
-      columnDefs.Add("LastName Text NOT NULL");
-      columnDefs.Add("FirstName Text NOT NULL");
-      columnDefs.Add("Email Text NOT NULL");
+      columnDefs.Add("LastName nText NOT NULL");
+      columnDefs.Add("FirstName nText NOT NULL");
+      columnDefs.Add("Email nText NOT NULL");
       context.CreateTable("Client", columnDefs);
 
       _clients = new BiggyList<Client>(new SqlCeStore<Client>(_connectionStringName));
