@@ -9,14 +9,14 @@ using Biggy;
 namespace Biggy.SqlCe.Tests
 {
   [Trait("SQL Server Store", "")]
-  public class SQLStore {
+  public class SqlCeStoreTest {
     string _connectionStringName = "chinook";
     IBiggyStore<Client> _biggyStore;
     IUpdateableBiggyStore<Client> _updateableStore;
     IQueryableBiggyStore<Client> _queryableStore;
     SqlCeStore<Client> _sqlStore;
 
-    public SQLStore() {
+    public SqlCeStoreTest() {
       var context = new SqlCeContext(_connectionStringName);
 
       // Build a table to play with from scratch each time:
@@ -25,9 +25,9 @@ namespace Biggy.SqlCe.Tests
       }
       var columnDefs = new List<string>();
       columnDefs.Add("ClientId int IDENTITY(1,1) PRIMARY KEY NOT NULL");
-      columnDefs.Add("LastName Text NOT NULL");
-      columnDefs.Add("FirstName Text NOT NULL");
-      columnDefs.Add("Email Text NOT NULL");
+      columnDefs.Add("LastName nText NOT NULL");
+      columnDefs.Add("FirstName nText NOT NULL");
+      columnDefs.Add("Email nText NOT NULL");
 
       context.CreateTable("Client", columnDefs);
     }

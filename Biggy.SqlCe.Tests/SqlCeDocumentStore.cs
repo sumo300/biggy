@@ -9,7 +9,7 @@ using Biggy;
 namespace Biggy.SqlCe.Tests
 {
   [Trait("SQL Server Document Store", "")]
-  public class SQLServerDocumentStore
+  public class SqlCeDocumentStoreTest
   {
     string _connectionStringName = "chinook";
     IBiggyStore<Client> _biggyStore;
@@ -20,8 +20,7 @@ namespace Biggy.SqlCe.Tests
     SqlCeDocumentStore<ClientDocument> clientDocs;
     SqlCeDocumentStore<MonkeyDocument> monkeyDocs;
 
-    public SQLServerDocumentStore()
-    {
+    public SqlCeDocumentStoreTest() {
       var context = new SqlCeContext(_connectionStringName);
 
       // Build a table to play with from scratch each time:

@@ -9,14 +9,14 @@ using Biggy;
 namespace Biggy.SqlCe.Tests
 {
   [Trait("SQL Server Context", "")]
-  public class SQLContext
+  public class SqlCeContextTest
   {
     string _connectionStringName = "chinook";
     SqlCeContext _context;
 
-    public SQLContext()
+    public SqlCeContextTest()
     {
-        _context = new SqlCeContext(_connectionStringName);
+      _context = new SqlCeContext(_connectionStringName);
       if(_context.TableExists("test_table"))
       {
         _context.DropTable("test_table");
@@ -35,7 +35,7 @@ namespace Biggy.SqlCe.Tests
     {
       var columnDefs = new List<string>();
       columnDefs.Add("id int IDENTITY(1,1) PRIMARY KEY");
-      columnDefs.Add("name TEXT");
+      columnDefs.Add("name nTEXT");
 
       _context.CreateTable("test_table", columnDefs);
       Assert.True(_context.TableExists("test_table") && _context.DbTableNames.Contains("test_table"));
