@@ -66,4 +66,13 @@ namespace Biggy.SqlCe.Tests
         public string FirstName { get; set; }
         public string Email { get; set; }
     }
+
+    class MonkeyDocument
+    {
+        [PrimaryKey]
+        public string Name { get; set; }
+        public DateTime Birthday { get; set; }
+        [FullText]
+        public string Description { get; set; }
+    }
 }
