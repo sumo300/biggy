@@ -1,0 +1,32 @@
+﻿
+select Artist.Name AS ArtistName, Track.Name, Track.UnitPrice
+  from Artist inner join
+       Album on Artist.ArtistId = Album.ArtistId inner join
+       Track on Album.AlbumId = Track.AlbumId
+ where (Artist.Name = 'ac/dc')
+ 
+ -- should return 18 rows, as below resultset from Sql Server Chinook DB
+
+-- ArtistName      Name                                       UnitPrice
+-- --------------- ------------------------------------------ ----------
+-- AC/DC           For Those About To Rock (We Salute You)    0.99
+-- AC/DC           Put The Finger On You                      0.99
+-- AC/DC           Let's Get It Up                            0.99
+-- AC/DC           Inject The Venom                           0.99
+-- AC/DC           Snowballed                                 0.99
+-- AC/DC           Evil Walks                                 0.99
+-- AC/DC           C.O.D.                                     0.99
+-- AC/DC           Breaking The Rules                         0.99
+-- AC/DC           Night Of The Long Knives                   0.99
+-- AC/DC           Spellbound                                 0.99
+-- AC/DC           Go Down                                    0.99
+-- AC/DC           Dog Eat Dog                                0.99
+-- AC/DC           Let There Be Rock                          0.99
+-- AC/DC           Bad Boy Boogie                             0.99
+-- AC/DC           Problem Child                              0.99
+-- AC/DC           Overdose                                   0.99
+-- AC/DC           Hell Ain't A Bad Place To Be               0.99
+-- AC/DC           Whole Lotta Rosie                          0.99
+-- 
+-- (18 row(s) affected)
+
