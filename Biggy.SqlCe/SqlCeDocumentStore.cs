@@ -42,8 +42,51 @@ namespace Biggy.SqlCe
 
         public override List<T> BulkInsert(List<T> items)
         {
-            // For now we havn't BulkInsert so lets do this simplest way
-            return items.Select(this.Insert).ToList();
+            if (false == items.Any()) return items;
+            var first = items.First();
+            var expando = SetDataForDocument(first);
+            string bodyPart, searchPart;
+            
+            var insertCmd = Model.CreateInsertCommand(expando);
+            var updateCmd = Model.CreateUpdateCommand(expando);
+
+            bool fetchNewId = Model.PrimaryKeyMapping.IsAutoIncementing;
+            bool hasFullText = false;//TODO
+
+            // Reuse a connection and commands object, SqlCe has a limit of open sessions
+            using (var conn = Model.Context.OpenConnection())
+            using (var tx = conn.BeginTransaction())
+            {
+                // prepare commands
+                var newIdQuery = Model.CreateCommand("select @@Identity", conn);
+                newIdQuery.Transaction = tx;
+                insertCmd.Connection = conn;
+                insertCmd.Transaction = tx;
+                updateCmd.Connection = conn;
+                updateCmd.Transaction = tx;
+                
+                foreach (var item in items)
+                {
+                    if (false == object.ReferenceEquals(first, item))
+                    {
+                        expando = SetDataForDocument(item);
+                    }
+                    insertCmd.Parameters[0].Value = ((dynamic)expando).body as string;
+                    insertCmd.ExecuteNonQuery();
+
+                    if (true == fetchNewId)
+                    {
+                        var newId = newIdQuery.ExecuteScalar();
+                        SetPrimaryKey(item, newId);
+                        expando = SetDataForDocument(item);
+                        updateCmd.Parameters[0].Value = ((dynamic)expando).body as string;
+                        updateCmd.Parameters[1].Value = newId;
+                        updateCmd.ExecuteNonQuery();
+                    }
+                }
+                tx.Commit();
+            }
+            return items;
         }
 
         public override T Update(T item)
