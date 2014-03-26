@@ -16,7 +16,7 @@ namespace Biggy.JSON
       throw new System.NotImplementedException();
     }
 
-    // Custom Biggylist serialization which simply writes each object separated by newlines, with no leading or trailing 
+    // Custom Biggylist serialization which simply writes each object, separated by newlines, to the output
     public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
     {
       var list = value as IEnumerable;

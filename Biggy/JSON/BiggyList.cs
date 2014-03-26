@@ -131,15 +131,23 @@ namespace Biggy.JSON
 
       public bool FlushToDisk()
       {
-        // Invoke custom serialization in BiggyListSerializer
-        var json = JsonConvert.SerializeObject(this);
-        var buff = Encoding.Default.GetBytes(json);
+        var completed = false;
 
-        using (var fs = File.OpenWrite(this.DbPath))
+        // Serialize json directly to the output stream
+        using (var outstream = new StreamWriter(this.DbPath))
         {
-          fs.Write(buff, 0, buff.Length);
+          var writer = new JsonTextWriter(outstream);
+          var serializer = JsonSerializer.CreateDefault();
+
+          // Invoke custom serialization in BiggyListSerializer
+          serializer.Serialize(writer, this);
+
+          completed = true;
+
         }
-        return true;
+
+        return completed;
+
       }
 
     }
