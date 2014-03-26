@@ -11,14 +11,11 @@ using Inflector;
 
 namespace Biggy
 {
-  public abstract class BiggyRelationalContext {
+  public abstract class DbHost {
     public abstract string DbDelimiterFormatString { get; }
     public abstract DbConnection OpenConnection();
     protected abstract void LoadDbColumnsList();
     protected abstract void LoadDbTableNames();
-    public abstract string GetInsertReturnValueSQL(string delimitedPkColumn);
-    public abstract string GetSingleSelect(string delimitedTableName, string where);
-    public abstract string BuildSelect(string where, string orderBy = "", int limit = 0);
     public abstract bool TableExists(string delimitedTableName);
 
 
@@ -27,7 +24,7 @@ namespace Biggy
     public List<string> DbTableNames { get; set; }
 
 
-    public BiggyRelationalContext(string connectionStringName) {
+    public DbHost(string connectionStringName) {
       ConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
       this.LoadSchemaInfo();
     }

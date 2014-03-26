@@ -7,13 +7,16 @@ using System.Data.Common;
 using Biggy.Extensions;
 
 
-namespace Biggy.Postgres
-{
+namespace Biggy.Postgres {
   public class PGDocumentStore<T> : BiggyDocumentStore<T> where T : new() {
-    public PGDocumentStore(BiggyRelationalContext context) : base(context) { }
-    public PGDocumentStore(BiggyRelationalContext context, string tableName) : base(context, tableName) { }
-    public PGDocumentStore(string connectionStringName) : base(new PGContext(connectionStringName)) { }
-    public PGDocumentStore(string connectionStringName, string tableName) : base(new PGContext(connectionStringName), tableName) { }
+    public PGDocumentStore(DbHost context) : base(context) { }
+    public PGDocumentStore(DbHost context, string tableName) : base(context, tableName) { }
+    public PGDocumentStore(string connectionStringName) : base(new PGHost(connectionStringName)) { }
+    public PGDocumentStore(string connectionStringName, string tableName) : base(new PGHost(connectionStringName), tableName) { }
+
+    public override BiggyRelationalStore<dynamic> getModel() {
+      return new PGStore<dynamic>(this.Context);
+    }
 
     protected override List<T> TryLoadData() {
       try {
@@ -41,7 +44,6 @@ namespace Biggy.Postgres
       this.addItem(item);
       if (this.PrimaryKeyMapping.IsAutoIncementing) {
         //// Sync the JSON ID with the serial PK:
-        //var ex = this.SetDataForDocument(item);
         this.Update(item);
       }
       return item;
@@ -206,14 +208,12 @@ namespace Biggy.Postgres
       return item;
     }
 
-    public override T Delete(T item)
-    {
+    public override T Delete(T item) {
       Model.Delete(item);
       return item;
     }
 
-    public override List<T> Delete(List<T> items)
-    {
+    public override List<T> Delete(List<T> items) {
       Model.Delete(items);
       return items;
     }

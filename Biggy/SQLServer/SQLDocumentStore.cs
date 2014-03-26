@@ -6,32 +6,29 @@ using System.Threading.Tasks;
 using System.Data.Common;
 using Biggy.Extensions;
 
-namespace Biggy.SQLServer
-{
-  public class SQLDocumentStore<T> : BiggyDocumentStore<T> where T : new()
-  {
-    public SQLDocumentStore(BiggyRelationalContext context) : base(context) { }
-    public SQLDocumentStore(BiggyRelationalContext context, string tableName) : base(context, tableName) { }
+namespace Biggy.SQLServer {
+  public class SQLDocumentStore<T> : BiggyDocumentStore<T> where T : new() {
 
-    public SQLDocumentStore(string connectionStringName) : base(new SQLServerContext(connectionStringName)) { }
-    public SQLDocumentStore(string connectionStringName, string tableName) : base(new SQLServerContext(connectionStringName), tableName) { }
+    public SQLDocumentStore(DbHost dbHost) : base(dbHost) { }
+    public SQLDocumentStore(DbHost dbHost, string tableName) : base(dbHost, tableName) { }
+    public SQLDocumentStore(string connectionStringName) : base(new SQLServerHost(connectionStringName)) { }
+    public SQLDocumentStore(string connectionStringName, string tableName) : base(new SQLServerHost(connectionStringName), tableName) { }
 
-    protected override List<T> TryLoadData()
-    {
-      try
-      {
+    public override BiggyRelationalStore<dynamic> getModel() {
+      return new SQLServerStore<dynamic>(this.Context);
+    }
+
+    protected override List<T> TryLoadData() {
+      try {
         return this.LoadAll();
       }
-      catch (System.Data.SqlClient.SqlException x)
-      {
-        if (x.Message.Contains("Invalid object name"))
-        {
+      catch (System.Data.SqlClient.SqlException x) {
+        if (x.Message.Contains("Invalid object name")) {
 
           //create the table
           var idType = Model.PrimaryKeyMapping.DataType == typeof(int) ? " int identity(1,1)" : "nvarchar(255)";
           string fullTextColumn = "";
-          if (this.FullTextFields.Length > 0)
-          {
+          if (this.FullTextFields.Length > 0) {
             fullTextColumn = ", search nvarchar(MAX)";
           }
           var sql = string.Format("CREATE TABLE {0} ({1} {2} primary key not null, body nvarchar(MAX) not null {3});", this.TableMapping.DelimitedTableName, this.PrimaryKeyMapping.DelimitedColumnName, idType, fullTextColumn);
@@ -41,28 +38,22 @@ namespace Biggy.SQLServer
           //  this.Model.Execute(indexSQL);
           //}
           return this.TryLoadData();
-        }
-        else
-        {
+        } else {
           throw;
         }
       }
     }
 
-    public override T Insert(T item)
-    {
+    public override T Insert(T item) {
       this.addItem(item);
-      if (this.PrimaryKeyMapping.IsAutoIncementing)
-      {
-        //// Sync the JSON ID with the serial PK:
-        //var ex = this.SetDataForDocument(item);
+      if (this.PrimaryKeyMapping.IsAutoIncementing) {
+        // Sync the JSON ID with the serial PK:
         this.Update(item);
       }
       return item;
     }
 
-    internal void addItem(T item)
-    {
+    internal void addItem(T item) {
       var expando = SetDataForDocument(item);
       var dc = expando as IDictionary<string, object>;
       var vals = new List<string>();
@@ -70,13 +61,11 @@ namespace Biggy.SQLServer
       var index = 0;
 
       var keyColumn = dc.FirstOrDefault(x => x.Key.Equals(this.PrimaryKeyMapping.PropertyName, StringComparison.OrdinalIgnoreCase));
-      if (this.PrimaryKeyMapping.IsAutoIncementing)
-      {
+      if (this.PrimaryKeyMapping.IsAutoIncementing) {
         //don't update the Primary Key
         dc.Remove(keyColumn);
       }
-      foreach (var key in dc.Keys)
-      {
+      foreach (var key in dc.Keys) {
         vals.Add(string.Format("@{0}", index));
         args.Add(dc[key]);
         index++;
@@ -92,8 +81,7 @@ namespace Biggy.SQLServer
     /// <summary>
     /// A high-performance bulk-insert that can drop 10,000 documents in about 500ms
     /// </summary>
-    public override List<T> BulkInsert(List<T> items)
-    {
+    public override List<T> BulkInsert(List<T> items) {
       // These are SQL Server Max values:
       const int MAGIC_SQL_PARAMETER_LIMIT = 2100;
       const int MAGIC_SQL_ROW_VALUE_LIMIT = 1000;
@@ -104,10 +92,8 @@ namespace Biggy.SQLServer
       string insertClause = "";
       var sbSql = new StringBuilder("");
 
-      using (var connection = this.Context.OpenConnection())
-      {
-        using (var tdbTransaction = connection.BeginTransaction(System.Data.IsolationLevel.RepeatableRead))
-        {
+      using (var connection = this.Context.OpenConnection()) {
+        using (var tdbTransaction = connection.BeginTransaction(System.Data.IsolationLevel.RepeatableRead)) {
           var commands = new List<DbCommand>();
           // Lock the table, so nothing will disrupt the pk sequence:
           string lockTableSQL = string.Format("SELECT 1 FROM {0} WITH(TABLOCKX) ", this.TableMapping.DelimitedTableName);
@@ -116,27 +102,23 @@ namespace Biggy.SQLServer
           dbCommand.ExecuteNonQuery();
 
           int nextSerialPk = 0;
-          if (this.PrimaryKeyMapping.IsAutoIncementing)
-          {
+          if (this.PrimaryKeyMapping.IsAutoIncementing) {
             // Now get the next Identity Id. ** Need to do this within the transaction/table lock scope **:
             // NOTE: The application must have ownership permission on the table to do this!!
             var sql_get_seq = string.Format("SELECT IDENT_CURRENT ('{0}' )", this.TableMapping.DelimitedTableName);
             dbCommand.CommandText = sql_get_seq;
             // if this is a fresh sequence, the "seed" value is returned. We will assume 1:
             nextSerialPk = Convert.ToInt32(dbCommand.ExecuteScalar());
-            if (nextSerialPk > 1)
-            {
+            if (nextSerialPk > 1) {
               nextSerialPk++;
             }
           }
 
           var paramCounter = 0;
           var rowValueCounter = 0;
-          foreach (var item in items)
-          {
+          foreach (var item in items) {
             // Set the soon-to-be inserted serial int value:
-            if (this.PrimaryKeyMapping.IsAutoIncementing)
-            {
+            if (this.PrimaryKeyMapping.IsAutoIncementing) {
               var props = item.GetType().GetProperties();
               var pk = props.First(p => p.Name == this.PrimaryKeyMapping.PropertyName);
               pk.SetValue(item, nextSerialPk);
@@ -146,16 +128,13 @@ namespace Biggy.SQLServer
             var itemEx = SetDataForDocument(item);
             var itemSchema = itemEx as IDictionary<string, object>;
             var sbParamGroup = new StringBuilder();
-            if (itemSchema.ContainsKey(this.PrimaryKeyMapping.PropertyName) && this.PrimaryKeyMapping.IsAutoIncementing)
-            {
+            if (itemSchema.ContainsKey(this.PrimaryKeyMapping.PropertyName) && this.PrimaryKeyMapping.IsAutoIncementing) {
               itemSchema.Remove(this.PrimaryKeyMapping.PropertyName);
             }
 
-            if (ReferenceEquals(item, first))
-            {
+            if (ReferenceEquals(item, first)) {
               var sbFieldNames = new StringBuilder();
-              foreach (var field in itemSchema)
-              {
+              foreach (var field in itemSchema) {
                 string mappedColumnName = this.TableMapping.ColumnMappings.FindByProperty(field.Key).DelimitedColumnName;
                 sbFieldNames.AppendFormat("{0},", mappedColumnName);
               }
@@ -164,10 +143,8 @@ namespace Biggy.SQLServer
               insertClause = string.Format(stub, this.TableMapping.DelimitedTableName, string.Join(", ", delimitedColumnNames));
               sbSql = new StringBuilder(insertClause);
             }
-            foreach (var key in itemSchema.Keys)
-            {
-              if (paramCounter + itemSchema.Count >= MAGIC_SQL_PARAMETER_LIMIT || rowValueCounter >= MAGIC_SQL_ROW_VALUE_LIMIT)
-              {
+            foreach (var key in itemSchema.Keys) {
+              if (paramCounter + itemSchema.Count >= MAGIC_SQL_PARAMETER_LIMIT || rowValueCounter >= MAGIC_SQL_ROW_VALUE_LIMIT) {
                 dbCommand.CommandText = sbSql.ToString().Substring(0, sbSql.Length - 1);
                 commands.Add(dbCommand);
                 sbSql = new StringBuilder(insertClause);
@@ -188,16 +165,13 @@ namespace Biggy.SQLServer
 
           dbCommand.CommandText = sbSql.ToString().Substring(0, sbSql.Length - 1);
           commands.Add(dbCommand);
-          try
-          {
-            foreach (var cmd in commands)
-            {
+          try {
+            foreach (var cmd in commands) {
               rowsAffected += cmd.ExecuteNonQuery();
             }
             tdbTransaction.Commit();
           }
-          catch (Exception)
-          {
+          catch (Exception) {
             tdbTransaction.Rollback();
           }
         }
@@ -208,8 +182,7 @@ namespace Biggy.SQLServer
     /// <summary>
     /// Updates a single T item
     /// </summary>
-    public override T Update(T item)
-    {
+    public override T Update(T item) {
       var expando = SetDataForDocument(item);
       var dc = expando as IDictionary<string, object>;
       //this.Model.Insert(expando);
@@ -217,8 +190,7 @@ namespace Biggy.SQLServer
       var sb = new StringBuilder();
       var args = new List<object>();
       sb.AppendFormat("UPDATE {0} SET ", this.TableMapping.DelimitedTableName);
-      foreach (var key in dc.Keys)
-      {
+      foreach (var key in dc.Keys) {
         var stub = string.Format("{0}=@{1},", key, index);
         args.Add(dc[key]);
         index++;

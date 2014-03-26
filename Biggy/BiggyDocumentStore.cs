@@ -18,9 +18,11 @@ namespace Biggy
     public abstract List<T> Delete(List<T> items);
     protected abstract List<T> TryLoadData();
 
+    public abstract BiggyRelationalStore<dynamic> getModel();
+
       public string[] FullTextFields { get; set; }
     public BiggyRelationalStore<dynamic> Model { get; set; }
-    public BiggyRelationalContext Context { get; set; }
+    public DbHost Context { get; set; }
 
     public DBTableMapping TableMapping  {
       get { return this.Model.tableMapping; }
@@ -40,9 +42,11 @@ namespace Biggy
       Model.SetPrimaryKey(item, value);
     }
 
-    public BiggyDocumentStore(BiggyRelationalContext context) {
+    public BiggyDocumentStore(DbHost context) {
       this.Context = context;
-      this.Model = new BiggyRelationalStore<dynamic>(context);
+      this.Model = this.getModel();
+
+      //this.Model = new BiggyRelationalStore<dynamic>(context);
       this.TableMapping = this.getTableMappingForT();
       this.PrimaryKeyMapping = this.TableMapping.PrimaryKeyMapping[0];
       SetFullTextColumns();
@@ -50,11 +54,13 @@ namespace Biggy
     }
 
     string _userDefinedTableName = "";
-    public BiggyDocumentStore(BiggyRelationalContext context, string tableName)
+    public BiggyDocumentStore(DbHost context, string tableName)
     {
       _userDefinedTableName = tableName;
       this.Context = context;
-      this.Model = new BiggyRelationalStore<dynamic>(context);
+
+      this.Model = this.getModel();
+      //this.Model = new BiggyRelationalStore<dynamic>(context);
       this.TableMapping = this.getTableMappingForT();
       this.PrimaryKeyMapping = this.TableMapping.PrimaryKeyMapping[0];
       SetFullTextColumns();

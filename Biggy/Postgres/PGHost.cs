@@ -10,9 +10,9 @@ using System.Configuration;
 
 namespace Biggy.Postgres
 {
-  public class PGContext : BiggyRelationalContext
+  public class PGHost : DbHost
   {
-    public PGContext(string connectionStringName) : base(connectionStringName) { }
+    public PGHost(string connectionStringName) : base(connectionStringName) { }
 
     public override string DbDelimiterFormatString {
       get { return "\"{0}\""; }
@@ -68,29 +68,6 @@ namespace Biggy.Postgres
           }
         }
       }
-    }
-
-    public override string GetInsertReturnValueSQL(string delimitedPkColumn) {
-      return " RETURNING " + delimitedPkColumn + " as newId";
-    }
-
-    public override string GetSingleSelect(string delimitedTableName, string where) {
-      return string.Format("SELECT * FROM {0} WHERE {1} LIMIT 1", delimitedTableName, where);
-    }
-
-    public override string BuildSelect(string where, string orderBy, int limit) {
-      string sql = "SELECT {0} FROM {1} ";
-      if (!string.IsNullOrEmpty(where)) {
-        sql += where.Trim().StartsWith("where", StringComparison.OrdinalIgnoreCase) ? where : " WHERE " + where;
-      }
-      if (!String.IsNullOrEmpty(orderBy)) {
-        sql += orderBy.Trim().StartsWith("order by", StringComparison.OrdinalIgnoreCase) ? orderBy : " ORDER BY " + orderBy;
-      }
-
-      if (limit > 0) {
-        sql += " LIMIT " + limit;
-      }
-      return sql;
     }
 
     // TODO: Somehow handle the inconsistent useage of delimited/not delimited table name:
