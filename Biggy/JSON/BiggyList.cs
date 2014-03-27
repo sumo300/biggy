@@ -8,7 +8,7 @@ using Newtonsoft.Json;
 
 namespace Biggy.JSON
 {
-
+    [JsonConverter(typeof(BiggyListSerializer))]
     public class BiggyList<T> : InMemoryList<T> where T : new()
     {
 
@@ -129,22 +129,26 @@ namespace Biggy.JSON
         }
 
 
-        public bool FlushToDisk()
+      public bool FlushToDisk()
+      {
+        var completed = false;
+
+        // Serialize json directly to the output stream
+        using (var outstream = new StreamWriter(this.DbPath))
         {
-            //var json = JsonConvert.SerializeObject(this);
-            var sb = new StringBuilder();
-            //HACK: I Hate this...
-            foreach (var item in _items)
-            {
-                sb.AppendLine(JsonConvert.SerializeObject(item));
-            }
-            var json = sb.ToString();
-            using (var fs = File.CreateText(this.DbPath))
-            {
-                fs.Write(json);
-            }
-            return true;
+          var writer = new JsonTextWriter(outstream);
+          var serializer = JsonSerializer.CreateDefault();
+
+          // Invoke custom serialization in BiggyListSerializer
+          serializer.Serialize(writer, this);
+
+          completed = true;
+
         }
+
+        return completed;
+
+      }
 
     }
 }
