@@ -8,43 +8,31 @@ using Newtonsoft.Json;
 
 namespace Biggy.JSON
 {
-
-  public class BiggyList<T> : InMemoryList<T> where T : new()
-  {
-
+  [JsonConverter(typeof(BiggyListSerializer))]
+  public class BiggyList<T> : InMemoryList<T> where T : new() {
     public string DbDirectory { get; set; }
     public bool InMemory { get; set; }
     public string DbFileName { get; set; }
     public string DbName { get; set; }
 
-    public string DbPath
-    {
-      get
-      {
+    public string DbPath {
+      get {
         return Path.Combine(DbDirectory, DbFileName);
       }
     }
 
-    public bool HasDbFile
-    {
-      get
-      {
+    public bool HasDbFile {
+      get {
         return File.Exists(DbPath);
       }
     }
 
-    public BiggyList(string dbPath = "current", bool inMemory = false, string dbName = "")
-    {
-
+    public BiggyList(string dbPath = "current", bool inMemory = false, string dbName = "") {
       this.InMemory = inMemory;
-
-      if (String.IsNullOrWhiteSpace(dbName))
-      {
+      if (String.IsNullOrWhiteSpace(dbName)) {
         var thingyType = this.GetType().GenericTypeArguments[0].Name;
         this.DbName = Inflector.Inflector.Pluralize(thingyType).ToLower();
-      }
-      else
-      {
+      } else {
         this.DbName = dbName.ToLower();
       }
       this.DbFileName = this.DbName + ".json";
@@ -52,99 +40,73 @@ namespace Biggy.JSON
       _items = TryLoadFileData(this.DbPath);
     }
 
-
-
-    public void SetDataDirectory(string dbPath)
-    {
+    public void SetDataDirectory(string dbPath) {
       var dataDir = dbPath;
-      if (dbPath == "current")
-      {
+      if (dbPath == "current") {
         var currentDir = Directory.GetCurrentDirectory();
-        if (currentDir.EndsWith("Debug") || currentDir.EndsWith("Release"))
-        {
+        if (currentDir.EndsWith("Debug") || currentDir.EndsWith("Release")) {
           var projectRoot = Directory.GetParent(@"..\..\").FullName;
           dataDir = Path.Combine(projectRoot, "Data");
         }
-      }
-      else
-      {
+      } else {
         dataDir = Path.Combine(dbPath, "Data");
       }
       Directory.CreateDirectory(dataDir);
       this.DbDirectory = dataDir;
-
     }
 
-
-    public List<T> TryLoadFileData(string path)
-    {
-
+    public List<T> TryLoadFileData(string path) {
       List<T> result = new List<T>();
-      if (File.Exists(path))
-      {
+      if (File.Exists(path)) {
         //format for the deserializer...
         var json = "[" + File.ReadAllText(path).Replace(Environment.NewLine, ",") + "]";
         result = JsonConvert.DeserializeObject<List<T>>(json);
       }
-
       FireLoadedEvents();
-
       return result;
     }
 
-    public void Reload()
-    {
+    public void Reload() {
       _items = TryLoadFileData(this.DbPath);
     }
 
-    public void Update(T item)
-    {
+    public void Update(T item) {
       base.Update(item);
       this.FlushToDisk();
     }
 
-    public void Add(T item)
-    {
+    public void Add(T item) {
       var json = JsonConvert.SerializeObject(item);
       //append the to the file
-      using (var writer = File.AppendText(this.DbPath))
-      {
+      using (var writer = File.AppendText(this.DbPath)) {
         writer.WriteLine(json);
       }
       base.Add(item);
     }
 
-    public void Clear()
-    {
+    public void Clear() {
       base.Clear();
       this.FlushToDisk();
     }
 
 
-    public bool Remove(T item)
-    {
+    public bool Remove(T item) {
       var removed = base.Remove(item);
       this.FlushToDisk();
       return removed;
     }
 
-
-    public bool FlushToDisk()
-    {
-      //var json = JsonConvert.SerializeObject(this);
-      var sb = new StringBuilder();
-      //HACK: I Hate this...
-      foreach (var item in _items)
-      {
-        sb.AppendLine(JsonConvert.SerializeObject(item));
+    public bool FlushToDisk() {
+      var completed = false;
+      // Serialize json directly to the output stream
+      using (var outstream = new StreamWriter(this.DbPath)) {
+        var writer = new JsonTextWriter(outstream);
+        var serializer = JsonSerializer.CreateDefault();
+        // Invoke custom serialization in BiggyListSerializer
+        serializer.Serialize(writer, this);
+        completed = true;
       }
-      var json = sb.ToString();
-      using (var fs = File.CreateText(this.DbPath))
-      {
-        fs.Write(json);
-      }
-      return true;
+      return completed;
     }
-
   }
 }
