@@ -9,7 +9,7 @@ using Biggy.SQLServer;
 
 namespace Biggy.Perf
 {
-  public class MyDb : SQLServerContext
+  public class MyDb : SQLServerHost
   {
     public IBiggy<Artist> Artists { get; protected set; }
     public IBiggy<Album> Albums { get; protected set; }
@@ -41,7 +41,7 @@ namespace Biggy.Perf
   {
     public static void Run() {
       // SET-UP: For this exercise, we want a NEW client table each time:
-      var temp = new SQLServerContext("chinook");
+      var temp = new SQLServerHost("chinook");
       if (temp.TableExists("Client")) {
         temp.DropTable("Client");
       }

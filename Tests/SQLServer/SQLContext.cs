@@ -13,11 +13,11 @@ namespace Tests.SQLServer
   public class SQLContext
   {
     string _connectionStringName = "chinook";
-    SQLServerContext _context;
+    SQLServerHost _context;
 
     public SQLContext()
     {
-      _context = new SQLServerContext(_connectionStringName);
+      _context = new SQLServerHost(_connectionStringName);
       if(_context.TableExists("test_table"))
       {
         _context.DropTable("test_table");

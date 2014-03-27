@@ -16,7 +16,7 @@ namespace Tests.SQLServer {
     IBiggy<Client> _clients;
 
     public BiggyListWithSQL() {
-      var context = new SQLServerContext("chinook");
+      var context = new SQLServerHost("chinook");
       // Build a table to play with from scratch each time:
       if (context.TableExists("Client")) {
         context.DropTable("Client");

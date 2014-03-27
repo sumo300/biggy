@@ -7,7 +7,7 @@ using Xunit;
 using Biggy;
 using Biggy.Postgres;
 
-namespace Tests.SQLServer
+namespace Tests.Postgres
 {
   [Trait("Postgres Store", "")]
   public class PostgresStore
@@ -20,7 +20,7 @@ namespace Tests.SQLServer
 
     public PostgresStore()
     {
-      var context = new PGContext(_connectionStringName);
+      var context = new PGHost(_connectionStringName);
 
       // Build a table to play with from scratch each time:
       if(context.TableExists("client")) {
@@ -38,16 +38,16 @@ namespace Tests.SQLServer
 
     [Fact(DisplayName = "Initializes with Injected Context")]
     public void Intialize_With_Injected_Context() {
-      var context = new PGContext(_connectionStringName);
+      var context = new PGHost(_connectionStringName);
       _sqlStore = new PGStore<Client>(context);
-      Assert.True(_sqlStore != null && _sqlStore.Context.DbTableNames.Count > 0);
+      Assert.True(_sqlStore != null && _sqlStore.Host.DbTableNames.Count > 0);
     }
 
 
     [Fact(DisplayName = "Initializes with Connection String Name")]
     public void Intialize_With_Connection_String_Name() {
       _sqlStore = new PGStore<Client>(_connectionStringName);
-      Assert.True(_sqlStore != null && _sqlStore.Context.DbTableNames.Count > 0);
+      Assert.True(_sqlStore != null && _sqlStore.Host.DbTableNames.Count > 0);
     }
 
 

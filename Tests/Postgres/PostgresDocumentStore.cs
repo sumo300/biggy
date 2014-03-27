@@ -7,7 +7,7 @@ using Xunit;
 using Biggy;
 using Biggy.Postgres;
 
-namespace Tests.PG
+namespace Tests.Postgres
 {
   [Trait("PG Document Store", "")]
   public class PostgresDocumentStore
@@ -22,7 +22,7 @@ namespace Tests.PG
     PGDocumentStore<MonkeyDocument> monkeyDocs;
 
     public PostgresDocumentStore() {
-      var context = new PGContext(_connectionStringName);
+      var context = new PGHost(_connectionStringName);
 
       // Build a table to play with from scratch each time:
 

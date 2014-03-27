@@ -21,7 +21,7 @@ namespace Biggy.Perf
 
 
       // We can do better by building this into a derived context - example upcoming:
-      var _context = new SQLServerContext(_connectionStringName);
+      var _context = new SQLServerHost(_connectionStringName);
       IBiggyStore<Artist> _artistStore = new SQLServerStore<Artist>(_context);
       IBiggyStore<Album> _albumStore = new SQLServerStore<Album>(_context);
       IBiggyStore<Track> _trackStore = new SQLServerStore<Track>(_context);

@@ -11,12 +11,6 @@ namespace Biggy
     Dictionary<string, DbColumnMapping> ByColumn;
     string _delimiterFormatString;
 
-    //public DbColumnMappingLookup()
-    //{
-    //  this.ByProperty = new Dictionary<string, DbColumnMapping>(StringComparer.InvariantCultureIgnoreCase);
-    //  this.ByColumn = new Dictionary<string, DbColumnMapping>(StringComparer.InvariantCultureIgnoreCase);
-    //}
-
     public DbColumnMappingLookup(string NameDelimiterFormatString) {
       _delimiterFormatString = NameDelimiterFormatString;
       this.ByProperty = new Dictionary<string, DbColumnMapping>(StringComparer.InvariantCultureIgnoreCase);

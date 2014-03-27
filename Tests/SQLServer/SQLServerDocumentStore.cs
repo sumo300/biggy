@@ -23,7 +23,7 @@ namespace Tests.SQLServer
 
     public SQLServerDocumentStore()
     {
-      var context = new SQLServerContext(_connectionStringName);
+      var context = new SQLServerHost(_connectionStringName);
 
       // Build a table to play with from scratch each time:
       if(context.TableExists("ClientDocuments")) {

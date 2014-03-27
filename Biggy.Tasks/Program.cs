@@ -29,9 +29,13 @@ namespace Biggy.Perf {
       //Console.WriteLine("**********************************************");
       //Console.WriteLine("DONE");
       //Console.Read();
-      //SQLIBiggyContextUsageExamples.Run();
 
-      SQLIBiggyDocumentUsageExamples.Run();
+      // These Demo the new stuff:
+
+      SQLIBiggyUsageExamples.Run();
+      //SQLIBiggyContextUsageExamples.Run();
+      //SQLIBiggyDocumentUsageExamples.Run();
+
       Console.Read();
     }
 

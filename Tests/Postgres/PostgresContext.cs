@@ -13,11 +13,11 @@ namespace Tests.Postgres
   public class PostgresContext
   {
     string _connectionStringName = "chinookPG";
-    PGContext _context;
+    PGHost _context;
 
     public PostgresContext()
     {
-      _context = new PGContext(_connectionStringName);
+      _context = new PGHost(_connectionStringName);
       if(_context.TableExists("test_table"))
       {
         _context.DropTable("test_table");

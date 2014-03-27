@@ -9,7 +9,7 @@ using Biggy.SQLServer;
 
 namespace Biggy.Perf
 {
-  public class MyOtherDb : SQLServerContext
+  public class MyOtherDb : SQLServerHost
   {
     public IBiggy<Artist> Artists { get; protected set; }
     public IBiggy<Album> Albums { get; protected set; }
@@ -65,7 +65,7 @@ namespace Biggy.Perf
       Console.WriteLine("===========================================================");
 
       // Start clean with no existing table:
-      var temp = new SQLServerContext("chinook");
+      var temp = new SQLServerHost("chinook");
       if(temp.TableExists("ArtistWithAlbums"))
       {
         temp.DropTable("ArtistWithAlbums");

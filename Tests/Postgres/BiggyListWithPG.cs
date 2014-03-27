@@ -17,7 +17,7 @@ namespace Tests.Postgres {
     IBiggy<ClientDocument> _clientDocuments;
 
     public BiggyListWithPG() {
-      var context = new PGContext(_connectionStringName);
+      var context = new PGHost(_connectionStringName);
       // Build a table to play with from scratch each time:
       if (context.TableExists("client")) {
         context.DropTable("client");

@@ -18,7 +18,7 @@ namespace Tests.SQLServer
     SQLServerStore<Client> _sqlStore;
 
     public SQLStore() {
-      var context = new SQLServerContext(_connectionStringName);
+      var context = new SQLServerHost(_connectionStringName);
 
       // Build a table to play with from scratch each time:
       if(context.TableExists("Client")) {
@@ -36,16 +36,16 @@ namespace Tests.SQLServer
 
     [Fact(DisplayName = "Initializes with Injected Context")]
     public void Intialize_With_Injected_Context() {
-      var context = new SQLServerContext(_connectionStringName);
+      var context = new SQLServerHost(_connectionStringName);
       _sqlStore = new SQLServerStore<Client>(context);
-      Assert.True(_sqlStore != null && _sqlStore.Context.DbTableNames.Count > 0);
+      Assert.True(_sqlStore != null && _sqlStore.Host.DbTableNames.Count > 0);
     }
 
 
     [Fact(DisplayName = "Initializes with Connection String Name")]
     public void Intialize_With_Connection_String_Name() {
       _sqlStore = new SQLServerStore<Client>(_connectionStringName);
-      Assert.True(_sqlStore != null && _sqlStore.Context.DbTableNames.Count > 0);
+      Assert.True(_sqlStore != null && _sqlStore.Host.DbTableNames.Count > 0);
     }
 
 

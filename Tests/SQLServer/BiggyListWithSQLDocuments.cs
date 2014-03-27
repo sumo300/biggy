@@ -15,7 +15,7 @@ namespace Tests.SQLServer {
     string _connectionStringName = "chinook";
     IBiggy<ClientDocument> _clientDocuments;
     IBiggy<MonkeyDocument> _monkeyDocuments;
-    BiggyRelationalContext context = new SQLServerContext("chinook");
+    DbHost context = new SQLServerHost("chinook");
 
 
     public BiggyListWithSQLDocuments() {

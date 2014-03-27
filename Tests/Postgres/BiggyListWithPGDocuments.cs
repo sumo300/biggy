@@ -18,7 +18,7 @@ namespace Tests.Postgres {
 
 
     public BiggyListWithPGDocuments() {
-      var context = new PGContext(_connectionStringName);
+      var context = new PGHost(_connectionStringName);
       // This one will be re-created automagically:
       if (context.TableExists("ClientDocuments")) {
         context.DropTable("\"ClientDocuments\"");
