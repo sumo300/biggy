@@ -1,14 +1,155 @@
---- 
-layout: default
-title: Welcome to Biggy 
+---
+layout: default 
+title: Welcome to Biggy
 ---
 
 <div class="container">
 
     <div class="starter-template">
         <h1>Biggy</h1>
-        <p class="lead">Use this document as a way to quickly start any new project.
-            <br>All you get is this text and a mostly barebones HTML document.</p>
+        <p class="lead">A very fast document/relational query tool
+            <br>with Full LINQ Compliance.
+        </p>
     </div>
+
+    <div class="row">
+        <div class="col-md-12">
+
+            <h2>Quick Start</h2>
+
+            <p>We know you want to get started as fast as possible, so follow these steps to get Biggy into your application.</p>
+
+            <h3>Installation</h3>
+
+            <p>We suggest you install Biggy using <a href="http://nuget.org">Nuget</a>. It is the fastest way to get started. You may utilize the visual package manager that is part of Visual Studio or use the following command in your package manager console.</p>
+
+            <pre>PM> Install-Package Biggy</pre>
+
+            <p>Awesome! You are ready to write your first Biggy app</p>
+
+            <h3>Your First Application</h3>
+
+            <p>Start off by creating a new <strong>Console Application</strong> in Visual Studio. Then reference Biggy using Nuget, see installation section for help. You should have an empty console application now.</p>
+
+            <pre>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+
+namespace ConsoleApplication3
+{
+    class Program
+    {
+        static void Main(string[] args)
+        {
+        }
+    }
+}</pre>
+
+            <p> Your next step is to create a storage class. These classes are plain old C-Sharp objects, more commonly referred to as POCOs. Paste the following code into your class into your console application.</p>
+
+<pre>
+class Product {
+  public String Sku { get; set; }
+  public String Name { get; set; }
+  public Decimal Price { get; set; }
+  public DateTime CreatedAt { get; set; }
+
+  public Product() {
+    this.CreatedAt = DateTime.Now;
+  }
+
+  public override bool Equals(object obj) {
+    var p1 = (Product)obj;
+    return this.Sku == p1.Sku;
+  }
+}</pre>
+
+          <p>Finally, let's interact with Biggy. Paste the following code into your project.</p>
+
+<pre>
+static void Main(string[] args)
+{
+    //add and save to this list as above
+    //this will create a Data/products.json file in your project/site root
+    var products = new BiggyList&lt;Product&gt;();
+
+    var newProduct = new Product { Sku = "STUFF", Name = "A new product", Price = 120.00m };
+
+    //gets appended immediately in a single line-write to file
+    products.Add(newProduct);
+
+    //this won't hit the disk as you're querying in-memory only
+    var p = products.FirstOrDefault(x => x.Sku == "STUFF");
+    p.Name = "Something Fun";
+
+    //this writes to disk in a single asynchronous flush - so it's fast too
+    products.Update(p);
+
+    Console.ReadLine();
+}  
+</pre>
+
+      <p>Hooray! If you place some breakpoints in the application you will notice that we have an IEnumerable of products. You might also notice we were able to utilize LINQ to query the product. In addition, this example is saving the product to disk asynchornously so you don't lose any data. All of this is done for you transparently.</p>
+
+      <p>Welcome to Biggy, please continue reading to learn about the other features of the library and please follow us on <a href="http://github.com/robconery/biggy">Github</a>. If you struggled with the sample, see the full source below to help you.
+      </p>
+
+        </div>
+    </div>
+
+<pre>
+using System;
+using System.Linq;
+using Biggy.JSON;
+
+namespace ConsoleApplication3
+{
+    class Product
+    {
+        public String Sku { get; set; }
+        public String Name { get; set; }
+        public Decimal Price { get; set; }
+        public DateTime CreatedAt { get; set; }
+
+        public Product()
+        {
+            this.CreatedAt = DateTime.Now;
+        }
+
+        public override bool Equals(object obj)
+        {
+            var p1 = (Product)obj;
+            return this.Sku == p1.Sku;
+        }
+    }
+
+    class Program
+    {
+        static void Main(string[] args)
+        {
+            //add and save to this list as above
+            //this will create a Data/products.json file in your project/site root
+            var products = new BiggyList&lt;Product&gt;();
+
+            var newProduct = new Product { Sku = "STUFF", Name = "A new product", Price = 120.00m };
+
+            //gets appended immediately in a single line-write to file
+            products.Add(newProduct);
+
+            //this won't hit the disk as you're querying in-memory only
+            var p = products.FirstOrDefault(x => x.Sku == "STUFF");
+            p.Name = "Something Fun";
+
+            //this writes to disk in a single asynchronous flush - so it's fast too
+            products.Update(p);
+
+            Console.ReadLine();
+        }
+    }
+}</pre>
+
 
 </div>
