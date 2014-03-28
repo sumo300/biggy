@@ -3,11 +3,9 @@ navigation:
 - text: Home
   url: /
 - text: Documentation
-  url: /documentation.html
+  url: documentation.html
 - text: Contributors
-  url: /contributors.html
-- text: Github
-  url: http://github.com/robconery/biggy
+  url: contributors.html
 ---
 
 <!DOCTYPE html> 
@@ -22,10 +20,10 @@ navigation:
     <title>Biggy</title>
 
     <!-- Bootstrap core CSS -->
-    <link href="./css/bootstrap.min.css" rel="stylesheet">
+    <link href="{{ site.baseurl }}css/bootstrap.min.css" rel="stylesheet">
 
     <!-- Custom styles for this template -->
-    <link href="./css/style.css" rel="stylesheet">
+    <link href="{{ site.baseurl }}css/style.css" rel="stylesheet">
        
     <!-- HTML5 shim and Respond.js IE8 support of HTML5 elements and media queries -->
     <!--[if lt IE 9]>
@@ -52,9 +50,12 @@ navigation:
             {% assign url = page.url|remove:'index.html' %}
             {% for link in page.navigation %}
             <li {% if url == link.url %}class="active"{% endif %}>
-              <a href="{{link.url}}" title="{{link.title}}">{{link.text}}</a>
+              <a href="{{ site.baseurl }}{{link.url}}" title="{{link.title}}">{{link.text}}</a>
             </li>
             {% endfor %}
+            <li>
+              <a href="http://github.com/robconery/biggy">Github</a>
+            </li>
           </ul>
         </div><!--/.nav-collapse -->
       </div>
@@ -72,6 +73,6 @@ navigation:
     ================================================== -->
     <!-- Placed at the end of the document so the pages load faster -->
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.0/jquery.min.js"></script>
-    <script src="./js/bootstrap.min.js"></script>
+    <script src="{{ site.baseurl }}js/bootstrap.min.js"></script>
   </body>
 </html>
