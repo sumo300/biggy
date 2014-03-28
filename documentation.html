@@ -1,0 +1,372 @@
+--- 
+layout: default
+title: Biggy Documentation 
+---
+
+<div class="container">
+
+    <div class="row row-offcanvas row-offcanvas-right">
+
+        <div class="col-xs-12 col-sm-9">
+            <div class="jumbotron">
+                <h1>Hello, Biggy!</h1>
+                <p>Here you will find all the information you need to work with Biggy. Every nitty gritty detail will be available to you.</p>
+            </div>
+            <div class="row">
+                <div class="col-md-12">
+                	<a id="background" class="anchor"></a>
+                    <h2>
+                        Background: What's It Good For?
+                    </h2>
+                    <p>A document-centric, "NoSQL"-style of development is great for high-read, quick changing things. Products, Customers, Promotions and Coupons - these things get read from the database continually and it's sort of silly. Querying in-memory makes perfect sense for this use case. For these you could use one of the document storage ideas above.could</p>
+
+                    <p>
+                        A relational, write-oriented transactional situation is great for "slowly changing over time" records - like Orders, Invoices, SecurityLogs, etc. For this you could use a regular relational table using the PGTable or SQLServerTable as you see fit.
+                    </p>
+                </div>
+            </div>
+            <!--/row-->
+
+            <div class="row">
+                <div class="col-md-12">
+                	<a id="speed-and-memory" class="anchor"></a>
+                    <h2>Speed &amp; Memory</h2>
+                    <p>Some applications have a ton of data and for that, Biggy might not be the best fit if you need to read from that ton of data consistently. We've focused on prying apart data into two camps: High Read, and High Write.</p>
+
+                    <p>We're still solidifying our benchmarks, but in-memory read is about as fast as you can get. Our writes are getting there too - currently we can drop 100,000 documents to disk in about 2 seconds - which isn't so bad. We can write 10,000 records to Postgres and SQL Server in about 500ms - again not bad.</p>
+
+                    <p>So if you want to log with Biggy - go for it! Just understand that if you use a DBList&lt;T&gt;, it assumes you want to read too so it will store the contents in memory as well as on disk. If you don't need this, just use a DBTable&lt;T&gt; (Postgres or SQLServer) and write your heart out.</p>
+
+                    <p>
+                        You might also wonder about memory use. Since you're storing everything in memory - for a small web app this might be a concern. Currently the smallest, free sites on Azure allow you 1G RAM. Is this enough space for your data? Borrowing from Karl Seguin:
+                    </p>
+
+                    <blockquote>
+                        I do feel that some developers have lost touch with how little space data can take. The Complete Works of William Shakespeare takes roughly 5.5MB of storage
+                    </blockquote>
+                    <p>
+                        The entire customer, catalog, logging, and sales history of Tekpub was around 6MB. If you're bumping up against your data limit - just move from an in-memory list to a regular table object (as shown above) and you're good to go.
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+                <div class="col-md-12">
+                	<a id="strategies" class="anchor"></a>
+                    <h2>
+                        Strategies
+                    </h2>
+                    <p>
+                        You only want to read the InMemoryList&lt;T&gt; stuff off disk once - and this should be when your app starts up. This is pretty straightforward if you're using a Console or Forms-based app, but if you're using a web app this gets more difficult.
+                    </p>
+
+                    <p>Fortunately, you have a few nice choices.</p>
+
+                    <h3>
+                    	<a id="strategies-datacontainer" class="anchor"></a>
+                    	Data Container class
+                    </h3>
+
+                    <p>
+                        Create a wrapper class just like you would have with Entity Framework, or other ORMs. Below is an example that will be utilized in a web application, feel free to create this class to meet your needs.
+                    </p>
+
+                    <pre>public class StoreDB { 
+    public BiggyList&lt;Product&gt; Products;
+    public BiggyList&lt;Customer&gt; Customers;
+
+    public StoreDB() {
+    // Passing in the HttpRuntime.AppDomainAppPath here tells Biggy where your web root is. 
+    Products = new BiggyList&lt;Product&gt;(dbPath: HttpRuntime.AppDomainAppPath); 
+    Customers = new BiggyList&lt;Customer&gt;(dbPath: HttpRuntime.AppDomainAppPath); 
+    } 
+}</pre>
+
+                    <p>By creating a single class to hold all your Biggy lists you can reference them together. Be aware that if you are utilizing a Data container class that you should instantiate it as a <strong>singleton</strong>.</p>
+
+                    <h3>
+                    	<a id="strategies-ioc" class="anchor"></a>
+                    	Using Inversion of Control
+                    </h3>
+
+                    <p>If you're a fan of IoC then managing Biggy should be simple. Just make sure your wrapper class is in Singleton scope - here's how Ninject does it:</p>
+
+                    <pre>Bind&lt;StoreDb&gt;().ToSelf().InSingletonScope();</pre>
+
+                    <p>Please consult your particular IoC's documentation to determine how to resolve a singleton properly.
+                        <strong>Note: If you fail to use the singleton pattern, you could be loading your dataset every time you instantiate the class, which would greatly diminsh the perfomance of Biggy.</strong>
+                    </p>
+                </div>
+            </div>
+
+            <div class="row">
+            	<div class="col-md-12">
+            		<h2>
+            			<a id="storage" class="anchor"></a>
+            			Storage &amp; Persistence
+            		</h2>
+            		<p>
+            		Biggy offers many ways you can store your data. What good is a persistence tool if it doesn't persist? In this section you will see the currently supported persistence backends and how to utilize them in your applications.
+            		</p>
+
+            		<h3>
+            			<a class="anchor" id="storage-file"></a>
+            			File-based Document Storage
+            		</h3>
+					<p>The easiest solution out of the box. Any data added to your Biggy list will be persisted to disk. Take a look at the sample below.</p>
+
+					<pre>var products = new BiggyList&lt;Product&gt;();</pre>
+
+					<p>Things to note about utilizing file-based storage:</p>
+
+					<ul>
+						<li>Need to utilize the <strong>BiggyList</strong> object. </li>
+						<li>Data is serialized into JSON</li>
+						<li>The JSON is stored on disk either in the executing directory, or a path specified.</li>
+						<li>
+						Data is loaded into memory when your application starts, and you query it with LINQ. That's it. It loads incredibly fast (100,000 records in about 1 second) and from there will sync your in-memory list with whatever store you choose.
+						</li>
+					</ul>
+
+					<h3>
+						<a class="anchor" id="storage-db"></a>
+						Database Document Storage
+					</h3>
+
+					<p>Biggy supports both SQL Server and Postgres - but we develop with Postgres first so there are a few more bells and whistles for this amazing database (specifically: Full Text search over documents).</p>
+
+					<p>To define a Document Store, create an instance of DBDocumentList. There are currently two options:</p>
+
+					<ul>
+						<li>PGDocumentList (PostgreSQL)</li>
+						<li>SQLDocumentList (SQL Server)</li>
+					</ul>
+
+					<p>The example below shows the use of <strong>PGDocumentList</strong>.
+
+<pre>
+class Clown {
+  public int ID {get;set;}
+  public string Name {get;set;}
+  [FullText]
+  public string LifeStory {get;set;}
+  public DateTime Birthday {get;set;}
+
+  public Clown(){
+    Birthday = DateTime.Today;
+  }
+}
+
+var clowns = new PGDocumentList&lt;Clown&gt;(connectionStringName : "Northwind");
+var newClown = new Clown {
+	Name = "Dougy Buns",
+	Birthday = DateTime.Today.AddDays(-100),
+	LifeStory = "Once upon a time, I was a little clown"
+};
+
+clowns.Add(newClown);
+</pre>
+
+					<p>
+						The above code will do a number of things:
+					</p>
+
+					<ul>
+						<li>Creates a table called "clowns" in the database with an integer primary key (auto-incrementing).</li>
+						<li>Tries to load every record in the "clowns" table on instantiation</li>
+						<li>Creates an ICollection (which is clowns itself) that you can query with LINQ as you know how already.</li>
+					</ul>
+
+					<p>
+The table structure under this is interesting too. We tagged the LifeStory property with the FullText attribute. This tells the Biggy to create a column on the "clowns" table called "search" which is of type tsvector - this is how Postgres indexes text (in SQL Server it's nvarchar(MAX) with a special index).
+					</p>
+
+					<p>There are 3 total columns in the "clowns" table:</p>
+
+					<ul>
+						<li>id (integer)</li>
+						<li>body (json)</li>
+						<li>search (tsvector)</li>
+					</ul>
+
+					<p>
+					When Biggy loads the data it deserializes it into the backing store and you can access it just like any ICollection. The same thing works for SQL Server. The next section will discuss how to query your collection in depth.
+					</p>
+
+            	</div>
+            </div>
+
+            <div class="row">
+            	<div class="col-md-12">
+            	<h2>
+            		<a id="querying" class="anchor"></a>
+            		Querying
+            	</h2>
+
+            	<p> Biggy is a tour de force of querying power. This section will show you the many ways you can utilize Biggy to query your data set. </p>
+
+            	<h3>
+            	<a id="querying-linq" class="anchor"></a>
+            	LINQ To Object Queries</h3>
+
+            	<p>Biggy loads all your data into memory, which allows you to do LINQ Queries. If you aren't familiar with LINQ, checkout this <a href="http://code.msdn.microsoft.com/101-LINQ-Samples-3fb9811b">great tutorial</a> on MSDN. We've also included a few sample LINQ queries below. </p>
+
+<pre>
+var discontinued = products.Where(x => x.Discontinued == true);
+
+var p = products.FirstOrDefault(x => x.Sku == "STUFF");
+
+// group by category
+var facets = 
+	from p in products 
+	group p by p.Category into g
+	select new { Category = g.Key, Count = g.Count() };
+</pre>
+
+				<h3 ><a id="querying-db" class="anchor"></a>Relational Query Tool</h3>
+
+				<p>
+					The engine behind Biggy is a newer version of <a href="http://github.com/robconery/massive">Massive</a> that has some type-driven love built into it. If you want to run queries and do things like you always have, go for it:
+				</p>
+
+<pre>
+//this should look familiar to Massive fans
+var clowns = new SqlServerTable(connectionStringName= "northwind", tableName= "clowns", primaryKeyField = "ID");
+
+//find by key
+var dougy = clowns.Find&lt;Clown&gt;(1);
+
+//same thing
+dougy = clowns.FirstOrDefault&lt;Clown&gt;("id=@0",1);
+
+//get them all
+var allClowns = clowns.All&lt;Clown&gt;();
+
+//get some
+var someClowns = clowns.Where&lt;Clown&gt;("id > @0", 0);
+
+//stop telling me what to do - returns a dynamic result
+var myOwnClowns = clowns.Query("select ID, newid() as SomeGuid, Birthday from Clowns");
+
+//add one
+clowns.Add(new Clown{...});
+//update
+clowns.Update(someClown);
+//remove
+clowns.Delete(someClown);
+//remove a bunch
+clowns.DeleteWhere("id > 0");
+
+</pre>
+
+				<h3 ><a id="querying-full" class="anchor"></a>Full Text Search</h3>
+
+				<p>Full text searches can be performed if the underlying database supports it. PostgreSQL does, and below is an example of how you might perform a full text query.</p>
+
+<pre>
+var clowns = new PGDocumentList&lt;Clown&gt;(connectionStringName : "Northwind");
+var results = clowns.FullText("happy");
+foreach(var clown in results){
+  //play with results here
+}
+</pre>
+
+            	</div>
+            </div>
+
+            <div class="row">
+            	<div class="col-md-12">
+            		<h2>
+            		<a id="hooks-callbacks-and-events" class="anchor"></a>
+            		Hooks, Callbacks, &amp; Events
+            		</h2>
+
+            		<p>
+            		SQlServerTable and PGTable are very, very close to Massive with a few things removed - specifically the dynamic query builder and the validation stuff. You can add that in as you see fit using the hooks we've always had:
+            		</p>
+
+<pre>
+//Hooks
+public virtual void Inserted(T item) { }
+public virtual void Updated(T item) { }
+public virtual void Deleted(T item) { }
+public virtual bool BeforeDelete(T item) { return true; }
+public virtual bool BeforeSave(T item) { return true; }
+            		</pre>
+
+            		<p>Just override them as needed in your derived class:</p>
+
+<pre>
+class ClownTable : SqlServerTable&lt;Clown&gt;{
+  public ClownTable(connectionStringName,tableName,primaryKeyField) : base(connectionStringName,tableName,primaryKeyField);
+
+  public override bool BeforeSave(Clown item){
+    //do your validations here... be sure to return false if things are bad
+  }
+}
+</pre>
+
+<p>Using events is pretty straightforward:</p>
+
+<pre>
+var clowns = new SqlServerTable(connectionStringName= "northwind", tableName= "clowns", primaryKeyField = "ID");
+clowns.Loaded+=Clowns_Loaded;
+
+public void ClownsLoaded(object sender, EventArgs e){
+  var biggyArgs = (BiggyEventArgs)e;
+  Console.WriteLine("We have {0} clowns y'all",e.Items.Count);
+}
+
+</pre>
+
+            	</div>
+            </div>
+
+        </div>
+        <!--/span-->
+
+        <div class="col-md-3 hidden-xs col-sm-3">
+          <div id="docs-sidebar" class="nav-sidebar hidden-print affix" role="complementary" data-offset-top="60">
+            <ul class="nav bs-docs-sidenav">              
+                <li>
+					<a href="#background">Background</a>
+				</li>
+			   <li>
+					<a href="#speed-and-memory">Speed &amp; Memory</a>
+				</li>
+			   <li>
+					<a href="#strategies">Strategies</a>
+					<ul class="nav">
+						<li><a href="#strategies-datacontainer">Data Container</a></li>
+						<li><a href="#strategies-ioc">Inversion of Control</a></li>						
+					</ul>
+				</li>
+				<li>
+					<a href="#storage">Storage / Persistence</a>
+					<ul class="nav">
+						<li><a href="#storage-file">File-based</a></li>
+						<li><a href="#storage-db">Database</a></li>						
+					</ul>
+				</li>
+				<li>
+					<a href="#querying">Querying</a>
+					<ul class="nav">
+						<li><a href="#querying-linq">LINQ to Objects</a></li>
+						<li><a href="#querying-db">Relational Query Tool</a></li>
+						<li><a href="#querying-full">Full Text Search</a></li>						
+					</ul>
+				</li>
+				<li>
+					<a href="#hooks-callbacks-and-events">Hooks, Callbacks &amp; Events</a>
+				</li>
+            </ul>            
+          </div>
+        </div>
+
+        
+        <!--/span-->
+    </div>
+    <!--/row-->
+
+</div>
+<!--/.container-->
