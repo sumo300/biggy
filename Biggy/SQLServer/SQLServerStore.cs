@@ -8,7 +8,7 @@ namespace Biggy.SQLServer
 {
   public class SQLServerStore<T> : BiggyRelationalStore<T> where T : new()
   {
-    public SQLServerStore(DbHost context) : base(context) { }
+    public SQLServerStore(DbHost dbHost) : base(dbHost) { }
     public SQLServerStore(string connectionString) : base(new SQLServerHost(connectionString)) { }
 
     public override string GetInsertReturnValueSQL(string delimitedPkColumn) {

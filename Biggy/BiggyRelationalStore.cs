@@ -407,7 +407,7 @@ namespace Biggy
     public virtual bool BeforeSave(T item) { return true; }
 
 
-    // INCLUDED TO MAINTAIN MASSIVE API - THESE NOW (MOSTLY) CALL DIRECTLY INTO COUTERPARTS IN THE CONTEXT OBJECT:
+    // INCLUDED TO MAINTAIN MASSIVE API - THESE NOW (MOSTLY) CALL DIRECTLY INTO COUTERPARTS IN THE HOST OBJECT:
 
     public virtual DbCommand CreateCommand(string sql, DbConnection conn, params object[] args) {
       return this.Host.CreateCommand(sql, conn, args);
