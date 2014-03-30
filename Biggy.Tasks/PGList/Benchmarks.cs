@@ -19,7 +19,7 @@ namespace Biggy.Perf.PGList
       Console.WriteLine("===========================================================");
 
 
-      var _db = new PGHost(_connectionStringName);
+      var _db = new PGCache(_connectionStringName);
       IBiggy<Artist> _artists;
       IBiggy<Album> _albums;
       IBiggy<Track> _tracks;
@@ -76,7 +76,7 @@ namespace Biggy.Perf.PGList
       }
       Console.WriteLine(Environment.NewLine);
       Console.WriteLine("===========================================================");
-      Console.WriteLine("SQL SERVER - BASIC CRUD OPERATIONS");
+      Console.WriteLine("POSTGES - BASIC CRUD OPERATIONS");
       Console.WriteLine("===========================================================");
 
       IBiggy<Customer> _customers;
@@ -115,7 +115,7 @@ namespace Biggy.Perf.PGList
 
       Console.WriteLine(Environment.NewLine);
       Console.WriteLine("===========================================================");
-      Console.WriteLine("SQL SERVER - BULK INSERTS AND DELETIONS");
+      Console.WriteLine("POSTGES - BULK INSERTS AND DELETIONS");
       Console.WriteLine("===========================================================");
 
       Console.WriteLine("Creating Test Table...");

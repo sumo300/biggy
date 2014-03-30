@@ -13,12 +13,12 @@ namespace Tests.SQLServer {
   public class BiggyListWithSQL
   {
     string _connectionStringName = "chinook";
-    DbHost _hostDb;
+    DbCache _hostDb;
     IBiggyStore<Client> _clientStore;
     IBiggy<Client> _clients;
 
     public BiggyListWithSQL() {
-      _hostDb = new SQLServerHost("chinook");
+      _hostDb = new SQLServerCache("chinook");
       // Build a table to play with from scratch each time:
       if (_hostDb.TableExists("Client")) {
         _hostDb.DropTable("Client");

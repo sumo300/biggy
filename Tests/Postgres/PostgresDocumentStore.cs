@@ -22,16 +22,16 @@ namespace Tests.Postgres
     PGDocumentStore<MonkeyDocument> monkeyDocs;
 
     public PostgresDocumentStore() {
-      var context = new PGHost(_connectionStringName);
+      var _cache = new PGCache(_connectionStringName);
 
       // Build a table to play with from scratch each time:
 
       // This needs a fix - gotta pass undelimited table name to one, and delimited to the other. FIX ME, DAMMIT!
-      if(context.TableExists("ClientDocuments")) {
-        context.DropTable("\"ClientDocuments\"");
+      if(_cache.TableExists("ClientDocuments")) {
+        _cache.DropTable("\"ClientDocuments\"");
       }
-      if (context.TableExists("MonkeyDocuments")) {
-        context.DropTable("\"MonkeyDocuments\"");
+      if (_cache.TableExists("MonkeyDocuments")) {
+        _cache.DropTable("\"MonkeyDocuments\"");
       }
       clientDocs = new PGDocumentStore<ClientDocument>(_connectionStringName);
       monkeyDocs = new PGDocumentStore<MonkeyDocument>(_connectionStringName);

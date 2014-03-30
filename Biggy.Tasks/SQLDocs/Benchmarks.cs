@@ -53,7 +53,7 @@ namespace Biggy.Perf.SQLDocument {
   public class Benchmarks {
     public static void Run() {
       var sw = new Stopwatch();
-      var _myDatabase = new SQLServerHost("chinook");
+      var _myDatabase = new SQLServerCache("chinook");
 
       Console.WriteLine("===========================================================");
       Console.WriteLine("SQL SERVER DOCUMENTS - INSERT A BUNCH OF DOCUMENTS");
@@ -91,7 +91,7 @@ namespace Biggy.Perf.SQLDocument {
       Console.WriteLine("===========================================================");
 
       // Start clean with no existing table:
-      var temp = new SQLServerHost("chinook");
+      var temp = new SQLServerCache("chinook");
       if (temp.TableExists("ArtistWithAlbums")) {
         temp.DropTable("ArtistWithAlbums");
       }

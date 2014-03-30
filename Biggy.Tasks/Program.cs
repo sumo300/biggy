@@ -17,9 +17,9 @@ namespace Biggy.Perf {
 
   class Program {
     static void Main(string[] args) {
-      FileStore.Benchmarks.Run();
+      //FileStore.Benchmarks.Run();
       Console.WriteLine("**********************************************");
-      //PGDocuments.Benchmarks.Run();
+      PGDocuments.Benchmarks.Run();
       //Console.WriteLine("**********************************************");
       //PGList.Benchmarks.Run();
       //Console.WriteLine("**********************************************");
@@ -28,16 +28,9 @@ namespace Biggy.Perf {
       //SQLList.Benchmarks.Run();
       //Console.WriteLine("**********************************************");
       //Console.WriteLine("DONE");
-      //Console.Read();
-
-      // These Demo the new stuff:
-
-      //SQLIBiggyUsageExamples.Run();
-      //SQLIBiggyContextUsageExamples.Run();
-      //SQLIBiggyDocumentUsageExamples.Run();
-      //FileStore.Benchmarks.Run();
 
       Console.Read();
+
     }
 
   }

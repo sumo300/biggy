@@ -15,11 +15,11 @@ namespace Tests.SQLServer {
     string _connectionStringName = "chinook";
     IBiggy<ClientDocument> _clientDocuments;
     IBiggy<MonkeyDocument> _monkeyDocuments;
-    DbHost _host;
+    DbCache _host;
 
 
     public BiggyListWithSQLDocuments() {
-      _host = new SQLServerHost("chinook");
+      _host = new SQLServerCache("chinook");
       // This one will be re-created automagically:
       if (_host.TableExists("ClientDocuments")) {
         _host.DropTable("ClientDocuments");

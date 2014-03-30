@@ -17,17 +17,17 @@ namespace Tests.Postgres {
     IBiggy<ClientDocument> _clientDocuments;
 
     public BiggyListWithPG() {
-      var context = new PGHost(_connectionStringName);
+      var _cache = new PGCache(_connectionStringName);
       // Build a table to play with from scratch each time:
-      if (context.TableExists("client")) {
-        context.DropTable("client");
+      if (_cache.TableExists("client")) {
+        _cache.DropTable("client");
       }
       var columnDefs = new List<string>();
       columnDefs.Add("client_id serial PRIMARY KEY NOT NULL");
       columnDefs.Add("last_name Text NOT NULL");
       columnDefs.Add("first_name Text NOT NULL");
       columnDefs.Add("email Text NOT NULL");
-      context.CreateTable("client", columnDefs);
+      _cache.CreateTable("client", columnDefs);
 
       _clients = new BiggyList<Client>(new PGStore<Client>(_connectionStringName));
     }

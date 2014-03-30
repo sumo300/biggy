@@ -15,11 +15,10 @@ namespace Biggy.Perf.PGDocuments {
     public List<Album> Albums { get; set; }
   }
 
-
   public class Benchmarks {
     public static void Run() {
       var sw = new Stopwatch();
-      var _myDatabase = new PGHost("chinookPG");
+      var _myDatabase = new PGCache("chinookPG");
 
       Console.WriteLine("===========================================================");
       Console.WriteLine("POSTGRES DOCUMENTS - INSERT A BUNCH OF DOCUMENTS");
@@ -27,8 +26,8 @@ namespace Biggy.Perf.PGDocuments {
 
 
       // Build a table to play with from scratch each time:
-      if(_myDatabase.TableExists("clientdocuments")) {
-        _myDatabase.DropTable("clientdocuments");
+      if(_myDatabase.TableExists("ClientDocuments")) {
+        _myDatabase.DropTable("\"ClientDocuments\"");
       }
 
       IBiggyStore<ClientDocument> clientDocStore = new PGDocumentStore<ClientDocument>(_myDatabase);
@@ -51,16 +50,14 @@ namespace Biggy.Perf.PGDocuments {
       Console.WriteLine("Inserted {0} records as documents in {1} ms", INSERT_MODEST_QTY, sw.ElapsedMilliseconds);
 
 
-
       Console.WriteLine("===========================================================");
       Console.WriteLine("POSTGRES DOCUMENTS - SOME FANCY COMPLEX DOCUMENT STUFF");
       Console.WriteLine("===========================================================");
 
       // Start clean with no existing table:
-      if (_myDatabase.TableExists("artistwithalbums")) {
-        _myDatabase.DropTable("artistwithalbums");
+      if (_myDatabase.TableExists("ArtistWithAlbums")) {
+        _myDatabase.DropTable("\"ArtistWithAlbums\"");
       }
-
 
       Console.WriteLine("Retreive artists, albums, and tracks from Db...");
       sw.Reset();
