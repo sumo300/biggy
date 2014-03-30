@@ -18,7 +18,6 @@ namespace Biggy
     protected abstract void LoadDbTableNames();
     public abstract bool TableExists(string delimitedTableName);
 
-
     public string ConnectionString { get; set; }
     public List<DbColumnMapping> DbColumnsList { get; set; }
     public List<string> DbTableNames { get; set; }

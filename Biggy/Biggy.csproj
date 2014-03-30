@@ -68,8 +68,7 @@
     <Compile Include="IBiggy.cs" />
     <Compile Include="IBiggyStore.cs" />
     <Compile Include="InMemoryList.cs" />
-    <Compile Include="JSON\BiggyList.cs" />
-    <Compile Include="JSON\BiggyDB.cs" />
+    <Compile Include="JSON\JsonStore.cs" />
     <Compile Include="Extensions\JsonExtensions.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Postgres\PGHost.cs" />
