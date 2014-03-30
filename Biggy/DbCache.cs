@@ -11,7 +11,7 @@ using Inflector;
 
 namespace Biggy
 {
-  public abstract class DbHost {
+  public abstract class DbCache {
     public abstract string DbDelimiterFormatString { get; }
     public abstract DbConnection OpenConnection();
     protected abstract void LoadDbColumnsList();
@@ -23,7 +23,7 @@ namespace Biggy
     public List<string> DbTableNames { get; set; }
 
 
-    public DbHost(string connectionStringName) {
+    public DbCache(string connectionStringName) {
       ConnectionString = ConfigurationManager.ConnectionStrings[connectionStringName].ConnectionString;
       this.LoadSchemaInfo();
     }
@@ -90,67 +90,28 @@ namespace Biggy
       return result;
     }
 
-    public int Execute(DbCommand command) {
-      return Execute(new DbCommand[] { command });
-    }
-
-    public int Execute(string sql, params object[] args) {
-      return Execute(CreateCommand(sql, null, args));
-    }
-
-    /// <summary>
-    /// Executes a series of DBCommands in a transaction
-    /// </summary>
-    public int Execute(IEnumerable<DbCommand> commands) {
-      var result = 0;
-      using (var conn = OpenConnection()) {
-        using (var tx = conn.BeginTransaction()) {
-          foreach (var cmd in commands) {
-            cmd.Connection = conn;
-            cmd.Transaction = tx;
-            result += cmd.ExecuteNonQuery();
-          }
-          tx.Commit();
-        }
-      }
-      return result;
-    }
-
-    /// <summary>
-    /// Creates a DBCommand that you can use for loving your database.
-    /// </summary>
-    public DbCommand CreateCommand(string sql, DbConnection conn, params object[] args) {
-      conn = conn ?? OpenConnection();
-      var result = (DbCommand)conn.CreateCommand();
-      result.CommandText = sql;
-      if (args.Length > 0) {
-        result.AddParams(args);
-      }
-      return result;
-    }
-
-    /// <summary>
-    /// Returns a single result
-    /// </summary>
-    public object Scalar(string sql, params object[] args) {
-      object result = null;
-      using (var conn = OpenConnection()) {
-        result = CreateCommand(sql, conn, args).ExecuteScalar();
-      }
-      return result;
-    }
-
     // TODO: Clean this up and make it consistent with TableExists. Handle the Delimited/not delimited table name mismatch
     public void DropTable(string delimitedTableName) {
       string sql = string.Format("DROP TABLE {0}", delimitedTableName);
-      this.Execute(sql);
+      using (var conn = this.OpenConnection()) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
+          cmd.ExecuteNonQuery();
+        }
+      }
+      this.LoadSchemaInfo();
     }
 
     // TODO: This can be made mo' bettah by passing in ColumnDef objects to handle delimiting and such:
     public void CreateTable(string delimitedTableName, List<string> columnDefs) {
       string columnDefinitions = string.Join(",", columnDefs.ToArray());
       var sql = string.Format("CREATE TABLE {0} ({1});", delimitedTableName, columnDefinitions);
-      this.Execute(sql);
+      using (var conn = this.OpenConnection()) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
+          cmd.ExecuteNonQuery();
+        }
+      }
       this.LoadSchemaInfo();
     }
 

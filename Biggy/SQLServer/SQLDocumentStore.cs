@@ -9,13 +9,13 @@ using Biggy.Extensions;
 namespace Biggy.SQLServer {
   public class SQLDocumentStore<T> : BiggyDocumentStore<T> where T : new() {
 
-    public SQLDocumentStore(DbHost dbHost) : base(dbHost) { }
-    public SQLDocumentStore(DbHost dbHost, string tableName) : base(dbHost, tableName) { }
-    public SQLDocumentStore(string connectionStringName) : base(new SQLServerHost(connectionStringName)) { }
-    public SQLDocumentStore(string connectionStringName, string tableName) : base(new SQLServerHost(connectionStringName), tableName) { }
+    public SQLDocumentStore(DbCache dbCache) : base(dbCache) { }
+    public SQLDocumentStore(DbCache dbCache, string tableName) : base(dbCache, tableName) { }
+    public SQLDocumentStore(string connectionStringName) : base(new SQLServerCache(connectionStringName)) { }
+    public SQLDocumentStore(string connectionStringName, string tableName) : base(new SQLServerCache(connectionStringName), tableName) { }
 
     public override BiggyRelationalStore<dynamic> getModel() {
-      return new SQLServerStore<dynamic>(this.HostDb);
+      return new SQLServerStore<dynamic>(this.DbCache);
     }
 
     protected override List<T> TryLoadData() {
@@ -32,7 +32,7 @@ namespace Biggy.SQLServer {
             fullTextColumn = ", search nvarchar(MAX)";
           }
           var sql = string.Format("CREATE TABLE {0} ({1} {2} primary key not null, body nvarchar(MAX) not null {3});", this.TableMapping.DelimitedTableName, this.PrimaryKeyMapping.DelimitedColumnName, idType, fullTextColumn);
-          this.HostDb.Execute(sql);
+          this.Model.Execute(sql);
           //if (this.FullTextFields.Length > 0) {
           //  var indexSQL = string.Format("CREATE FULL TEXT INDEX ON {0}({1})",this.TableName,string.Join(",",this.FullTextFields));
           //  this.Model.Execute(indexSQL);
@@ -73,7 +73,7 @@ namespace Biggy.SQLServer {
       var sb = new StringBuilder();
       sb.AppendFormat("INSERT INTO {0} ({1}) VALUES ({2}); SELECT SCOPE_IDENTITY() as newID;", this.TableMapping.DelimitedTableName, string.Join(",", dc.Keys), string.Join(",", vals));
       var sql = sb.ToString();
-      var newKey = this.HostDb.Scalar(sql, args.ToArray());
+      var newKey = this.Model.Scalar(sql, args.ToArray());
       //set the key
       this.SetPrimaryKey(item, newKey);
     }
@@ -92,12 +92,12 @@ namespace Biggy.SQLServer {
       string insertClause = "";
       var sbSql = new StringBuilder("");
 
-      using (var connection = this.HostDb.OpenConnection()) {
+      using (var connection = this.DbCache.OpenConnection()) {
         using (var tdbTransaction = connection.BeginTransaction(System.Data.IsolationLevel.RepeatableRead)) {
           var commands = new List<DbCommand>();
           // Lock the table, so nothing will disrupt the pk sequence:
           string lockTableSQL = string.Format("SELECT 1 FROM {0} WITH(TABLOCKX) ", this.TableMapping.DelimitedTableName);
-          DbCommand dbCommand = this.HostDb.CreateCommand(lockTableSQL, connection);
+          DbCommand dbCommand = this.Model.CreateCommand(lockTableSQL, connection);
           dbCommand.Transaction = tdbTransaction;
           dbCommand.ExecuteNonQuery();
 
@@ -150,7 +150,7 @@ namespace Biggy.SQLServer {
                 sbSql = new StringBuilder(insertClause);
                 paramCounter = 0;
                 rowValueCounter = 0;
-                dbCommand = this.HostDb.CreateCommand("", connection);
+                dbCommand = this.Model.CreateCommand("", connection);
                 dbCommand.Transaction = tdbTransaction;
               }
               // FT SEARCH STUFF SHOULD GO HERE

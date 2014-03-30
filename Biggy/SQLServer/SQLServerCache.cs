@@ -10,9 +10,9 @@ using System.Configuration;
 
 namespace Biggy.SQLServer
 {
-  public class SQLServerHost : DbHost 
+  public class SQLServerCache : DbCache 
   {
-    public SQLServerHost(string connectionStringName) : base(connectionStringName) { }
+    public SQLServerCache(string connectionStringName) : base(connectionStringName) { }
 
     public override string DbDelimiterFormatString {
       get { return "[{0}]"; }
@@ -37,7 +37,8 @@ namespace Biggy.SQLServer
         + "ON kcu.CONSTRAINT_SCHEMA = tc.CONSTRAINT_SCHEMA AND kcu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME";
 
       using (var conn = this.OpenConnection()) {
-        using (var cmd = this.CreateCommand(sql, conn)) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
           var dr = cmd.ExecuteReader();
           while (dr.Read()) {
             var clm = dr["COLUMN_NAME"] as string;
@@ -58,7 +59,8 @@ namespace Biggy.SQLServer
       this.DbTableNames = new List<string>();
       var sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo'";
       using (var conn = this.OpenConnection()) {
-        using (var cmd = this.CreateCommand(sql, conn)) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
           var dr = cmd.ExecuteReader();
           while (dr.Read()) {
             this.DbTableNames.Add(dr.GetString(0));
@@ -74,9 +76,14 @@ namespace Biggy.SQLServer
           + "WHERE TABLE_SCHEMA = 'dbo' "
           + "AND  TABLE_NAME = '{0}'";
       string sql = string.Format(select, delimitedTableName);
-      var result = Convert.ToInt32(this.Scalar(sql));
-      if (result > 0) {
-        exists = true;
+      using (var conn = this.OpenConnection()) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
+          var result = Convert.ToInt32(cmd.ExecuteScalar());
+          if (result > 0) {
+            exists = true;
+          }
+        }
       }
       return exists;
     }

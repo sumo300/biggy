@@ -3,12 +3,20 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.Common;
+using Npgsql;
 
 namespace Biggy.Postgres
 {
   public class PGStore<T> : BiggyRelationalStore<T> where T : new() {
-    public PGStore(DbHost context) : base(context) { }
-    public PGStore(string connectionString) : base(new PGHost(connectionString)) { }
+    public PGStore(DbCache dbCache) : base(dbCache) { }
+    public PGStore(string connectionString) : base(new PGCache(connectionString)) { }
+
+    public override DbConnection OpenConnection() {
+      var result = new NpgsqlConnection(this.ConnectionString);
+      result.Open();
+      return result;
+    }
 
     public override string GetInsertReturnValueSQL(string delimitedPkColumn) {
       return " RETURNING " + delimitedPkColumn + " as newId";

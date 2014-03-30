@@ -10,9 +10,9 @@ using System.Configuration;
 
 namespace Biggy.Postgres
 {
-  public class PGHost : DbHost
+  public class PGCache : DbCache
   {
-    public PGHost(string connectionStringName) : base(connectionStringName) { }
+    public PGCache(string connectionStringName) : base(connectionStringName) { }
 
     public override string DbDelimiterFormatString {
       get { return "\"{0}\""; }
@@ -40,7 +40,8 @@ namespace Biggy.Postgres
         + "WHERE c.TABLE_SCHEMA = 'public'";
 
       using (var conn = this.OpenConnection()) {
-        using (var cmd = this.CreateCommand(sql, conn)) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
           var dr = cmd.ExecuteReader();
           while (dr.Read()) {
             var clm = dr["COLUMN_NAME"] as string;
@@ -61,7 +62,8 @@ namespace Biggy.Postgres
       this.DbTableNames = new List<string>();
       var sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'public'";
       using (var conn = this.OpenConnection()) {
-        using (var cmd = this.CreateCommand(sql, conn)) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
           var dr = cmd.ExecuteReader();
           while (dr.Read()) {
             this.DbTableNames.Add(dr.GetString(0));
@@ -78,10 +80,14 @@ namespace Biggy.Postgres
           + "WHERE TABLE_SCHEMA = 'public' "
           + "AND  TABLE_NAME = '{0}'";
       string sql = string.Format(select, notDelimitedTableName);
-      var result = Convert.ToInt32(this.Scalar(sql));
-      if (result > 0)
-      {
-        exists = true;
+      using (var conn = this.OpenConnection()) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
+          var result = Convert.ToInt32(cmd.ExecuteScalar());
+          if (result > 0) {
+            exists = true;
+          }
+        }
       }
       return exists;
     }

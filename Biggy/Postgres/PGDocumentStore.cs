@@ -9,13 +9,13 @@ using Biggy.Extensions;
 
 namespace Biggy.Postgres {
   public class PGDocumentStore<T> : BiggyDocumentStore<T> where T : new() {
-    public PGDocumentStore(DbHost context) : base(context) { }
-    public PGDocumentStore(DbHost context, string tableName) : base(context, tableName) { }
-    public PGDocumentStore(string connectionStringName) : base(new PGHost(connectionStringName)) { }
-    public PGDocumentStore(string connectionStringName, string tableName) : base(new PGHost(connectionStringName), tableName) { }
+    public PGDocumentStore(DbCache context) : base(context) { }
+    public PGDocumentStore(DbCache context, string tableName) : base(context, tableName) { }
+    public PGDocumentStore(string connectionStringName) : base(new PGCache(connectionStringName)) { }
+    public PGDocumentStore(string connectionStringName, string tableName) : base(new PGCache(connectionStringName), tableName) { }
 
     public override BiggyRelationalStore<dynamic> getModel() {
-      return new PGStore<dynamic>(this.HostDb);
+      return new PGStore<dynamic>(this.DbCache);
     }
 
     protected override List<T> TryLoadData() {
@@ -32,7 +32,7 @@ namespace Biggy.Postgres {
             fullTextColumn = ", search tsvector";
           }
           var sql = string.Format("CREATE TABLE {0} ({1} {2} primary key not null, body json not null {3});", this.TableMapping.DelimitedTableName, this.PrimaryKeyMapping.DelimitedColumnName, idType, fullTextColumn);
-          this.HostDb.Execute(sql);
+          this.Model.Execute(sql);
           return TryLoadData();
         } else {
           throw;
@@ -73,7 +73,7 @@ namespace Biggy.Postgres {
       var sb = new StringBuilder();
       sb.AppendFormat("INSERT INTO {0} ({1}) VALUES ({2}) RETURNING {3} as newID;", this.TableMapping.DelimitedTableName, string.Join(",", dc.Keys), string.Join(",", vals), Model.PrimaryKeyMapping.DelimitedColumnName);
       var sql = sb.ToString();
-      var newKey = this.HostDb.Scalar(sql, args.ToArray());
+      var newKey = this.Model.Scalar(sql, args.ToArray());
       //set the key
       this.Model.SetPrimaryKey(item, newKey);
     }
@@ -90,12 +90,12 @@ namespace Biggy.Postgres {
       string insertClause = "";
       var sbSql = new StringBuilder("");
 
-      using (var connection = this.HostDb.OpenConnection()) {
+      using (var connection = this.DbCache.OpenConnection()) {
         using (var tdbTransaction = connection.BeginTransaction(System.Data.IsolationLevel.RepeatableRead)) {
           var commands = new List<DbCommand>();
           // Lock the table, so nothing will disrupt the pk sequence:
           string lockTableSQL = string.Format("LOCK TABLE {0} in ACCESS EXCLUSIVE MODE", this.TableMapping.DelimitedTableName);
-          DbCommand dbCommand = this.HostDb.CreateCommand(lockTableSQL, connection);
+          DbCommand dbCommand = this.Model.CreateCommand(lockTableSQL, connection);
           dbCommand.Transaction = tdbTransaction;
           dbCommand.ExecuteNonQuery();
 
@@ -148,7 +148,7 @@ namespace Biggy.Postgres {
                 sbSql = new StringBuilder(insertClause);
                 paramCounter = 0;
                 rowValueCounter = 0;
-                dbCommand = this.HostDb.CreateCommand("", connection);
+                dbCommand = this.Model.CreateCommand("", connection);
                 dbCommand.Transaction = tdbTransaction;
               }
               if (key == "search") {

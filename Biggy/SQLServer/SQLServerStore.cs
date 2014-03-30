@@ -3,13 +3,21 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Data.Common;
+using System.Data.SqlClient;
 
 namespace Biggy.SQLServer
 {
   public class SQLServerStore<T> : BiggyRelationalStore<T> where T : new()
   {
-    public SQLServerStore(DbHost dbHost) : base(dbHost) { }
-    public SQLServerStore(string connectionString) : base(new SQLServerHost(connectionString)) { }
+    public SQLServerStore(DbCache dbCache) : base(dbCache) { }
+    public SQLServerStore(string connectionString) : base(new SQLServerCache(connectionString)) { }
+
+    public override DbConnection OpenConnection() {
+      var conn = new SqlConnection(this.ConnectionString);
+      conn.Open();
+      return conn;
+    }
 
     public override string GetInsertReturnValueSQL(string delimitedPkColumn) {
       return string.Format("; SELECT SCOPE_IDENTITY() as {0}", delimitedPkColumn);

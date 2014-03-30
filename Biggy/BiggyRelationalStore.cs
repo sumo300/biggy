@@ -12,12 +12,13 @@ using System.Text.RegularExpressions;
 namespace Biggy
 {
   public abstract class BiggyRelationalStore<T> : IBiggyStore<T>, IUpdateableBiggyStore<T>, IQueryableBiggyStore<T> where T : new() {
-    public DbHost Host { get; set; }
+    public DbCache Cache { get; set; }
 
+    public abstract DbConnection OpenConnection();
     public abstract string GetInsertReturnValueSQL(string delimitedPkColumn);
     public abstract string GetSingleSelect(string delimitedTableName, string where);
     public abstract string BuildSelect(string where, string orderBy = "", int limit = 0);
-    public virtual  string ConnectionString { get { return this.Host.ConnectionString; } }
+    public virtual  string ConnectionString { get { return this.Cache.ConnectionString; } }
 
 
     public DBTableMapping tableMapping { get; set; }
@@ -25,8 +26,8 @@ namespace Biggy
 
     protected BiggyRelationalStore() { }
 
-    public BiggyRelationalStore(DbHost dbHost) {
-      Host = dbHost;
+    public BiggyRelationalStore(DbCache dbCache) {
+      this.Cache = dbCache;
       this.tableMapping = this.getTableMappingForT();
 
       // Is there an auto PK? If so, set the member variable:
@@ -39,7 +40,7 @@ namespace Biggy
 
 
     public virtual DBTableMapping getTableMappingForT() {
-      return this.Host.getTableMappingFor<T>();
+      return this.Cache.getTableMappingFor<T>();
     }
 
 
@@ -55,7 +56,7 @@ namespace Biggy
 
     public virtual T Insert(T item) {
       if(this.BeforeSave(item)) {
-        using (var conn = Host.OpenConnection()) {
+        using (var conn = Cache.OpenConnection()) {
           var cmd = (DbCommand)this.CreateInsertCommand(item);
           cmd.CommandText += this.GetInsertReturnValueSQL(this.PrimaryKeyMapping.DelimitedColumnName);
           var newId = cmd.ExecuteScalar();
@@ -71,7 +72,7 @@ namespace Biggy
     public virtual int Update(T item) {
       var result = 0;
       if(BeforeSave(item)) {
-        using (var conn = Host.OpenConnection()) {
+        using (var conn = Cache.OpenConnection()) {
           var cmd = (DbCommand)CreateUpdateCommand(item);
           result = cmd.ExecuteNonQuery();
         }
@@ -86,7 +87,7 @@ namespace Biggy
       var key = this.GetPrimaryKey(item);
       var result = 0;
       if(BeforeDelete(item)) {
-        result = Host.Execute(CreateDeleteCommand(key: key));
+        result = this.Execute(CreateDeleteCommand(key: key));
         this.Deleted(item);
       }
       return result;
@@ -97,7 +98,7 @@ namespace Biggy
     /// </summary>
     public virtual void DeleteAll()
     {
-      this.Host.Execute("DELETE FROM " + this.tableMapping.DelimitedTableName);
+      this.Execute("DELETE FROM " + this.tableMapping.DelimitedTableName);
     }
 
     /// <summary>
@@ -141,7 +142,7 @@ namespace Biggy
       string insertClause = "";
       var sbSql = new StringBuilder("");
 
-      using (var conn = Host.OpenConnection()) {
+      using (var conn = Cache.OpenConnection()) {
         using (var transaction = conn.BeginTransaction()) {
           var commands = new List<DbCommand>();
           DbCommand dbCommand = conn.CreateCommand();
@@ -224,8 +225,8 @@ namespace Biggy
     /// Enumerates the reader yielding the result - thanks to Jeroen Haegebaert
     /// </summary>
     public IEnumerable<dynamic> Query(string sql, params object[] args) {
-      using (var conn = Host.OpenConnection()) {
-        var rdr = Host.CreateCommand(sql, conn, args).ExecuteReader();
+      using (var conn = Cache.OpenConnection()) {
+        var rdr = this.CreateCommand(sql, conn, args).ExecuteReader();
         while (rdr.Read()) {
           var expando = rdr.RecordToExpando();
           yield return expando;
@@ -237,8 +238,8 @@ namespace Biggy
     /// Enumerates the reader yielding the result - thanks to Jeroen Haegebaert
     /// </summary>
     public virtual IEnumerable<T> Query<T>(string sql, params object[] args) where T : new() {
-      using (var conn = Host.OpenConnection()) {
-        var rdr = Host.CreateCommand(sql, conn, args).ExecuteReader();
+      using (var conn = Cache.OpenConnection()) {
+        var rdr = this.CreateCommand(sql, conn, args).ExecuteReader();
         while (rdr.Read()) {
           yield return this.MapReaderToObject<T>(rdr);
         }
@@ -246,7 +247,7 @@ namespace Biggy
     }
 
     public virtual IEnumerable<T> Query<T>(string sql, DbConnection connection, params object[] args) where T : new() {
-      using (var rdr = Host.CreateCommand(sql, connection, args).ExecuteReader()) {
+      using (var rdr = this.CreateCommand(sql, connection, args).ExecuteReader()) {
         while (rdr.Read()) {
           yield return this.MapReaderToObject<T>(rdr);
         }
@@ -276,7 +277,7 @@ namespace Biggy
       var sbKeys = new StringBuilder();
       var sbVals = new StringBuilder();
       var stub = "INSERT INTO {0} ({1}) \r\n VALUES ({2})";
-      result = Host.CreateCommand(stub, null);
+      result = this.CreateCommand(stub, null);
       int counter = 0;
       if (this.PrimaryKeyMapping.IsAutoIncementing) {
         string mappedPropertyName = this.PrimaryKeyMapping.PropertyName;
@@ -316,7 +317,7 @@ namespace Biggy
       var sbKeys = new StringBuilder();
       var stub = "UPDATE {0} SET {1} WHERE {2} = @{3}";
       var args = new List<object>();
-      var result = Host.CreateCommand(stub, null);
+      var result = this.CreateCommand(stub, null);
       int counter = 0;
       var mappedPkPropertyName = this.PrimaryKeyMapping.PropertyName;
       foreach (var item in settings) {
@@ -354,7 +355,7 @@ namespace Biggy
       else if (!string.IsNullOrEmpty(where)) {
         sql += where.Trim().StartsWith("where", StringComparison.OrdinalIgnoreCase) ? where : "WHERE " + where;
       }
-      return Host.CreateCommand(sql, null, args);
+      return this.CreateCommand(sql, null, args);
     }
 
     public virtual object GetPrimaryKey(object o) {
@@ -407,12 +408,29 @@ namespace Biggy
     public virtual bool BeforeSave(T item) { return true; }
 
 
-    // INCLUDED TO MAINTAIN MASSIVE API - THESE NOW (MOSTLY) CALL DIRECTLY INTO COUTERPARTS IN THE HOST OBJECT:
-
-    public virtual DbCommand CreateCommand(string sql, DbConnection conn, params object[] args) {
-      return this.Host.CreateCommand(sql, conn, args);
+    /// <summary>
+    /// Creates a DBCommand that you can use for loving your database.
+    /// </summary>
+    public DbCommand CreateCommand(string sql, DbConnection conn, params object[] args) {
+      conn = conn ?? OpenConnection();
+      var result = (DbCommand)conn.CreateCommand();
+      result.CommandText = sql;
+      if (args.Length > 0) {
+        result.AddParams(args);
+      }
+      return result;
     }
 
+    /// <summary>
+    /// Returns a single result
+    /// </summary>
+    public object Scalar(string sql, params object[] args) {
+      object result = null;
+      using (var conn = OpenConnection()) {
+        result = CreateCommand(sql, conn, args).ExecuteScalar();
+      }
+      return result;
+    }
 
 
     /// <summary>
@@ -430,22 +448,33 @@ namespace Biggy
     }
 
     public int Count(string delimitedTableName, string where = "", params object[] args) {
-      return (int)this.Host.Scalar("SELECT COUNT(1) FROM " + delimitedTableName + " " + where, args);
+      return (int)this.Scalar("SELECT COUNT(1) FROM " + delimitedTableName + " " + where, args);
     }
 
-    public virtual int Execute(DbCommand command) {
-      return this.Host.Execute(command);
+    public int Execute(DbCommand command) {
+      return Execute(new DbCommand[] { command });
     }
 
     public int Execute(string sql, params object[] args) {
-      return this.Execute(CreateCommand(sql, null, args));
+      return Execute(CreateCommand(sql, null, args));
     }
 
     /// <summary>
     /// Executes a series of DBCommands in a transaction
     /// </summary>
     public int Execute(IEnumerable<DbCommand> commands) {
-      return this.Host.Execute(commands);
+      var result = 0;
+      using (var conn = OpenConnection()) {
+        using (var tx = conn.BeginTransaction()) {
+          foreach (var cmd in commands) {
+            cmd.Connection = conn;
+            cmd.Transaction = tx;
+            result += cmd.ExecuteNonQuery();
+          }
+          tx.Commit();
+        }
+      }
+      return result;
     }
 
     /// <summary>
