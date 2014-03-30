@@ -9,13 +9,13 @@ using Biggy.SQLServer;
 
 namespace Tests.SQLServer
 {
-  [Trait("SQL Server Context", "")]
-  public class SQLContext
+  [Trait("SQL Server Host", "")]
+  public class SQLServerDbHost
   {
     string _connectionStringName = "chinook";
     SQLServerHost _context;
 
-    public SQLContext()
+    public SQLServerDbHost()
     {
       _context = new SQLServerHost(_connectionStringName);
       if(_context.TableExists("test_table"))

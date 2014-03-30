@@ -20,6 +20,13 @@ namespace Tests {
   }
 
 
+  public class Widget {
+    public string SKU { get; set; }
+    public string Name { get; set; }
+    public Decimal Price { get; set; }
+  }
+
+
   public class MonkeyDocument {
     [PrimaryKey]
     public string Name { get; set; }

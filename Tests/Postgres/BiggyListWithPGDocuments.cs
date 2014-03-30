@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace Tests.Postgres {
 
-  [Trait("BiggyList With SQL Server Document Store", "")]
+  [Trait("Biggy List With Postgres Document Store", "")]
   public class BiggyListWithPGDocuments {
     string _connectionStringName = "chinookPG";
     IBiggy<ClientDocument> _clientDocuments;

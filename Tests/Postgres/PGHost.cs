@@ -9,13 +9,13 @@ using Biggy.Postgres;
 
 namespace Tests.Postgres
 {
-  [Trait("PG Context", "")]
-  public class PostgresContext
+  [Trait("PG Host", "")]
+  public class PostgresDb
   {
     string _connectionStringName = "chinookPG";
     PGHost _context;
 
-    public PostgresContext()
+    public PostgresDb()
     {
       _context = new PGHost(_connectionStringName);
       if(_context.TableExists("test_table"))
