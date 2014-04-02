@@ -50,6 +50,7 @@
     <Compile Include="SQLList\Benchmarks.cs" />
     <Compile Include="Program.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
+    <Compile Include="UsageExample.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
