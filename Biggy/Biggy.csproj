@@ -67,7 +67,6 @@
     <Compile Include="DBTableMapping.cs" />
     <Compile Include="IBiggy.cs" />
     <Compile Include="IBiggyStore.cs" />
-    <Compile Include="InMemoryList.cs" />
     <Compile Include="JSON\JsonStore.cs" />
     <Compile Include="Extensions\JsonExtensions.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
