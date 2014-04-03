@@ -38,7 +38,7 @@ namespace Biggy.JSON
       }
       this.DbFileName = this.DbName + ".json";
       this.SetDataDirectory(dbPath);
-      _items = this.TryLoadFileData(this.DbPath);
+      //_items = this.TryLoadFileData(this.DbPath);
     }
 
     public void SetDataDirectory(string dbPath) {
@@ -63,8 +63,11 @@ namespace Biggy.JSON
         var json = "[" + File.ReadAllText(path).Replace(Environment.NewLine, ",") + "]";
         result = JsonConvert.DeserializeObject<List<T>>(json);
       }
-      _items = result;
-      return _items;
+      _items = result.ToList();
+      if (ReferenceEquals(_items, result)) {
+        throw new Exception("Yuck!");
+      }
+      return result;
     }
 
     public T AddItem(T item) {
@@ -145,8 +148,8 @@ namespace Biggy.JSON
     // IBIGGYSTORE IMPLEMENTATION:
 
     List<T> IBiggyStore<T>.Load() {
-      _items = this.TryLoadFileData(this.DbPath);
-      return _items;
+      _items = new List<T>();
+      return this.TryLoadFileData(this.DbPath);
     }
 
     void IBiggyStore<T>.SaveAll(List<T> items) {

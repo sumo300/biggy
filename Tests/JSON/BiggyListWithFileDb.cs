@@ -42,6 +42,21 @@ namespace Tests.JSON {
       Assert.True(addedItem != null && _biggyWidgetList.Count() == 1);
     }
 
+
+    [Fact(DisplayName = "Adds an item to List and Existing Store")]
+    public void Adds_Item_To_List_And_Existong_Store() {
+      _biggyWidgetList.Clear();
+      _biggyWidgetList.Add(new Widget { SKU = "001", Name = "Test widget 1", Price = 2.00M });
+
+      // Reload the list:
+      _biggyWidgetList = new BiggyList<Widget>(_widgets);
+      _biggyWidgetList.Add(new Widget { SKU = "002", Name = "Test widget 2", Price = 4.00M });
+
+      var addedItem = _biggyWidgetList.FirstOrDefault(w => w.SKU == "001");
+      Assert.True(addedItem != null && _biggyWidgetList.Count() == 2);
+    }
+
+
     [Fact(DisplayName = "Updates an item in List and Store")]
     public void Updates_Item_In_List_And_Store() {
       _biggyWidgetList.Clear();
