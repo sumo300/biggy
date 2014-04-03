@@ -63,6 +63,8 @@ namespace Biggy.JSON
         var json = "[" + File.ReadAllText(path).Replace(Environment.NewLine, ",") + "]";
         result = JsonConvert.DeserializeObject<List<T>>(json);
       }
+
+      // Make sure the internal list is not reference-equal to that returned to the caller:
       _items = result.ToList();
       if (ReferenceEquals(_items, result)) {
         throw new Exception("Yuck!");
