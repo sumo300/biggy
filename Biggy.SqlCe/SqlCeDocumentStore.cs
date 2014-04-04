@@ -10,12 +10,12 @@ namespace Biggy.SqlCe
     {
         public SqlCeDocumentStore(DbCache dbCache) : this(dbCache, null) { }
 
-        public SqlCeDocumentStore(string connectionStringName) : this(new SqlCeContext(connectionStringName)) { }
-        public SqlCeDocumentStore(string connectionStringName, string tableName) : this(new SqlCeContext(connectionStringName), tableName) { }
+        public SqlCeDocumentStore(string connectionStringName) : this(new SqlCeCache(connectionStringName)) { }
+        public SqlCeDocumentStore(string connectionStringName, string tableName) : this(new SqlCeCache(connectionStringName), tableName) { }
 
         public SqlCeDocumentStore(DbCache dbCache, string tableName) : base(dbCache, tableName) {
             // Inject SqlCe specific store, unnecessary if we can SetModel
-            var model = new SqlCeStore<dynamic>((SqlCeContext)dbCache)
+            var model = new SqlCeStore<dynamic>((SqlCeCache)dbCache)
             {
                 tableMapping = this.TableMapping,
                 PrimaryKeyMapping = this.PrimaryKeyMapping

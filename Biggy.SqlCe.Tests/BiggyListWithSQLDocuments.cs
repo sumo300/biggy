@@ -14,7 +14,7 @@ namespace Biggy.SqlCe.Tests {
     string _connectionStringName = "chinook";
     IBiggy<ClientDocument> _clientDocuments;
     IBiggy<MonkeyDocument> _monkeyDocuments;
-    DbCache dbCache = new SqlCeContext("chinook");
+    DbCache dbCache = new SqlCeCache("chinook");
 
 
     public BiggyListWithSQLDocuments() {

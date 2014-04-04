@@ -46,9 +46,8 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BulkInserter.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SqlCeContext.cs" />
+    <Compile Include="SqlCeCache.cs" />
     <Compile Include="SqlCeDocumentStore.cs" />
     <Compile Include="SqlCeStore.cs" />
   </ItemGroup>

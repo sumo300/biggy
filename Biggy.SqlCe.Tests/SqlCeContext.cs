@@ -12,11 +12,11 @@ namespace Biggy.SqlCe.Tests
   public class SqlCeContextTest
   {
     string _connectionStringName = "chinook";
-    SqlCeContext _context;
+    SqlCeCache _context;
 
     public SqlCeContextTest()
     {
-      _context = new SqlCeContext(_connectionStringName);
+      _context = new SqlCeCache(_connectionStringName);
       if(_context.TableExists("test_table"))
       {
         _context.DropTable("test_table");

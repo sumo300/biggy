@@ -17,7 +17,7 @@ namespace Biggy.SqlCe.Tests
     SqlCeStore<Client> _sqlStore;
 
     public SqlCeStoreTest() {
-      var context = new SqlCeContext(_connectionStringName);
+      var context = new SqlCeCache(_connectionStringName);
 
       // Build a table to play with from scratch each time:
       if(context.TableExists("Client")) {
@@ -35,7 +35,7 @@ namespace Biggy.SqlCe.Tests
 
     [Fact(DisplayName = "Initializes with Injected Context")]
     public void Intialize_With_Injected_Context() {
-      var context = new SqlCeContext(_connectionStringName);
+      var context = new SqlCeCache(_connectionStringName);
       _sqlStore = new SqlCeStore<Client>(context);
       Assert.True(_sqlStore != null && _sqlStore.Cache.DbTableNames.Count > 0);
     }

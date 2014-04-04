@@ -19,7 +19,7 @@ namespace Biggy.SqlCe.Tests
 
     public SqlCeBulkInsertsTest()
     {
-      var context = new SqlCeContext(_connectionStringName);
+      var context = new SqlCeCache(_connectionStringName);
 
       // Build a table to play with from scratch each time:
       if(context.TableExists("Client")) {

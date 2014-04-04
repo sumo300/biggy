@@ -7,9 +7,9 @@ using System.Threading.Tasks;
 
 namespace Biggy.SqlCe
 {
-    public class SqlCeContext : Biggy.SQLServer.SQLServerCache
+    public class SqlCeCache : Biggy.SQLServer.SQLServerCache
     {
-        public SqlCeContext(string connectionStringName) : base(connectionStringName) { }
+        public SqlCeCache(string connectionStringName) : base(connectionStringName) { }
 
         public override DbConnection OpenConnection()
         {

@@ -16,7 +16,7 @@ namespace Biggy.SqlCe.Tests {
     IBiggy<Client> _clients;
 
     public BiggyListWithSQL() {
-      var context = new SqlCeContext("chinook");
+      var context = new SqlCeCache("chinook");
       // Build a table to play with from scratch each time:
       if (context.TableExists("Client")) {
         context.DropTable("Client");

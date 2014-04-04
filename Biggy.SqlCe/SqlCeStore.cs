@@ -11,7 +11,7 @@ namespace Biggy.SqlCe
     public class SqlCeStore<T> : Biggy.SQLServer.SQLServerStore<T> where T : new()
     {
         public SqlCeStore(DbCache dbCache) : base(dbCache) { }
-        public SqlCeStore(string connectionString) : base(new SqlCeContext(connectionString)) { }
+        public SqlCeStore(string connectionString) : base(new SqlCeCache(connectionString)) { }
 
         public override DbConnection OpenConnection()
         {
