@@ -8,13 +8,12 @@ using Biggy.Extensions;
 
 namespace Biggy.SqlCe
 {
-    public class SqlCeStore<T> : Biggy.SQLServer.SQLServerStore<T> where T : new()
-    {
+    public class SqlCeStore<T> : Biggy.SQLServer.SQLServerStore<T> where T : new() {
+        
         public SqlCeStore(DbCache dbCache) : base(dbCache) { }
         public SqlCeStore(string connectionString) : base(new SqlCeCache(connectionString)) { }
 
-        public override DbConnection OpenConnection()
-        {
+        public override DbConnection OpenConnection() {
             var connection = new System.Data.SqlServerCe.SqlCeConnection(this.ConnectionString);
             connection.Open();
             return connection;
@@ -45,9 +44,8 @@ namespace Biggy.SqlCe
         }
 
         // It can be done much better, see: http://sqlcebulkcopy.codeplex.com/, but this shouldn't be very bad.
-        // I also tried to make one BulkInserter for store and documentStore but there are many generic/dynamic things so maybe not worth it 
-        public override List<T> BulkInsert(List<T> items)
-        {
+        // I also tried to make one generic BulkInserter for store and documentStore but there are many generic/dynamic things so maybe not worth it 
+        public override List<T> BulkInsert(List<T> items) {
             if (false == items.Any()) return items;
 
             DBTableMapping dbtmap = this.tableMapping;
@@ -58,8 +56,7 @@ namespace Biggy.SqlCe
 
             // Reuse a connection and commands object, SqlCe has a limit of open sessions
             using (var conn = insertCmd.Connection)
-            using (var tx = conn.BeginTransaction())
-            {
+            using (var tx = conn.BeginTransaction()) {
                 insertCmd.Transaction = tx;
 
                 DbCommand newIdQuery = null;

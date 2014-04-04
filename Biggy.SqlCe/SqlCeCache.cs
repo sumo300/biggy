@@ -7,19 +7,17 @@ using System.Threading.Tasks;
 
 namespace Biggy.SqlCe
 {
-    public class SqlCeCache : Biggy.SQLServer.SQLServerCache
-    {
+    public class SqlCeCache : Biggy.SQLServer.SQLServerCache {
+
         public SqlCeCache(string connectionStringName) : base(connectionStringName) { }
 
-        public override DbConnection OpenConnection()
-        {
+        public override DbConnection OpenConnection() {
             var connection = new System.Data.SqlServerCe.SqlCeConnection(this.ConnectionString);
             connection.Open();
             return connection;
         }
 
-        protected override void LoadDbColumnsList()
-        {
+        protected override void LoadDbColumnsList() {
             this.DbColumnsList = new List<DbColumnMapping>();
             var sql = ""
                 + "SELECT ISC.TABLE_NAME ,ISC.COLUMN_NAME "
@@ -28,55 +26,44 @@ namespace Biggy.SqlCe
                 + " FROM INFORMATION_SCHEMA.COLUMNS ISC "
                 + " LEFT OUTER JOIN INFORMATION_SCHEMA.INDEXES ISI "
                 + "  ON ISC.TABLE_NAME = ISI.TABLE_NAME AND ISC.COLUMN_NAME = ISI.COLUMN_NAME";
+
             using (var conn = this.OpenConnection())
-            {
-                using (var cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = sql;
-                    var dr = cmd.ExecuteReader();
-                    while (dr.Read())
-                    {
-                        var clm = dr["COLUMN_NAME"] as string;
-                        var newColumnMapping = new DbColumnMapping(this.DbDelimiterFormatString)
-                        {
-                            TableName = dr["TABLE_NAME"] as string,
-                            ColumnName = clm,
-                            PropertyName = clm,
-                            IsPrimaryKey = (bool)dr["IsPrimaryKey"],
-                            IsAutoIncementing = (bool)dr["IsAuto"]
-                        };
-                        this.DbColumnsList.Add(newColumnMapping);
-                    }
+            using (var cmd = conn.CreateCommand()) {
+                cmd.CommandText = sql;
+                var dr = cmd.ExecuteReader();
+                while (dr.Read()) {
+                    var clm = dr["COLUMN_NAME"] as string;
+                    var newColumnMapping = new DbColumnMapping(this.DbDelimiterFormatString) {
+                        TableName = dr["TABLE_NAME"] as string,
+                        ColumnName = clm,
+                        PropertyName = clm,
+                        IsPrimaryKey = (bool)dr["IsPrimaryKey"],
+                        IsAutoIncementing = (bool)dr["IsAuto"]
+                    };
+                    this.DbColumnsList.Add(newColumnMapping);
                 }
             }
         }
 
-        protected override void LoadDbTableNames()
-        {
+        protected override void LoadDbTableNames() {
             this.DbTableNames = new List<string>();
             var sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES";
             using (var conn = this.OpenConnection())
-            {
-                using (var cmd = conn.CreateCommand())
-                {
-                    cmd.CommandText = sql;
-                    var dr = cmd.ExecuteReader();
-                    while (dr.Read())
-                    {
-                        this.DbTableNames.Add(dr.GetString(0));
-                    }
+            using (var cmd = conn.CreateCommand()) {
+                cmd.CommandText = sql;
+                var dr = cmd.ExecuteReader();
+                while (dr.Read()) {
+                    this.DbTableNames.Add(dr.GetString(0));
                 }
             }
         }
 
-        public override bool TableExists(string delimitedTableName)
-        {
+        public override bool TableExists(string delimitedTableName) {
             string select = "SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}'";
             string sql = string.Format(select, delimitedTableName);
             object result;
             using (var conn = OpenConnection())
-            using (var cmd = conn.CreateCommand())
-            {
+            using (var cmd = conn.CreateCommand()) {
                 cmd.CommandText = sql;
                 result = cmd.ExecuteScalar();
             }
