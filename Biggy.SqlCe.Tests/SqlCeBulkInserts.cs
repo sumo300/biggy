@@ -17,8 +17,7 @@ namespace Biggy.SqlCe.Tests
 
     // SqlCe has an open session limit - bulk inserts have to be precisely implemented
 
-    public SqlCeBulkInsertsTest()
-    {
+    public SqlCeBulkInsertsTest() {
       var context = new SqlCeCache(_connectionStringName);
 
       // Build a table to play with from scratch each time:
@@ -36,6 +35,9 @@ namespace Biggy.SqlCe.Tests
       // Build a table to play with from scratch each time:
       if (context.TableExists("ClientDocuments")) {
           context.DropTable("ClientDocuments");
+      }
+      if (context.TableExists("MonkeyDocuments")) {
+          context.DropTable("MonkeyDocuments");
       }
     }
     
@@ -64,8 +66,7 @@ namespace Biggy.SqlCe.Tests
 
 
     [Fact(DisplayName = "IBiggyDocumentStore BulkInsert")]
-    public void IBiggyDocumentStore_Add_A_Lot_Of_Records()
-    {
+    public void IBiggyDocumentStore_Add_A_Lot_Of_Records() {
       _clientDocs = new SqlCeDocumentStore<ClientDocument>(_connectionStringName);
       int recordsCnt = 500;
       List<ClientDocument> clients = new List<ClientDocument>(500);
@@ -84,6 +85,23 @@ namespace Biggy.SqlCe.Tests
 
       var newList = _clientDocs.LoadAll();
       Assert.Equal(recordsCnt, newList.Count);
+    }
+
+    [Fact(DisplayName = "Bulk-Inserts new records as JSON documents with string key")]
+    public void Bulk_Inserts_Documents_With_String_PK() {
+        int INSERT_QTY = 100;
+
+        var addRange = new List<MonkeyDocument>();
+        for (int i = 0; i < INSERT_QTY; i++)
+        {
+            addRange.Add(new MonkeyDocument { Name = "MONKEY " + i, Birthday = DateTime.Today, Description = "The Monkey on my back" });
+        }
+        IBiggyStore<MonkeyDocument> monkeyDocuments = new SqlCeDocumentStore<MonkeyDocument>(_connectionStringName);
+        var inserted = monkeyDocuments.Add(addRange);
+
+        // Reload, make sure everything was persisted:
+        var monkeys = new BiggyList<MonkeyDocument>(new SqlCeDocumentStore<MonkeyDocument>(_connectionStringName));
+        Assert.True(monkeys.Count() == INSERT_QTY);
     }
 
   }

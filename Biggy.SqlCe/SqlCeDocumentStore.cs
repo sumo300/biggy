@@ -40,7 +40,7 @@ namespace Biggy.SqlCe
             var updateCmd = Model.CreateUpdateCommand(expando);
 
             bool fetchNewId = Model.PrimaryKeyMapping.IsAutoIncementing;
-            bool hasFullText = false;//TODO
+            bool hasFullText = false;   // currently not working for: non-auto Pks, fulltext docs / search column
 
             // Reuse a connection and commands object, SqlCe has a limit of open sessions
             using (var conn = Model.Cache.OpenConnection())
