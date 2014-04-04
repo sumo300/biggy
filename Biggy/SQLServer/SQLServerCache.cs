@@ -10,10 +10,9 @@ using System.Configuration;
 
 namespace Biggy.SQLServer
 {
-  public class SQLServerContext : BiggyRelationalContext 
+  public class SQLServerCache : DbCache 
   {
-
-    public SQLServerContext(string connectionStringName) : base(connectionStringName) { }
+    public SQLServerCache(string connectionStringName) : base(connectionStringName) { }
 
     public override string DbDelimiterFormatString {
       get { return "[{0}]"; }
@@ -38,7 +37,8 @@ namespace Biggy.SQLServer
         + "ON kcu.CONSTRAINT_SCHEMA = tc.CONSTRAINT_SCHEMA AND kcu.CONSTRAINT_NAME = tc.CONSTRAINT_NAME";
 
       using (var conn = this.OpenConnection()) {
-        using (var cmd = this.CreateCommand(sql, conn)) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
           var dr = cmd.ExecuteReader();
           while (dr.Read()) {
             var clm = dr["COLUMN_NAME"] as string;
@@ -59,33 +59,14 @@ namespace Biggy.SQLServer
       this.DbTableNames = new List<string>();
       var sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'dbo'";
       using (var conn = this.OpenConnection()) {
-        using (var cmd = this.CreateCommand(sql, conn)) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
           var dr = cmd.ExecuteReader();
           while (dr.Read()) {
             this.DbTableNames.Add(dr.GetString(0));
           }
         }
       }
-    }
-
-    public override string GetInsertReturnValueSQL(string delimitedPkColumn) {
-      return string.Format("; SELECT SCOPE_IDENTITY() as {0}", delimitedPkColumn);
-    }
-
-    public override string BuildSelect(string where, string orderBy, int limit) {
-      string sql = limit > 0 ? "SELECT TOP " + limit + " {0} FROM {1} " : "SELECT {0} FROM {1} ";
-      if (!string.IsNullOrEmpty(where)) {
-        sql += where.Trim().StartsWith("where", StringComparison.OrdinalIgnoreCase) ? where : " WHERE " + where;
-      }
-      if (!String.IsNullOrEmpty(orderBy)) {
-        sql += orderBy.Trim().StartsWith("order by", StringComparison.OrdinalIgnoreCase) ? orderBy : " ORDER BY " + orderBy;
-      }
-      return sql;
-    }
-
-
-    public override string GetSingleSelect(string delimitedTableName, string where) {
-      return string.Format("SELECT TOP 2 * FROM {0} WHERE {1}", delimitedTableName, where);
     }
 
     public override bool TableExists(string delimitedTableName) {
@@ -95,9 +76,14 @@ namespace Biggy.SQLServer
           + "WHERE TABLE_SCHEMA = 'dbo' "
           + "AND  TABLE_NAME = '{0}'";
       string sql = string.Format(select, delimitedTableName);
-      var result = Convert.ToInt32(this.Scalar(sql));
-      if (result > 0) {
-        exists = true;
+      using (var conn = this.OpenConnection()) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
+          var result = Convert.ToInt32(cmd.ExecuteScalar());
+          if (result > 0) {
+            exists = true;
+          }
+        }
       }
       return exists;
     }

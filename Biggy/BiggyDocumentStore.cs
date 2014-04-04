@@ -18,9 +18,11 @@ namespace Biggy
     public abstract List<T> Delete(List<T> items);
     protected abstract List<T> TryLoadData();
 
+    public abstract BiggyRelationalStore<dynamic> getModel();
+
       public string[] FullTextFields { get; set; }
     public BiggyRelationalStore<dynamic> Model { get; set; }
-    public BiggyRelationalContext Context { get; set; }
+    public DbCache DbCache { get; set; }
 
     public DBTableMapping TableMapping  {
       get { return this.Model.tableMapping; }
@@ -40,9 +42,11 @@ namespace Biggy
       Model.SetPrimaryKey(item, value);
     }
 
-    public BiggyDocumentStore(BiggyRelationalContext context) {
-      this.Context = context;
-      this.Model = new BiggyRelationalStore<dynamic>(context);
+    public BiggyDocumentStore(DbCache dbCache) {
+      this.DbCache = dbCache;
+      this.Model = this.getModel();
+
+      //this.Model = new BiggyRelationalStore<dynamic>(context);
       this.TableMapping = this.getTableMappingForT();
       this.PrimaryKeyMapping = this.TableMapping.PrimaryKeyMapping[0];
       SetFullTextColumns();
@@ -50,11 +54,13 @@ namespace Biggy
     }
 
     string _userDefinedTableName = "";
-    public BiggyDocumentStore(BiggyRelationalContext context, string tableName)
+    public BiggyDocumentStore(DbCache dbCache, string tableName)
     {
       _userDefinedTableName = tableName;
-      this.Context = context;
-      this.Model = new BiggyRelationalStore<dynamic>(context);
+      this.DbCache = dbCache;
+
+      this.Model = this.getModel();
+      //this.Model = new BiggyRelationalStore<dynamic>(context);
       this.TableMapping = this.getTableMappingForT();
       this.PrimaryKeyMapping = this.TableMapping.PrimaryKeyMapping[0];
       SetFullTextColumns();
@@ -64,11 +70,11 @@ namespace Biggy
     public void CreateDocumentTableForT(List<string> columnDefs) {
       string columnDefinitions = string.Join(",", columnDefs.ToArray());
       var sql = string.Format("CREATE TABLE {0} ({1});", this.TableMapping.DelimitedTableName, columnDefinitions);
-      this.Context.Execute(sql);
+      this.Model.Execute(sql);
     }
 
     public DBTableMapping getTableMappingForT() {
-      var result = new DBTableMapping(this.Context.DbDelimiterFormatString);
+      var result = new DBTableMapping(this.DbCache.DbDelimiterFormatString);
       result.DBTableName = this.DecideTableName();
       var pk = this.getPrimaryKeyForT();
       result.PrimaryKeyMapping.Add(pk);
@@ -97,7 +103,7 @@ namespace Biggy
     }
 
     DbColumnMapping getPrimaryKeyForT() {
-      DbColumnMapping result = new DbColumnMapping(this.Context.DbDelimiterFormatString);
+      DbColumnMapping result = new DbColumnMapping(this.DbCache.DbDelimiterFormatString);
       result.TableName = this.DecideTableName();
       var baseName = this.GetBaseName();
       var acceptableKeys = new string[] { "ID", baseName + "ID" };

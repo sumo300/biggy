@@ -15,21 +15,21 @@ namespace Tests.SQLServer {
     string _connectionStringName = "chinook";
     IBiggy<ClientDocument> _clientDocuments;
     IBiggy<MonkeyDocument> _monkeyDocuments;
-    BiggyRelationalContext context = new SQLServerContext("chinook");
+    DbCache _host;
 
 
     public BiggyListWithSQLDocuments() {
-
+      _host = new SQLServerCache("chinook");
       // This one will be re-created automagically:
-      if (context.TableExists("ClientDocuments")) {
-        context.DropTable("ClientDocuments");
+      if (_host.TableExists("ClientDocuments")) {
+        _host.DropTable("ClientDocuments");
       }
       // This one will be re-created automagically:
-      if (context.TableExists("MonkeyDocuments")) {
-        context.DropTable("MonkeyDocuments");
+      if (_host.TableExists("MonkeyDocuments")) {
+        _host.DropTable("MonkeyDocuments");
       }
-      _clientDocuments = new BiggyList<ClientDocument>(new SQLDocumentStore<ClientDocument>(_connectionStringName));
-      _monkeyDocuments = new BiggyList<MonkeyDocument>(new SQLDocumentStore<MonkeyDocument>(_connectionStringName));
+      _clientDocuments = new BiggyList<ClientDocument>(new SQLDocumentStore<ClientDocument>(_host));
+      _monkeyDocuments = new BiggyList<MonkeyDocument>(new SQLDocumentStore<MonkeyDocument>(_host));
     }
 
 
@@ -68,14 +68,14 @@ namespace Tests.SQLServer {
       int idToFind = newCustomer.ClientDocumentId;
 
       // Go find the new record after reloading:
-      _clientDocuments = new BiggyList<ClientDocument>(new SQLDocumentStore<ClientDocument>(_connectionStringName));
+      _clientDocuments = new BiggyList<ClientDocument>(new SQLDocumentStore<ClientDocument>(_host));
       var updateMe = _clientDocuments.FirstOrDefault(cd => cd.ClientDocumentId == idToFind);
       // Update:
       updateMe.FirstName = "Bill";
       _clientDocuments.Update(updateMe);
 
       // Go find the updated record after reloading:
-      _clientDocuments = new BiggyList<ClientDocument>(new SQLDocumentStore<ClientDocument>(_connectionStringName));
+      _clientDocuments = new BiggyList<ClientDocument>(new SQLDocumentStore<ClientDocument>(_host));
       var updated = _clientDocuments.FirstOrDefault(cd => cd.ClientDocumentId == idToFind);
       Assert.True(updated.FirstName == "Bill");
     }
@@ -94,7 +94,7 @@ namespace Tests.SQLServer {
       var removed = _clientDocuments.Remove(newCustomer);
 
       // Reload, make sure everything was persisted:
-      _clientDocuments = new BiggyList<ClientDocument>(new SQLDocumentStore<ClientDocument>(_connectionStringName));
+      _clientDocuments = new BiggyList<ClientDocument>(new SQLDocumentStore<ClientDocument>(_host));
       // Count after removing and reloading:
       int finalCount = _clientDocuments.Count();
       Assert.True(finalCount < initialCount);
@@ -112,7 +112,7 @@ namespace Tests.SQLServer {
       var inserted = _monkeyDocuments.Add(addRange);
 
       // Reload, make sure everything was persisted:
-      _monkeyDocuments = new BiggyList<MonkeyDocument>(new SQLDocumentStore<MonkeyDocument>(_connectionStringName));
+      _monkeyDocuments = new BiggyList<MonkeyDocument>(new SQLDocumentStore<MonkeyDocument>(_host));
       Assert.True(_monkeyDocuments.Count() == INSERT_QTY);
     }
 
@@ -132,7 +132,7 @@ namespace Tests.SQLServer {
       _clientDocuments.Add(bulkList);
 
       // Reload, make sure everything was persisted:
-      _clientDocuments = new BiggyList<ClientDocument>(new SQLDocumentStore<ClientDocument>(_connectionStringName));
+      _monkeyDocuments = new BiggyList<MonkeyDocument>(new SQLDocumentStore<MonkeyDocument>(_host));
 
       var last = _clientDocuments.Last();
       Assert.True(_clientDocuments.Count() == INSERT_QTY && last.ClientDocumentId >= INSERT_QTY);
@@ -150,12 +150,12 @@ namespace Tests.SQLServer {
       var inserted = _monkeyDocuments.Add(addRange);
 
       // Reload, make sure everything was persisted:
-      _monkeyDocuments = new BiggyList<MonkeyDocument>(new SQLDocumentStore<MonkeyDocument>(_connectionStringName));
+      _monkeyDocuments = new BiggyList<MonkeyDocument>(new SQLDocumentStore<MonkeyDocument>(_host));
 
       _monkeyDocuments.Clear();
 
       // Reload, make sure everything was persisted:
-      _monkeyDocuments = new BiggyList<MonkeyDocument>(new SQLDocumentStore<MonkeyDocument>(_connectionStringName));
+      _monkeyDocuments = new BiggyList<MonkeyDocument>(new SQLDocumentStore<MonkeyDocument>(_host));
 
       Assert.True(_monkeyDocuments.Count() == 0);
     }

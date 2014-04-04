@@ -5,34 +5,28 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Biggy.Postgres;
-using Biggy.SQLServer;
 
-namespace Biggy.Perf
+namespace Biggy.Perf.PGList
 {
-  public class SQLIBiggyUsageExamples
+  public class Benchmarks
   {
-    static string _connectionStringName = "chinook";
+    static string _connectionStringName = "chinookPG";
     public static void Run()
     {
       var sw = new Stopwatch();
       Console.WriteLine("===========================================================");
-      Console.WriteLine("SQL SERVER - SOME FANCY QUERYING");
+      Console.WriteLine("Postgres - SOME FANCY QUERYING");
       Console.WriteLine("===========================================================");
 
 
-      // We can do better by building this into a derived context - example upcoming:
-      var _context = new SQLServerContext(_connectionStringName);
-      IBiggyStore<Artist> _artistStore = new SQLServerStore<Artist>(_context);
-      IBiggyStore<Album> _albumStore = new SQLServerStore<Album>(_context);
-      IBiggyStore<Track> _trackStore = new SQLServerStore<Track>(_context);
-
+      var _db = new PGCache(_connectionStringName);
       IBiggy<Artist> _artists;
       IBiggy<Album> _albums;
       IBiggy<Track> _tracks;
 
       Console.WriteLine("Loading up Artists from Chinook...");
       sw.Start();
-      _artists = new BiggyList<Artist>(_artistStore);
+      _artists = new BiggyList<Artist>(new PGStore<Artist>(_db));
       sw.Stop();
       Console.WriteLine("\tLoaded {0} Artist records in {1} ms", _artists.Count(), sw.ElapsedMilliseconds);
 
@@ -40,7 +34,7 @@ namespace Biggy.Perf
       Console.WriteLine("Loading up Albums from Chinook...");
       sw.Reset();
       sw.Start();
-      _albums = new BiggyList<Album>(_albumStore);
+      _albums = new BiggyList<Album>(new PGStore<Album>(_db));
       sw.Stop();
       Console.WriteLine("\tLoaded {0} Albums in {1} ms", _artists.Count(), sw.ElapsedMilliseconds);
 
@@ -48,7 +42,7 @@ namespace Biggy.Perf
       Console.WriteLine("Loading up tracks from Chinook...");
       sw.Reset();
       sw.Start();
-      _tracks = new BiggyList<Track>(_trackStore);
+      _tracks = new BiggyList<Track>(new PGStore<Track>(_db));
       sw.Stop();
       Console.WriteLine("\tLoaded {0} Tracks in {1} ms", _tracks.Count(), sw.ElapsedMilliseconds);
 
@@ -82,17 +76,16 @@ namespace Biggy.Perf
       }
       Console.WriteLine(Environment.NewLine);
       Console.WriteLine("===========================================================");
-      Console.WriteLine("SQL SERVER - BASIC CRUD OPERATIONS");
+      Console.WriteLine("POSTGES - BASIC CRUD OPERATIONS");
       Console.WriteLine("===========================================================");
 
-      IBiggyStore<Customer> _customerStore = new SQLServerStore<Customer>(_context);
       IBiggy<Customer> _customers;
 
 
       sw.Reset();
       Console.WriteLine("Loading up customers from Chinook...");
       sw.Start();
-      _customers = new BiggyList<Customer>(_customerStore);
+      _customers = new BiggyList<Customer>(new PGStore<Customer>(_db));
       sw.Stop();
       Console.WriteLine("\tLoaded {0} records in {1}ms", _customers.Count(), sw.ElapsedMilliseconds);
 
@@ -122,28 +115,27 @@ namespace Biggy.Perf
 
       Console.WriteLine(Environment.NewLine);
       Console.WriteLine("===========================================================");
-      Console.WriteLine("SQL SERVER - BULK INSERTS AND DELETIONS");
+      Console.WriteLine("POSTGES - BULK INSERTS AND DELETIONS");
       Console.WriteLine("===========================================================");
 
       Console.WriteLine("Creating Test Table...");
-      if(_context.TableExists("Client"))
+      if(_db.TableExists("client"))
       {
-        _context.DropTable("Client");
+        _db.DropTable("client");
       }
       var columnDefs = new List<string>();
-      columnDefs.Add("ClientId int IDENTITY(1,1) PRIMARY KEY NOT NULL");
-      columnDefs.Add("LastName Text NOT NULL");
-      columnDefs.Add("FirstName Text NOT NULL");
-      columnDefs.Add("Email Text NOT NULL");
-      _context.CreateTable("Client", columnDefs);
+      columnDefs.Add("client_id serial PRIMARY KEY NOT NULL");
+      columnDefs.Add("last_name Text NOT NULL");
+      columnDefs.Add("first_name Text NOT NULL");
+      columnDefs.Add("email Text NOT NULL");
+      _db.CreateTable("client", columnDefs);
 
-      IBiggyStore<Client> _clientStore = new SQLServerStore<Client>(_context);
       IBiggy<Client> _clients;
 
       sw.Reset();
       int INSERT_QTY = 10000;
       Console.WriteLine("BULK INSERTING  {0} client records in Chinook...", INSERT_QTY);
-      _clients = new BiggyList<Client>(_clientStore);
+      _clients = new BiggyList<Client>(new PGStore<Client>(_db));
 
       var inserts = new List<Client>();
       for (int i = 0; i < INSERT_QTY; i++)
@@ -153,12 +145,12 @@ namespace Biggy.Perf
       sw.Start();
       var inserted = _clients.Add(inserts);
       sw.Stop();
-      Console.WriteLine("\tInserted {0} records in {1} ms", inserted, sw.ElapsedMilliseconds);
+      Console.WriteLine("\tInserted {0} records in {1} ms", inserted.Count(), sw.ElapsedMilliseconds);
 
       sw.Reset();
       Console.WriteLine("Loading up Bulk inserted CLients from Chinook...");
       sw.Start();
-      _clients = new BiggyList<Client>(_clientStore);
+      _clients = new BiggyList<Client>(new PGStore<Client>(_db));
       sw.Stop();
       Console.WriteLine("\tLoaded {0} records in {1}ms", _clients.Count(), sw.ElapsedMilliseconds);
 

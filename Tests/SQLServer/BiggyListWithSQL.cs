@@ -13,13 +13,15 @@ namespace Tests.SQLServer {
   public class BiggyListWithSQL
   {
     string _connectionStringName = "chinook";
+    DbCache _hostDb;
+    IBiggyStore<Client> _clientStore;
     IBiggy<Client> _clients;
 
     public BiggyListWithSQL() {
-      var context = new SQLServerContext("chinook");
+      _hostDb = new SQLServerCache("chinook");
       // Build a table to play with from scratch each time:
-      if (context.TableExists("Client")) {
-        context.DropTable("Client");
+      if (_hostDb.TableExists("Client")) {
+        _hostDb.DropTable("Client");
       }
 
       var columnDefs = new List<string>();
@@ -27,9 +29,10 @@ namespace Tests.SQLServer {
       columnDefs.Add("LastName Text NOT NULL");
       columnDefs.Add("FirstName Text NOT NULL");
       columnDefs.Add("Email Text NOT NULL");
-      context.CreateTable("Client", columnDefs);
+      _hostDb.CreateTable("Client", columnDefs);
 
-      _clients = new BiggyList<Client>(new SQLServerStore<Client>(_connectionStringName));
+      _clientStore = new SQLServerStore<Client>(_hostDb);
+      _clients = new BiggyList<Client>(_clientStore);
     }
 
 
@@ -47,7 +50,7 @@ namespace Tests.SQLServer {
       _clients.Add(newClient);
       
       // Open a new instance, to see if the item was added to the backing store as well:
-      var altClientList = new BiggyList<Client>(new SQLServerStore<Client>(_connectionStringName));
+      var altClientList = new BiggyList<Client>(_clientStore);
       Assert.True(altClientList.Count() > 0);
     }
 
@@ -58,7 +61,7 @@ namespace Tests.SQLServer {
       _clients.Clear();
       var newClient = new Client() { LastName = "Atten", FirstName = "John", Email = "jatten@example.com" };
       _clients.Add(newClient);
-      _clients = new BiggyList<Client>(new SQLServerStore<Client>(_connectionStringName));
+      _clients = new BiggyList<Client>(_clientStore);
       var updateMe = _clients.FirstOrDefault();
       updateMe.LastName = "Appleseed";
       _clients.Update(updateMe);
@@ -80,7 +83,7 @@ namespace Tests.SQLServer {
       int firstCount = _clients.Count();
 
       // Open a new instance, to see if the item was added to the backing store as well:
-      var altClientList = new BiggyList<Client>(new SQLServerStore<Client>(_connectionStringName));
+      var altClientList = new BiggyList<Client>(_clientStore);
       var deleteMe = altClientList.FirstOrDefault();
       altClientList.Remove(deleteMe);
       Assert.True(firstCount > 0 && altClientList.Count() == 0);
@@ -100,7 +103,7 @@ namespace Tests.SQLServer {
       _clients.Add(addThese);
 
       // Open a new instance, to see if the item was added to the backing store as well:
-      var altClientList = new BiggyList<Client>(new SQLServerStore<Client>(_connectionStringName));
+      var altClientList = new BiggyList<Client>(_clientStore);
       Assert.True(altClientList.Count() == INSERT_QTY);
     }
 
@@ -119,7 +122,7 @@ namespace Tests.SQLServer {
       _clients.Add(addThese);
 
       // Open a new instance, to see if the item was added to the backing store as well:
-      var altClientArray = new BiggyList<Client>(new SQLServerStore<Client>(_connectionStringName)).ToArray();
+      var altClientArray = new BiggyList<Client>(_clientStore).ToArray();
 
       var removeThese = new List<Client>();
       for (int i = 0; i < 5; i++) {
@@ -128,7 +131,7 @@ namespace Tests.SQLServer {
 
       _clients.Remove(removeThese);
       // Reload the list:
-      _clients = new BiggyList<Client>(new SQLServerStore<Client>(_connectionStringName));
+      _clients = new BiggyList<Client>(_clientStore);
       Assert.True(_clients.Count() == (INSERT_QTY - removeThese.Count()));
     }
 
@@ -147,12 +150,12 @@ namespace Tests.SQLServer {
       _clients.Add(addThese);
 
       // Reload the list:
-      _clients = new BiggyList<Client>(new SQLServerStore<Client>(_connectionStringName));
+      _clients = new BiggyList<Client>(_clientStore);
       int loadedCount = _clients.Count();
       _clients.Clear();
 
       // Reload the list:
-      _clients = new BiggyList<Client>(new SQLServerStore<Client>(_connectionStringName));
+      _clients = new BiggyList<Client>(_clientStore);
       int clearedCount = _clients.Count();
       Assert.True(loadedCount == INSERT_QTY && clearedCount == 0);
     }

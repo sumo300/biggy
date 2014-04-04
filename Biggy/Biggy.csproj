@@ -58,7 +58,7 @@
   <ItemGroup>
     <Compile Include="Attributes.cs" />
     <Compile Include="BiggyDocumentStore.cs" />
-    <Compile Include="BiggyRelationalContext.cs" />
+    <Compile Include="DbCache.cs" />
     <Compile Include="BiggyEventArgs.cs" />
     <Compile Include="BiggyList.cs" />
     <Compile Include="BiggyRelationalStore.cs" />
@@ -67,17 +67,16 @@
     <Compile Include="DBTableMapping.cs" />
     <Compile Include="IBiggy.cs" />
     <Compile Include="IBiggyStore.cs" />
-    <Compile Include="InMemoryList.cs" />
-    <Compile Include="JSON\BiggyList.cs" />
-    <Compile Include="JSON\BiggyDB.cs" />
+    <Compile Include="JSON\JsonStore.cs" />
     <Compile Include="Extensions\JsonExtensions.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
-    <Compile Include="Postgres\PGContext.cs" />
+    <Compile Include="Postgres\PGCache.cs" />
     <Compile Include="Postgres\PGDocumentStore.cs" />
     <Compile Include="Postgres\PGStore.cs" />
+    <Compile Include="JSON\BiggyListSerializer.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="SQLServer\SQLDocumentStore.cs" />
-    <Compile Include="SQLServer\SQLServerContext.cs" />
+    <Compile Include="SQLServer\SQLServerCache.cs" />
     <Compile Include="SQLServer\SQLServerStore.cs" />
   </ItemGroup>
   <ItemGroup>

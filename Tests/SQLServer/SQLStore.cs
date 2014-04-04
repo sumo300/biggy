@@ -18,11 +18,11 @@ namespace Tests.SQLServer
     SQLServerStore<Client> _sqlStore;
 
     public SQLStore() {
-      var context = new SQLServerContext(_connectionStringName);
+      var _cache = new SQLServerCache(_connectionStringName);
 
       // Build a table to play with from scratch each time:
-      if(context.TableExists("Client")) {
-        context.DropTable("Client");
+      if(_cache.TableExists("Client")) {
+        _cache.DropTable("Client");
       }
       var columnDefs = new List<string>();
       columnDefs.Add("ClientId int IDENTITY(1,1) PRIMARY KEY NOT NULL");
@@ -30,22 +30,22 @@ namespace Tests.SQLServer
       columnDefs.Add("FirstName Text NOT NULL");
       columnDefs.Add("Email Text NOT NULL");
 
-      context.CreateTable("Client", columnDefs);
+      _cache.CreateTable("Client", columnDefs);
     }
     
 
-    [Fact(DisplayName = "Initializes with Injected Context")]
+    [Fact(DisplayName = "Initializes with Injected Cache")]
     public void Intialize_With_Injected_Context() {
-      var context = new SQLServerContext(_connectionStringName);
+      var context = new SQLServerCache(_connectionStringName);
       _sqlStore = new SQLServerStore<Client>(context);
-      Assert.True(_sqlStore != null && _sqlStore.Context.DbTableNames.Count > 0);
+      Assert.True(_sqlStore != null && _sqlStore.Cache.DbTableNames.Count > 0);
     }
 
 
     [Fact(DisplayName = "Initializes with Connection String Name")]
     public void Intialize_With_Connection_String_Name() {
       _sqlStore = new SQLServerStore<Client>(_connectionStringName);
-      Assert.True(_sqlStore != null && _sqlStore.Context.DbTableNames.Count > 0);
+      Assert.True(_sqlStore != null && _sqlStore.Cache.DbTableNames.Count > 0);
     }
 
 

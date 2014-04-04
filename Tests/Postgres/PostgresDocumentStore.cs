@@ -7,7 +7,7 @@ using Xunit;
 using Biggy;
 using Biggy.Postgres;
 
-namespace Tests.PG
+namespace Tests.Postgres
 {
   [Trait("PG Document Store", "")]
   public class PostgresDocumentStore
@@ -22,16 +22,16 @@ namespace Tests.PG
     PGDocumentStore<MonkeyDocument> monkeyDocs;
 
     public PostgresDocumentStore() {
-      var context = new PGContext(_connectionStringName);
+      var _cache = new PGCache(_connectionStringName);
 
       // Build a table to play with from scratch each time:
 
       // This needs a fix - gotta pass undelimited table name to one, and delimited to the other. FIX ME, DAMMIT!
-      if(context.TableExists("ClientDocuments")) {
-        context.DropTable("\"ClientDocuments\"");
+      if(_cache.TableExists("ClientDocuments")) {
+        _cache.DropTable("\"ClientDocuments\"");
       }
-      if (context.TableExists("MonkeyDocuments")) {
-        context.DropTable("\"MonkeyDocuments\"");
+      if (_cache.TableExists("MonkeyDocuments")) {
+        _cache.DropTable("\"MonkeyDocuments\"");
       }
       clientDocs = new PGDocumentStore<ClientDocument>(_connectionStringName);
       monkeyDocs = new PGDocumentStore<MonkeyDocument>(_connectionStringName);

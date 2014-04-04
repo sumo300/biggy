@@ -86,4 +86,11 @@ namespace Biggy.Perf {
     [FullText]
     public string Description { get; set; }
   }
+
+
+  public class Widget {
+    public string SKU { get; set; }
+    public string Name { get; set; }
+    public Decimal Price { get; set; }
+  }
 }

@@ -10,9 +10,9 @@ using System.Configuration;
 
 namespace Biggy.Postgres
 {
-  public class PGContext : BiggyRelationalContext
+  public class PGCache : DbCache
   {
-    public PGContext(string connectionStringName) : base(connectionStringName) { }
+    public PGCache(string connectionStringName) : base(connectionStringName) { }
 
     public override string DbDelimiterFormatString {
       get { return "\"{0}\""; }
@@ -40,7 +40,8 @@ namespace Biggy.Postgres
         + "WHERE c.TABLE_SCHEMA = 'public'";
 
       using (var conn = this.OpenConnection()) {
-        using (var cmd = this.CreateCommand(sql, conn)) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
           var dr = cmd.ExecuteReader();
           while (dr.Read()) {
             var clm = dr["COLUMN_NAME"] as string;
@@ -61,36 +62,14 @@ namespace Biggy.Postgres
       this.DbTableNames = new List<string>();
       var sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_SCHEMA = 'public'";
       using (var conn = this.OpenConnection()) {
-        using (var cmd = this.CreateCommand(sql, conn)) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
           var dr = cmd.ExecuteReader();
           while (dr.Read()) {
             this.DbTableNames.Add(dr.GetString(0));
           }
         }
       }
-    }
-
-    public override string GetInsertReturnValueSQL(string delimitedPkColumn) {
-      return " RETURNING " + delimitedPkColumn + " as newId";
-    }
-
-    public override string GetSingleSelect(string delimitedTableName, string where) {
-      return string.Format("SELECT * FROM {0} WHERE {1} LIMIT 1", delimitedTableName, where);
-    }
-
-    public override string BuildSelect(string where, string orderBy, int limit) {
-      string sql = "SELECT {0} FROM {1} ";
-      if (!string.IsNullOrEmpty(where)) {
-        sql += where.Trim().StartsWith("where", StringComparison.OrdinalIgnoreCase) ? where : " WHERE " + where;
-      }
-      if (!String.IsNullOrEmpty(orderBy)) {
-        sql += orderBy.Trim().StartsWith("order by", StringComparison.OrdinalIgnoreCase) ? orderBy : " ORDER BY " + orderBy;
-      }
-
-      if (limit > 0) {
-        sql += " LIMIT " + limit;
-      }
-      return sql;
     }
 
     // TODO: Somehow handle the inconsistent useage of delimited/not delimited table name:
@@ -101,10 +80,14 @@ namespace Biggy.Postgres
           + "WHERE TABLE_SCHEMA = 'public' "
           + "AND  TABLE_NAME = '{0}'";
       string sql = string.Format(select, notDelimitedTableName);
-      var result = Convert.ToInt32(this.Scalar(sql));
-      if (result > 0)
-      {
-        exists = true;
+      using (var conn = this.OpenConnection()) {
+        using (var cmd = conn.CreateCommand()) {
+          cmd.CommandText = sql;
+          var result = Convert.ToInt32(cmd.ExecuteScalar());
+          if (result > 0) {
+            exists = true;
+          }
+        }
       }
       return exists;
     }

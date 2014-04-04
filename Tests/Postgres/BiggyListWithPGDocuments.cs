@@ -10,7 +10,7 @@ using Newtonsoft.Json;
 
 namespace Tests.Postgres {
 
-  [Trait("BiggyList With SQL Server Document Store", "")]
+  [Trait("Biggy List With Postgres Document Store", "")]
   public class BiggyListWithPGDocuments {
     string _connectionStringName = "chinookPG";
     IBiggy<ClientDocument> _clientDocuments;
@@ -18,14 +18,14 @@ namespace Tests.Postgres {
 
 
     public BiggyListWithPGDocuments() {
-      var context = new PGContext(_connectionStringName);
+      var _cache = new PGCache(_connectionStringName);
       // This one will be re-created automagically:
-      if (context.TableExists("ClientDocuments")) {
-        context.DropTable("\"ClientDocuments\"");
+      if (_cache.TableExists("ClientDocuments")) {
+        _cache.DropTable("\"ClientDocuments\"");
       }
       // This one will be re-created automagically:
-      if (context.TableExists("MonkeyDocuments")) {
-        context.DropTable("\"MonkeyDocuments\"");
+      if (_cache.TableExists("MonkeyDocuments")) {
+        _cache.DropTable("\"MonkeyDocuments\"");
       }
       _clientDocuments = new BiggyList<ClientDocument>(new PGDocumentStore<ClientDocument>(_connectionStringName));
       _monkeyDocuments = new BiggyList<MonkeyDocument>(new PGDocumentStore<MonkeyDocument>(_connectionStringName));

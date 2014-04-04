@@ -7,13 +7,16 @@ using System.Data.Common;
 using Biggy.Extensions;
 
 
-namespace Biggy.Postgres
-{
+namespace Biggy.Postgres {
   public class PGDocumentStore<T> : BiggyDocumentStore<T> where T : new() {
-    public PGDocumentStore(BiggyRelationalContext context) : base(context) { }
-    public PGDocumentStore(BiggyRelationalContext context, string tableName) : base(context, tableName) { }
-    public PGDocumentStore(string connectionStringName) : base(new PGContext(connectionStringName)) { }
-    public PGDocumentStore(string connectionStringName, string tableName) : base(new PGContext(connectionStringName), tableName) { }
+    public PGDocumentStore(DbCache context) : base(context) { }
+    public PGDocumentStore(DbCache context, string tableName) : base(context, tableName) { }
+    public PGDocumentStore(string connectionStringName) : base(new PGCache(connectionStringName)) { }
+    public PGDocumentStore(string connectionStringName, string tableName) : base(new PGCache(connectionStringName), tableName) { }
+
+    public override BiggyRelationalStore<dynamic> getModel() {
+      return new PGStore<dynamic>(this.DbCache);
+    }
 
     protected override List<T> TryLoadData() {
       try {
@@ -29,7 +32,7 @@ namespace Biggy.Postgres
             fullTextColumn = ", search tsvector";
           }
           var sql = string.Format("CREATE TABLE {0} ({1} {2} primary key not null, body json not null {3});", this.TableMapping.DelimitedTableName, this.PrimaryKeyMapping.DelimitedColumnName, idType, fullTextColumn);
-          this.Context.Execute(sql);
+          this.Model.Execute(sql);
           return TryLoadData();
         } else {
           throw;
@@ -41,7 +44,6 @@ namespace Biggy.Postgres
       this.addItem(item);
       if (this.PrimaryKeyMapping.IsAutoIncementing) {
         //// Sync the JSON ID with the serial PK:
-        //var ex = this.SetDataForDocument(item);
         this.Update(item);
       }
       return item;
@@ -71,7 +73,7 @@ namespace Biggy.Postgres
       var sb = new StringBuilder();
       sb.AppendFormat("INSERT INTO {0} ({1}) VALUES ({2}) RETURNING {3} as newID;", this.TableMapping.DelimitedTableName, string.Join(",", dc.Keys), string.Join(",", vals), Model.PrimaryKeyMapping.DelimitedColumnName);
       var sql = sb.ToString();
-      var newKey = this.Context.Scalar(sql, args.ToArray());
+      var newKey = this.Model.Scalar(sql, args.ToArray());
       //set the key
       this.Model.SetPrimaryKey(item, newKey);
     }
@@ -88,12 +90,12 @@ namespace Biggy.Postgres
       string insertClause = "";
       var sbSql = new StringBuilder("");
 
-      using (var connection = this.Context.OpenConnection()) {
+      using (var connection = this.DbCache.OpenConnection()) {
         using (var tdbTransaction = connection.BeginTransaction(System.Data.IsolationLevel.RepeatableRead)) {
           var commands = new List<DbCommand>();
           // Lock the table, so nothing will disrupt the pk sequence:
           string lockTableSQL = string.Format("LOCK TABLE {0} in ACCESS EXCLUSIVE MODE", this.TableMapping.DelimitedTableName);
-          DbCommand dbCommand = this.Context.CreateCommand(lockTableSQL, connection);
+          DbCommand dbCommand = this.Model.CreateCommand(lockTableSQL, connection);
           dbCommand.Transaction = tdbTransaction;
           dbCommand.ExecuteNonQuery();
 
@@ -146,7 +148,7 @@ namespace Biggy.Postgres
                 sbSql = new StringBuilder(insertClause);
                 paramCounter = 0;
                 rowValueCounter = 0;
-                dbCommand = this.Context.CreateCommand("", connection);
+                dbCommand = this.Model.CreateCommand("", connection);
                 dbCommand.Transaction = tdbTransaction;
               }
               if (key == "search") {
@@ -206,14 +208,12 @@ namespace Biggy.Postgres
       return item;
     }
 
-    public override T Delete(T item)
-    {
+    public override T Delete(T item) {
       Model.Delete(item);
       return item;
     }
 
-    public override List<T> Delete(List<T> items)
-    {
+    public override List<T> Delete(List<T> items) {
       Model.Delete(items);
       return items;
     }

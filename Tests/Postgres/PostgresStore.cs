@@ -7,7 +7,7 @@ using Xunit;
 using Biggy;
 using Biggy.Postgres;
 
-namespace Tests.SQLServer
+namespace Tests.Postgres
 {
   [Trait("Postgres Store", "")]
   public class PostgresStore
@@ -16,11 +16,11 @@ namespace Tests.SQLServer
     IBiggyStore<Client> _biggyStore;
     IUpdateableBiggyStore<Client> _updateableStore;
     IQueryableBiggyStore<Client> _queryableStore;
-    PGStore<Client> _sqlStore;
+    PGStore<Client> _clientStore;
 
     public PostgresStore()
     {
-      var context = new PGContext(_connectionStringName);
+      var context = new PGCache(_connectionStringName);
 
       // Build a table to play with from scratch each time:
       if(context.TableExists("client")) {
@@ -36,18 +36,18 @@ namespace Tests.SQLServer
     }
     
 
-    [Fact(DisplayName = "Initializes with Injected Context")]
+    [Fact(DisplayName = "Initializes with Injected Cache")]
     public void Intialize_With_Injected_Context() {
-      var context = new PGContext(_connectionStringName);
-      _sqlStore = new PGStore<Client>(context);
-      Assert.True(_sqlStore != null && _sqlStore.Context.DbTableNames.Count > 0);
+      var cache = new PGCache(_connectionStringName);
+      _clientStore = new PGStore<Client>(cache);
+      Assert.True(_clientStore != null && _clientStore.Cache.DbTableNames.Count > 0);
     }
 
 
     [Fact(DisplayName = "Initializes with Connection String Name")]
     public void Intialize_With_Connection_String_Name() {
-      _sqlStore = new PGStore<Client>(_connectionStringName);
-      Assert.True(_sqlStore != null && _sqlStore.Context.DbTableNames.Count > 0);
+      _clientStore = new PGStore<Client>(_connectionStringName);
+      Assert.True(_clientStore != null && _clientStore.Cache.DbTableNames.Count > 0);
     }
 
 
@@ -141,12 +141,6 @@ namespace Tests.SQLServer
     [Fact(DisplayName = "Pulls things dynamically")]
     public void PullsThingsDynamically() {
       var list = new PGStore<dynamic>(_connectionStringName);
-      //string sql = ""
-      //  + "select artist.name AS artist_name, track.name, track.unit_price "
-      //  + "from artist inner join "
-      //  + "album on artist.artist_id = album.artist_id inner join "
-      //  + "track on album.album_id = track.album_id "
-      //  + "where (artist.name = @0)";
       var results = list.Query(@"select artist.name AS artist_name, track.name, track.unit_price 
                                    from artist inner join 
                                    album on artist.artist_id = album.artist_id inner join
