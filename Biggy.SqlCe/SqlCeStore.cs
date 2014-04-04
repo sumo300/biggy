@@ -14,9 +14,7 @@ namespace Biggy.SqlCe
         public SqlCeStore(string connectionString) : base(new SqlCeCache(connectionString)) { }
 
         public override DbConnection OpenConnection() {
-            var connection = new System.Data.SqlServerCe.SqlCeConnection(this.ConnectionString);
-            connection.Open();
-            return connection;
+            return this.Cache.OpenConnection();
         }
 
         public override T Insert(T item) {
