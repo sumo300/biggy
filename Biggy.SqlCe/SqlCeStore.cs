@@ -8,10 +8,17 @@ using Biggy.Extensions;
 
 namespace Biggy.SqlCe
 {
-    public class SqlCeStore<T> : BiggyRelationalStore<T> where T : new()
+    public class SqlCeStore<T> : Biggy.SQLServer.SQLServerStore<T> where T : new()
     {
-        public SqlCeStore(SqlCeContext context) : base(context) { }
+        public SqlCeStore(DbCache dbCache) : base(dbCache) { }
         public SqlCeStore(string connectionString) : base(new SqlCeContext(connectionString)) { }
+
+        public override DbConnection OpenConnection()
+        {
+            var connection = new System.Data.SqlServerCe.SqlCeConnection(this.ConnectionString);
+            connection.Open();
+            return connection;
+        }
 
         public override T Insert(T item) {
             if (BeforeSave(item)) {

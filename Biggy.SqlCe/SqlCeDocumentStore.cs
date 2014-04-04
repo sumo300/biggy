@@ -8,14 +8,14 @@ namespace Biggy.SqlCe
 {
     public class SqlCeDocumentStore<T> : BiggyDocumentStore<T> where T : new()
     {
-        public SqlCeDocumentStore(BiggyRelationalContext context) : this(context, null) { }
+        public SqlCeDocumentStore(DbCache dbCache) : this(dbCache, null) { }
 
         public SqlCeDocumentStore(string connectionStringName) : this(new SqlCeContext(connectionStringName)) { }
         public SqlCeDocumentStore(string connectionStringName, string tableName) : this(new SqlCeContext(connectionStringName), tableName) { }
 
-        public SqlCeDocumentStore(BiggyRelationalContext context, string tableName) : base(context, tableName) {
+        public SqlCeDocumentStore(DbCache dbCache, string tableName) : base(dbCache, tableName) {
             // Inject SqlCe specific store, unnecessary if we can SetModel
-            var model = new SqlCeStore<dynamic>((SqlCeContext)context)
+            var model = new SqlCeStore<dynamic>((SqlCeContext)dbCache)
             {
                 tableMapping = this.TableMapping,
                 PrimaryKeyMapping = this.PrimaryKeyMapping
@@ -23,7 +23,10 @@ namespace Biggy.SqlCe
             this.Model = model;
         }
 
-        // Need overidable SetModel to set specific RelationalStore
+        public override BiggyRelationalStore<dynamic> getModel()
+        {
+            return new SqlCeStore<dynamic>(this.DbCache);
+        }
 
         public override T Insert(T item)
         {
@@ -54,7 +57,7 @@ namespace Biggy.SqlCe
             bool hasFullText = false;//TODO
 
             // Reuse a connection and commands object, SqlCe has a limit of open sessions
-            using (var conn = Model.Context.OpenConnection())
+            using (var conn = Model.Cache.OpenConnection())
             using (var tx = conn.BeginTransaction())
             {
                 // prepare commands

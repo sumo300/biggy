@@ -37,14 +37,14 @@ namespace Biggy.SqlCe.Tests
     public void Intialize_With_Injected_Context() {
       var context = new SqlCeContext(_connectionStringName);
       _sqlStore = new SqlCeStore<Client>(context);
-      Assert.True(_sqlStore != null && _sqlStore.Context.DbTableNames.Count > 0);
+      Assert.True(_sqlStore != null && _sqlStore.Cache.DbTableNames.Count > 0);
     }
 
 
     [Fact(DisplayName = "Initializes with Connection String Name")]
     public void Intialize_With_Connection_String_Name() {
       _sqlStore = new SqlCeStore<Client>(_connectionStringName);
-      Assert.True(_sqlStore != null && _sqlStore.Context.DbTableNames.Count > 0);
+      Assert.True(_sqlStore != null && _sqlStore.Cache.DbTableNames.Count > 0);
     }
 
 

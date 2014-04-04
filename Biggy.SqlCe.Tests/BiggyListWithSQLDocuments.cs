@@ -14,18 +14,18 @@ namespace Biggy.SqlCe.Tests {
     string _connectionStringName = "chinook";
     IBiggy<ClientDocument> _clientDocuments;
     IBiggy<MonkeyDocument> _monkeyDocuments;
-    BiggyRelationalContext context = new SqlCeContext("chinook");
+    DbCache dbCache = new SqlCeContext("chinook");
 
 
     public BiggyListWithSQLDocuments() {
 
       // This one will be re-created automagically:
-      if (context.TableExists("ClientDocuments")) {
-        context.DropTable("ClientDocuments");
+      if (dbCache.TableExists("ClientDocuments")) {
+        dbCache.DropTable("ClientDocuments");
       }
       // This one will be re-created automagically:
-      if (context.TableExists("MonkeyDocuments")) {
-        context.DropTable("MonkeyDocuments");
+      if (dbCache.TableExists("MonkeyDocuments")) {
+        dbCache.DropTable("MonkeyDocuments");
       }
       _clientDocuments = new BiggyList<ClientDocument>(new SqlCeDocumentStore<ClientDocument>(_connectionStringName));
       _monkeyDocuments = new BiggyList<MonkeyDocument>(new SqlCeDocumentStore<MonkeyDocument>(_connectionStringName));

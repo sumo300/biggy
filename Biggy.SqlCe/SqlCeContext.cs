@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Biggy.SqlCe
 {
-    public class SqlCeContext : Biggy.SQLServer.SQLServerContext
+    public class SqlCeContext : Biggy.SQLServer.SQLServerCache
     {
         public SqlCeContext(string connectionStringName) : base(connectionStringName) { }
 
@@ -30,8 +30,9 @@ namespace Biggy.SqlCe
                 + "  ON ISC.TABLE_NAME = ISI.TABLE_NAME AND ISC.COLUMN_NAME = ISI.COLUMN_NAME";
             using (var conn = this.OpenConnection())
             {
-                using (var cmd = this.CreateCommand(sql, conn))
+                using (var cmd = conn.CreateCommand())
                 {
+                    cmd.CommandText = sql;
                     var dr = cmd.ExecuteReader();
                     while (dr.Read())
                     {
@@ -56,8 +57,9 @@ namespace Biggy.SqlCe
             var sql = "SELECT TABLE_NAME FROM INFORMATION_SCHEMA.TABLES";
             using (var conn = this.OpenConnection())
             {
-                using (var cmd = this.CreateCommand(sql, conn))
+                using (var cmd = conn.CreateCommand())
                 {
+                    cmd.CommandText = sql;
                     var dr = cmd.ExecuteReader();
                     while (dr.Read())
                     {
@@ -71,8 +73,13 @@ namespace Biggy.SqlCe
         {
             string select = "SELECT 1 FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = '{0}'";
             string sql = string.Format(select, delimitedTableName);
-            var result = this.Scalar(sql);
-            
+            object result;
+            using (var conn = OpenConnection())
+            using (var cmd = conn.CreateCommand())
+            {
+                cmd.CommandText = sql;
+                result = cmd.ExecuteScalar();
+            }
             return result != null;
         }
     }

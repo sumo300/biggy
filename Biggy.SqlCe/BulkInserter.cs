@@ -7,7 +7,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Biggy.Extensions;
-
+/*
 namespace Biggy.SqlCe
 {
     // intended for single implementation for SqlCe Store and DocumentStore
@@ -109,3 +109,4 @@ namespace Biggy.SqlCe
         }
     }
 }
+*/
