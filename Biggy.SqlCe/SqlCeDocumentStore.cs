@@ -34,30 +34,30 @@ namespace Biggy.SqlCe
             if (false == items.Any()) return items;
             var first = items.First();
             var expando = SetDataForDocument(first);
-            string bodyPart, searchPart;
             
             var insertCmd = Model.CreateInsertCommand(expando);
-            var updateCmd = Model.CreateUpdateCommand(expando);
+            var updateSql = string.Format("update {0} set [body] = @0 where {1} = @1",
+                        Model.tableMapping.DelimitedTableName, Model.PrimaryKeyMapping.DelimitedColumnName);
 
             bool fetchNewId = Model.PrimaryKeyMapping.IsAutoIncementing;
-            bool hasFullText = false;   // currently not working for: non-auto Pks, fulltext docs / search column
 
             // Reuse a connection and commands object, SqlCe has a limit of open sessions
             using (var conn = Model.Cache.OpenConnection())
             using (var tx = conn.BeginTransaction()) {
                 // prepare commands
                 var newIdQuery = Model.CreateCommand("select @@Identity", conn);
-                newIdQuery.Transaction = tx;
+                // we'll need update command only if Pk is auto-inc, so we'd need to update doc's body
+                var updateCmd = Model.CreateCommand(updateSql, conn, "body-stub", 0);
+
                 insertCmd.Connection = conn;
-                insertCmd.Transaction = tx;
-                updateCmd.Connection = conn;
-                updateCmd.Transaction = tx;
+                newIdQuery.Transaction = insertCmd.Transaction = updateCmd.Transaction = tx;
                 
                 foreach (var item in items) {
                     if (false == object.ReferenceEquals(first, item)) {
                         expando = SetDataForDocument(item);
+                        var args = expando.GetInsertParamValues(Model.PrimaryKeyMapping);
+                        insertCmd.SetNewParameterValues(args);
                     }
-                    insertCmd.Parameters[0].Value = ((dynamic)expando).body as string;
                     insertCmd.ExecuteNonQuery();
 
                     if (true == fetchNewId) {

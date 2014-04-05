@@ -4,7 +4,6 @@ using System.Data.Common;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Biggy.Extensions;
 
 namespace Biggy.SqlCe
 {
@@ -65,11 +64,9 @@ namespace Biggy.SqlCe
 
                 foreach (var item in items) {
                     if (false == object.ReferenceEquals(first, item)) {
-                        var pValues = GetInsertParamValues(pkMap, item);
+                        var pValues = item.GetInsertParamValues(pkMap);
                         System.Diagnostics.Debug.Assert(insertCmd.Parameters.Count == pValues.Count());
-                        for (int i = 0; i < insertCmd.Parameters.Count; ++i) {
-                            insertCmd.Parameters[i].Value = pValues[i]; // reuse cmd object, copy new values
-                        }
+                        insertCmd.SetNewParameterValues(pValues);
                     }
                     insertCmd.ExecuteNonQuery();
 
@@ -81,18 +78,6 @@ namespace Biggy.SqlCe
                 tx.Commit();
             }
             return items;
-        }
-
-        private object[] GetInsertParamValues(DbColumnMapping pkMap, T insertedItem) {
-            var expando = insertedItem.ToExpando();
-            var settings = (IDictionary<string, object>)expando;
-            var mappedPkPropertyName = pkMap.PropertyName;
-            if (pkMap.IsAutoIncementing) {
-                var col = settings.FirstOrDefault(x => x.Key.Equals(mappedPkPropertyName, StringComparison.OrdinalIgnoreCase));
-                settings.Remove(col);
-            }
-
-            return settings.Values.ToArray();
         }
     }
 }
