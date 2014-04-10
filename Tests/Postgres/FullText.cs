@@ -4,15 +4,16 @@
 //using System.Text;
 //using System.Threading.Tasks;
 //using Biggy.Postgres;
+//using Biggy;
 //using Xunit;
 
 //namespace Tests.Postgres {
-//  [Trait("PG Full Text Searching","")]
+//  [Trait("PG Full Text Searching", "")]
 //  public class PGFullText {
 
-//    PGList<Film> films;
+//    IBiggy<Film> films;
 //    public PGFullText() {
-//      films = new PGList<Film>("chinookPG", "film");
+//      films = new BiggyList<Film>(new PGStore<Film>("chinook"));
 //    }
 
 //    [Fact(DisplayName = "Ad hoc TS Vector Query Returns Films")]
@@ -20,7 +21,7 @@
 
 //      var results = films.FullTextOnTheFly("monkey", "description", "title");
 //      Assert.True(results.Count() > 0);
-      
+
 //    }
 
 //    [Fact(DisplayName = "Tagged full text works wonders")]
