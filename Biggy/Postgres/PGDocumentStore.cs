@@ -184,26 +184,6 @@ namespace Biggy.Postgres {
     /// </summary>
     public override T Update(T item) {
       var expando = SetDataForDocument(item);
-      var dc = expando as IDictionary<string, object>;
-      //this.Model.Insert(expando);
-      var index = 0;
-      var sb = new StringBuilder();
-      var args = new List<object>();
-      sb.AppendFormat("UPDATE {0} SET ", this.TableMapping.DelimitedTableName);
-      foreach (var key in dc.Keys) {
-        var stub = string.Format("{0}=@{1},", key, index);
-        if (key == "search") {
-          stub = string.Format("{0}=to_tsvector(@{1}),", key, index);
-        }
-        args.Add(dc[key]);
-        index++;
-        if (index == dc.Keys.Count)
-          stub = stub.Substring(0, stub.Length - 1);
-        sb.Append(stub);
-      }
-      sb.Append(";");
-      var sql = sb.ToString();
-      //this.Model.Execute(sql, args.ToArray());
       this.Model.Update(expando);
       return item;
     }
