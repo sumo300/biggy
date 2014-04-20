@@ -8,7 +8,7 @@ using Biggy;
 
 namespace Biggy.SqlCe.Tests
 {
-  [Trait("SQL Server Context", "")]
+  [Trait("SQL CE Cache", "")]
   public class SqlCeContextTest
   {
     string _connectionStringName = "chinook";

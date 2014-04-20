@@ -8,7 +8,7 @@ using Biggy;
 
 namespace Biggy.SqlCe.Tests
 {
-  [Trait("SQL Server Document Store", "")]
+  [Trait("SQL CE Document Store", "")]
   public class SqlCeDocumentStoreTest
   {
     string _connectionStringName = "chinook";
