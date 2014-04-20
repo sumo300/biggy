@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using System.Text;
+using PagedList;
 
 namespace Biggy.Lucene
 {
@@ -13,9 +14,9 @@ namespace Biggy.Lucene
             _storeDecorator = storeDecorator;
         }
 
-        public List<T> Search(string query, int resultCount)
+        public IPagedList<T> Search(string query, int pageNo, int pageSize)
         {
-            return _storeDecorator.Search(query, resultCount);
+            return _storeDecorator.Search(query, pageNo, pageSize);
         }
     }
 }

@@ -1,10 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-
-namespace Biggy.Lucene.Tests.Helpers
+﻿namespace Biggy.Lucene.Tests.Models
 {
     public class Film
     {
