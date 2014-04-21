@@ -31,7 +31,7 @@ namespace Tests
         }
 
         [Fact(DisplayName = "Updates an item")]
-        public void Updates_Item_In_Store()
+        public void Updates_Item_In_List()
         {
             _biggyList.Add(new Widget { SKU = "001", Name = "Test widget 1", Price = 2.00M });
             var updateMe = _biggyList.First(x => x.SKU == "001");
@@ -42,7 +42,7 @@ namespace Tests
         }
 
         [Fact(DisplayName = "Removes an item")]
-        public void Removes_Item_From_Store()
+        public void Removes_Item_From_List()
         {
             _biggyList.Add(new Widget { SKU = "001", Name = "Test widget 1", Price = 2.00M });
             var removeMe = _biggyList.First(x => x.SKU == "001");
@@ -52,7 +52,7 @@ namespace Tests
         }
 
         [Fact(DisplayName = "Removes Range of items")]
-        public void Removes_Range_From_Store()
+        public void Removes_Range_From_List()
         {
             int INSERT_QTY = 100;
             var batch = new List<Widget>();
