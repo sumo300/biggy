@@ -432,12 +432,31 @@ namespace Biggy
 
 
     /// <summary>
-    /// TODO: JA - Check for non-default init value of PK!
-    /// Conventionally introspects the object passed in for a field that 
-    /// looks like a PK. If you've named your PrimaryKeyField, this becomes easy
+    /// Checks for the presence of a PK field and a non-default value. 
+    /// This method is generally called by the Save method to determine 
+    /// whether the object represents a new record, or an existing record. 
     /// </summary>
     public bool HasPrimaryKey(object o) {
-      return o.ToDictionary().ContainsKey(this.PrimaryKeyMapping.PropertyName);
+      bool keyIsPresent = false;
+      var dict = o.ToDictionary();
+      Type propertyType = null;
+      object propertyValue = null;
+      
+      object defaultValue;
+      if(dict.ContainsKey(this.PrimaryKeyMapping.PropertyName))
+      {
+        keyIsPresent = true;
+        propertyValue = dict[this.PrimaryKeyMapping.PropertyName];
+        propertyType = dict[this.PrimaryKeyMapping.PropertyName].GetType();
+      }
+
+      if(propertyType.IsValueType) {
+        defaultValue = Activator.CreateInstance(propertyType);
+      } else {
+        defaultValue = null;
+      }
+      bool hasPK = keyIsPresent && !propertyValue.Equals(defaultValue);
+      return hasPK;
     }
 
 
