@@ -11,7 +11,6 @@ namespace Biggy.JSON
   [JsonConverter(typeof(BiggyListSerializer))]
   public class JsonStore<T> : IBiggyStore<T>, IUpdateableBiggyStore<T>, IQueryableBiggyStore<T> where T : new() {
     public string DbDirectory { get; set; }
-    public bool InMemory { get; set; }
     public string DbFileName { get; set; }
     public string DbName { get; set; }
     internal List<T> _items;
@@ -28,8 +27,7 @@ namespace Biggy.JSON
       }
     }
 
-    public JsonStore(string dbPath = "current", bool inMemory = false, string dbName = "") {
-      this.InMemory = inMemory;
+    public JsonStore(string dbPath = "current", string dbName = "") {
       if (String.IsNullOrWhiteSpace(dbName)) {
         var thingyType = this.GetType().GenericTypeArguments[0].Name;
         this.DbName = Inflector.Inflector.Pluralize(thingyType).ToLower();
