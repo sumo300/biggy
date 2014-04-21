@@ -30,11 +30,9 @@ namespace Biggy
       this.Cache = dbCache;
       this.tableMapping = this.getTableMappingForT();
 
-      // Is there an auto PK? If so, set the member variable:
+      // Is there a PK? If so, set the member variable:
       if(this.tableMapping.PrimaryKeyMapping.Count == 1) {
-        if(this.tableMapping.PrimaryKeyMapping[0].IsAutoIncementing) {
-          this.PrimaryKeyMapping = this.tableMapping.PrimaryKeyMapping[0];
-        }
+        this.PrimaryKeyMapping = this.tableMapping.PrimaryKeyMapping[0];
       }
     }
 
