@@ -9,16 +9,36 @@ namespace Biggy {
     private readonly IQueryableBiggyStore<T> _queryableStore;
     private readonly IUpdateableBiggyStore<T> _updateableStore;
     private List<T> _items;
-    
-    public BiggyList(IBiggyStore<T> store = null) {
-      if (store != null) {
-        _store = store;
-        _queryableStore = _store as IQueryableBiggyStore<T>;
-        _updateableStore = _store as IUpdateableBiggyStore<T>;
-        _items = _store.Load();
-      } else {
-        _items = new List<T>();
+
+    bool _inMemory;
+    public bool InMemory {
+      get {
+        if (_store == null) {
+          return true;
+        } else {
+          return _inMemory;
+        }
       }
+      set {
+        if (_store == null) {
+          _inMemory = true;
+        } else {
+          _inMemory = value;
+        }
+      }
+    }
+    
+    public BiggyList(IBiggyStore<T> store, bool inMemory = false) {
+      _store = store;
+      _queryableStore = _store as IQueryableBiggyStore<T>;
+      _updateableStore = _store as IUpdateableBiggyStore<T>;
+      _items = _store.Load();
+      this.InMemory = inMemory;
+
+    }
+
+    public BiggyList() {
+      _items = new List<T>();
     }
 
     public virtual IEnumerator<T> GetEnumerator() {
@@ -30,7 +50,7 @@ namespace Biggy {
     }
 
     public virtual void Clear() {
-      if (_store != null) {
+      if (_store != null && !this.InMemory) {
         _store.Clear();
       }
       _items.Clear();
@@ -42,8 +62,8 @@ namespace Biggy {
     }
 
     public virtual T Update(T item) {
-      if (_store != null) {
-        if (_updateableStore != null) {
+      if (_store != null && !this.InMemory) {
+        if (_updateableStore != null && !this.InMemory) {
           _updateableStore.Update(item);
         } else {
           _store.SaveAll(_items);
@@ -55,8 +75,8 @@ namespace Biggy {
 
     public virtual T Remove(T item) {
       _items.Remove(item);
-      if (_store != null) {
-        if (_updateableStore != null) {
+      if (_store != null && !this.InMemory) {
+        if (_updateableStore != null && !InMemory) {
           _updateableStore.Remove(item);
         } else {
           _store.SaveAll(_items);
@@ -68,9 +88,12 @@ namespace Biggy {
 
 
     public List<T> Remove(List<T> items) {
-      items.ForEach(item => _items.Remove(item));
-      if (_store != null) {
-        if (_updateableStore != null) {
+      //items.ForEach(item => _items.Remove(item));
+      foreach (var item in items) {
+        _items.Remove(item);
+      }
+      if (_store != null && !this.InMemory) {
+        if (_updateableStore != null && !this.InMemory) {
           _updateableStore.Remove(items);
         } else {
           _store.SaveAll(_items);
@@ -81,7 +104,7 @@ namespace Biggy {
     }
 
     public virtual T Add(T item) {
-      if (_store != null) {
+      if (_store != null && !this.InMemory) {
         _store.Add(item);
       }
       _items.Add(item);
@@ -90,7 +113,7 @@ namespace Biggy {
     }
 
     public virtual List<T> Add(List<T> items) {
-      if (_store != null) {
+      if (_store != null && !this.InMemory) {
         _store.Add(items);
       }
       _items.AddRange(items);
@@ -99,7 +122,7 @@ namespace Biggy {
     }
 
     public virtual IQueryable<T> AsQueryable() {
-      return _queryableStore != null ? _queryableStore.AsQueryable() : _items.AsQueryable();
+      return _queryableStore != null && !this.InMemory ? _queryableStore.AsQueryable() : _items.AsQueryable();
     }
 
     protected virtual void Fire(EventHandler<BiggyEventArgs<T>> @event, T item = default(T), IList<T> items = null) {

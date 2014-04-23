@@ -49,6 +49,7 @@
   <ItemGroup>
     <Compile Include="BiggyListNoStoreTests.cs" />
     <Compile Include="Helpers.cs" />
+    <Compile Include="JSON\BiggyListWithFileDbInMemory.cs" />
     <Compile Include="JSON\BiggyListWithFileDb.cs" />
     <Compile Include="JSON\Store.cs" />
     <Compile Include="Postgres\BiggyListWithPG.cs" />
