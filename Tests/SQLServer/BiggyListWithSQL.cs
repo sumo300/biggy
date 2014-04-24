@@ -72,6 +72,28 @@ namespace Tests.SQLServer {
       Assert.True(updated != null && updated.LastName == "Appleseed");
     }
 
+    [Fact(DisplayName = "Updates an Item from the list and Store With Override Equals")]
+    public void Updates_Item_With_OVerride_From_List_And_Store() {
+      // Just in case:
+      var overriddenClients = new BiggyList<Client>(new SQLServerStore<Client>(_hostDb));
+      overriddenClients.Clear();
+
+      // Add a new record:
+      var newClient = new Client() { LastName = "Atten", FirstName = "John", Email = "jatten@example.com" };
+      overriddenClients.Add(newClient);
+      int newId = newClient.ClientId;
+
+      // Update the same record-by-id with a new instance. OverrideClient overrides Equals with the id:
+      var updateMe = new Client() { ClientId = newId, LastName = "Appleseed", FirstName = "John", Email = "jatten@example.com" };
+
+      overriddenClients.Update(updateMe);
+
+      // Open a new instance, to see if the item was added to the backing store as well:
+      var altClientList = new BiggyList<Client>(new SQLServerStore<Client>(_connectionStringName));
+      var updated = altClientList.FirstOrDefault(c => c.LastName == "Appleseed");
+      Assert.True(updated != null && updated.LastName == "Appleseed");
+    }
+
 
     [Fact(DisplayName = "Removes an Item from the list and Store")]
     public void Removes_Item_From_List_And_Store() {

@@ -77,6 +77,27 @@ namespace Tests.JSON {
     }
 
 
+    [Fact(DisplayName = "Updates an item in List and Store with Equals Override")]
+    public void Updates_Item_In_List_And_Store_With_Equals_Override() {
+      var overrideWidgetList = new BiggyList<OverrideWidget>(new JsonStore<OverrideWidget>());
+      overrideWidgetList.Clear();
+      overrideWidgetList.Add(new OverrideWidget { SKU = "001", Name = "Test widget 1", Price = 2.00M });
+
+      var updatedItem = new OverrideWidget { SKU = "001", Name = "UPDATED", Price = 2.00M };
+      overrideWidgetList.Update(updatedItem);
+
+      // Reload the list:
+      overrideWidgetList = new BiggyList<OverrideWidget>(new JsonStore<OverrideWidget>());
+
+      // Grab from the list:
+      var updatedInList = overrideWidgetList.FirstOrDefault(w => w.Name == "UPDATED");
+
+      // Make sure updated in both:
+      Assert.True(updatedInList.Name == "UPDATED");
+    }
+
+
+
     [Fact(DisplayName = "Removes an item from the List and Store")]
     public void Removes_Item_From_List_And_Store() {
       _biggyWidgetList.Clear();

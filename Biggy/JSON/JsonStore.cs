@@ -95,12 +95,26 @@ namespace Biggy.JSON
     }
 
     public virtual T UpdateItem(T item) {
-      var index = _items.IndexOf(item);
-      if (index > -1) {
-        _items.RemoveAt(index);
-        _items.Insert(index, item);
-        this.FlushToDisk();
+      T itemFromList = default(T);
+      if (!_items.Contains(item)) {
+        // Figure out what to do here. Retreive Key From Store and evaluate? Throw for now:
+        throw new InvalidOperationException(
+          @"The list does not contain a reference to the object passed as an argument. 
+          Make sure you are passing a valid reference, or override Equals on the type being passed.");
+      } else {
+        itemFromList = _items.ElementAt(_items.IndexOf(item));
+        if (!ReferenceEquals(itemFromList, item)) {
+          // The items are "equal" but do not refer to the same instance. 
+          // Somebody overrode Equals on the type passed as an argument. Replace:
+          int index = _items.IndexOf(item);
+          _items.RemoveAt(index);
+          _items.Insert(index, item);
+        }
+        // Otherwise, the item passed is reference-equal. item now refers to it. Process as normal
       }
+      this.FlushToDisk();
+
+      // The item in the list now refers to the item passed in, including updated data:
       return item;
     }
 

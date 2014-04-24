@@ -26,6 +26,17 @@ namespace Tests {
     public Decimal Price { get; set; }
   }
 
+  public class OverrideWidget {
+    public string SKU { get; set; }
+    public string Name { get; set; }
+    public Decimal Price { get; set; }
+
+    public override bool Equals(object obj) {
+      var w1 = (OverrideWidget)obj;
+      return this.SKU == w1.SKU | ReferenceEquals(this, obj);
+    }
+  }
+
 
   public class MonkeyDocument {
     [PrimaryKey]
@@ -42,6 +53,11 @@ namespace Tests {
     public string LastName { get; set; }
     public string FirstName { get; set; }
     public string Email { get; set; }
+
+    public override bool Equals(object obj) {
+      var c1 = (Client)obj;
+      return this.ClientId == c1.ClientId | ReferenceEquals(this, obj);
+    }
   }
 
 
