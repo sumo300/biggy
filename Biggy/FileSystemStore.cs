@@ -79,7 +79,7 @@ namespace Biggy
 
     void IBiggyStore<T>.SaveAll(List<T> items) {
       using (var stream = new FileStream(DbPath, FileMode.Create))
-        SaveAll(stream, _items);
+        SaveAll(stream, items);
     }
 
     void IBiggyStore<T>.Clear() {
