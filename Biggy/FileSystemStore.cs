@@ -7,27 +7,26 @@ using System.Threading.Tasks;
 
 namespace Biggy
 {
-    public abstract class FileSystemStore<T> : IBiggyStore<T>, IUpdateableBiggyStore<T>, IQueryableBiggyStore<T> where T : new()
-    {
-        internal List<T> _items;
+  public abstract class FileSystemStore<T> : IBiggyStore<T>, IUpdateableBiggyStore<T>, IQueryableBiggyStore<T> where T : new() {
+    internal List<T> _items;
 
-        public virtual string DbDirectory { get; set; }
-        public virtual string DbFileName { get; set; }
-        public virtual string DbName { get; set; }
+    public virtual string DbDirectory { get; set; }
+    public virtual string DbFileName { get; set; }
+    public virtual string DbName { get; set; }
 
-        public virtual string DbPath {
+    public virtual string DbPath {
           get {
             return Path.Combine(DbDirectory, DbFileName);
           }
         }
 
-        public virtual bool HasDbFile {
+    public virtual bool HasDbFile {
           get {
             return File.Exists(DbPath);
           }
         }
 
-        protected FileSystemStore(string dbPath = "current", string dbName = "") {
+    protected FileSystemStore(string dbPath = "current", string dbName = "") {
           if (String.IsNullOrWhiteSpace(dbName)) {
             var thingyType = this.GetType().GenericTypeArguments[0].Name;
             this.DbName = Inflector.Inflector.Pluralize(thingyType).ToLower();
@@ -38,7 +37,7 @@ namespace Biggy
           this.SetDataDirectory(dbPath);
         }
 
-        public virtual void SetDataDirectory(string dbPath) {
+    public virtual void SetDataDirectory(string dbPath) {
           var dataDir = dbPath;
           if (dbPath == "current") {
             var currentDir = Directory.GetCurrentDirectory();
@@ -53,15 +52,15 @@ namespace Biggy
           this.DbDirectory = dataDir;
         }
 
-        public abstract List<T> Load(Stream stream); 
+    public abstract List<T> Load(Stream stream); 
 
-        public abstract void SaveAll(Stream stream, List<T> items);
+    public abstract void SaveAll(Stream stream, List<T> items);
 
-        public abstract void Append(Stream stream, List<T> items);
+    public abstract void Append(Stream stream, List<T> items);
 
-        // IBIGGYSTORE IMPLEMENTATION:
+    // IBIGGYSTORE IMPLEMENTATION:
 
-        List<T> IBiggyStore<T>.Load() {
+    List<T> IBiggyStore<T>.Load() {
           List<T> result = new List<T>();
           if (File.Exists(DbPath))
           using (var stream = File.OpenRead(DbPath)) {
@@ -76,16 +75,16 @@ namespace Biggy
           return result;
         }
 
-        void IBiggyStore<T>.SaveAll(List<T> items) {
+    void IBiggyStore<T>.SaveAll(List<T> items) {
           throw new NotImplementedException();
         }
 
-        void IBiggyStore<T>.Clear() {
+    void IBiggyStore<T>.Clear() {
           _items = new List<T>();
           FlushToDisk();
         }
 
-        T IBiggyStore<T>.Add(T item) {
+    T IBiggyStore<T>.Add(T item) {
           using (var stream = new FileStream(DbPath, FileMode.Append)) {
             Append(stream, new List<T> { item });
           }
@@ -93,7 +92,7 @@ namespace Biggy
           return item;
         }
 
-        List<T> IBiggyStore<T>.Add(List<T> items) {
+    List<T> IBiggyStore<T>.Add(List<T> items) {
           using (var stream = new FileStream(DbPath, FileMode.Append)) {
             Append(stream, items);
           }
@@ -101,9 +100,9 @@ namespace Biggy
           return items;
         }
 
-        // IUPDATEABLEBIGGYSTORE IMPLEMENTATION:
+    // IUPDATEABLEBIGGYSTORE IMPLEMENTATION:
 
-        T IUpdateableBiggyStore<T>.Update(T item) {
+    T IUpdateableBiggyStore<T>.Update(T item) {
           T itemFromList = default(T);
           if (!_items.Contains(item)) {
             // Figure out what to do here. Retreive Key From Store and evaluate? Throw for now:
@@ -126,13 +125,13 @@ namespace Biggy
           return item;
         }
 
-        T IUpdateableBiggyStore<T>.Remove(T item) {
+    T IUpdateableBiggyStore<T>.Remove(T item) {
           _items.Remove(item);
           FlushToDisk();
           return item;
         }
 
-        List<T> IUpdateableBiggyStore<T>.Remove(List<T> items) {
+    List<T> IUpdateableBiggyStore<T>.Remove(List<T> items) {
           foreach (var item in items) {
             _items.Remove(item);
           }
@@ -140,15 +139,15 @@ namespace Biggy
           return items;
         }
 
-        // IQUERYABLESTORE IMPLEMENTATION:
+    // IQUERYABLESTORE IMPLEMENTATION:
 
-        IQueryable<T> IQueryableBiggyStore<T>.AsQueryable() {
+    IQueryable<T> IQueryableBiggyStore<T>.AsQueryable() {
           return _items.AsQueryable();
         }
 
-        private void FlushToDisk() {
+    private void FlushToDisk() {
           using (var stream = new FileStream(DbPath, FileMode.Create))
             SaveAll(stream, _items);
         }
-    }
+  }
 }
