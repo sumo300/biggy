@@ -14,6 +14,10 @@ namespace Biggy.JSON
     public JsonStore(string dbPath = "current", string dbName = "") 
      :base(dbPath, dbName) { }
 
+    protected override string GetFileName(string dbname) {
+      return dbname + ".json";
+    }
+
     public override List<T> Load(Stream stream) {
       var reader = new StreamReader(stream);
       var json = "[" + reader.ReadToEnd().Replace(Environment.NewLine, ",") + "]";

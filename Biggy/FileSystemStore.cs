@@ -8,7 +8,7 @@ using System.Threading.Tasks;
 namespace Biggy
 {
   public abstract class FileSystemStore<T> : IBiggyStore<T>, IUpdateableBiggyStore<T>, IQueryableBiggyStore<T> where T : new() {
-    internal List<T> _items;
+    protected internal List<T> _items;
 
     public virtual string DbDirectory { get; set; }
     public virtual string DbFileName { get; set; }
@@ -33,7 +33,7 @@ namespace Biggy
       } else {
         this.DbName = dbName.ToLower();
       }
-      this.DbFileName = this.DbName + ".json";
+      this.DbFileName = GetFileName(this.DbName);
       this.SetDataDirectory(dbPath);
     }
 
@@ -52,6 +52,8 @@ namespace Biggy
       this.DbDirectory = dataDir;
     }
 
+    protected abstract string GetFileName(string dbname);
+    
     public abstract List<T> Load(Stream stream); 
 
     public abstract void SaveAll(Stream stream, List<T> items);
@@ -76,12 +78,13 @@ namespace Biggy
     }
 
     void IBiggyStore<T>.SaveAll(List<T> items) {
-      throw new NotImplementedException();
+      using (var stream = new FileStream(DbPath, FileMode.Create))
+        SaveAll(stream, _items);
     }
 
     void IBiggyStore<T>.Clear() {
       _items = new List<T>();
-      FlushToDisk();
+      ((IBiggyStore<T>)this).SaveAll(_items);
     }
 
     T IBiggyStore<T>.Add(T item) {
@@ -119,7 +122,7 @@ namespace Biggy
         }
         // Otherwise, the item passed is reference-equal. item now refers to it. Process as normal
       }
-      FlushToDisk();
+      ((IBiggyStore<T>)this).SaveAll(_items);
       
       // The item in the list now refers to the item passed in, including updated data:
       return item;
@@ -127,7 +130,7 @@ namespace Biggy
 
     T IUpdateableBiggyStore<T>.Remove(T item) {
       _items.Remove(item);
-      FlushToDisk();
+      ((IBiggyStore<T>)this).SaveAll(_items);
       return item;
     }
 
@@ -135,7 +138,7 @@ namespace Biggy
       foreach (var item in items) {
         _items.Remove(item);
       }
-      FlushToDisk();
+      ((IBiggyStore<T>)this).SaveAll(_items);
       return items;
     }
 
@@ -145,9 +148,5 @@ namespace Biggy
       return _items.AsQueryable();
     }
 
-    private void FlushToDisk() {
-      using (var stream = new FileStream(DbPath, FileMode.Create))
-        SaveAll(stream, _items);
-    }
   }
 }
