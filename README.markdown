@@ -78,7 +78,7 @@ class Product {
 
 //add and save to this list as above
 //this will create a Data/products.json file in your project/site root
-var products = new BiggyList<Product>();
+var products = new BiggyList<Product>(new JsonStore<Product>());
 
 var newProduct = new Product{Sku : "STUFF", Name : "A new product", Price : 120.00};
 
