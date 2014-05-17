@@ -38,9 +38,8 @@ namespace Biggy {
 
     }
 
-    public BiggyList() {
-      _items = new List<T>();
-    }
+    public BiggyList() 
+        :this (new JSON.JsonStore<T>()) { }
 
     public virtual IEnumerator<T> GetEnumerator() {
       return _items.GetEnumerator();
