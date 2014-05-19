@@ -14,7 +14,7 @@ namespace Biggy.Examples
   //         var gzipStore = new CompressedStore<Person>(new JsonStore<Person>());
   //         var biggyList = new BiggyList<Person>(gzipStore);
   //
-  public class CompressedStore<T> : FileSystemStore<T>, IUpdateableBiggyStore<T> where T : new() {
+  public class CompressedStore<T> : FileSystemStore<T>, IBiggyStore<T> where T : new() {
     // Decorated store which knows how to serialize (e.g. JsonStore)
     private readonly FileSystemStore<T> _fs;
 
