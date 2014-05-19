@@ -123,7 +123,7 @@ namespace Tests.JSON {
 
     [Fact(DisplayName = "Initializes In-Memory Biggy List with no store")]
     public void Initializes_List_With_No_Store() {
-      _biggyWidgetList = new BiggyList<Widget>();
+      _biggyWidgetList = new BiggyList<Widget>(null);
       var batch = new List<Widget>();
       for (int i = 0; i < INSERT_QTY; i++) {
         batch.Add(new Widget { SKU = string.Format("00{0}", i), Name = string.Format("Test widget {0}", i), Price = i });
