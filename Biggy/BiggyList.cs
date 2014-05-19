@@ -30,12 +30,11 @@ namespace Biggy {
     }
     
     public BiggyList(IBiggyStore<T> store, bool inMemory = false) {
-      _items = new List<T>();
       _store = store;
       _queryableStore = _store as IQueryableBiggyStore<T>;
       _updateableStore = _store as IUpdateableBiggyStore<T>;
-      if (_store != null)
-        _items = _store.Load();
+      
+      _items = (_store != null) ? _store.Load() : new List<T>();
       this.InMemory = inMemory;
     }
 
