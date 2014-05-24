@@ -9,12 +9,12 @@ using Biggy;
 namespace Biggy.SqlCe.Tests
 {
   [Trait("SQL CE Cache", "")]
-  public class SqlCeContextTest
+  public class SqlCeCacheTest
   {
     string _connectionStringName = "chinook";
     SqlCeCache _context;
 
-    public SqlCeContextTest()
+    public SqlCeCacheTest()
     {
       _context = new SqlCeCache(_connectionStringName);
       if(_context.TableExists("test_table"))

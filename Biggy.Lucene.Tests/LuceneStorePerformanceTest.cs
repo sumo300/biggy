@@ -10,6 +10,7 @@ using Xunit;
 
 namespace Biggy.Lucene.Tests
 {
+    [Trait("Lucene Store", "")]
     public class LuceneStorePerformanceTest
     {
         private string[] keywords = { "dolor", "ipsum", "amet", "luctus" };

@@ -45,12 +45,12 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="BiggyListWithSQL.cs" />
-    <Compile Include="BiggyListWithSQLDocuments.cs" />
-    <Compile Include="ColumnMapping.cs" />
+    <Compile Include="BiggyListWithSqlCE.cs" />
+    <Compile Include="BiggyListWithSQLCEDocuments.cs" />
+    <Compile Include="SqlCEColumnMapping.cs" />
     <Compile Include="Entity.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SqlCeContext.cs" />
+    <Compile Include="SqlCeCache.cs" />
     <Compile Include="SqlCeDocumentStore.cs" />
     <Compile Include="SqlCeBulkInserts.cs" />
     <Compile Include="SqlCeStore.cs" />

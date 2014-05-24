@@ -9,15 +9,15 @@ using Xunit;
 
 namespace Biggy.SqlCe.Tests {
 
-  [Trait("BiggyList With SQL Server Document Store", "")]
-  public class BiggyListWithSQLDocuments {
+  [Trait("BiggyList With SQL CE Document Store", "")]
+  public class BiggyListWithSQLCEDocuments {
     string _connectionStringName = "chinook";
     IBiggy<ClientDocument> _clientDocuments;
     IBiggy<MonkeyDocument> _monkeyDocuments;
     DbCache dbCache = new SqlCeCache("chinook");
 
 
-    public BiggyListWithSQLDocuments() {
+    public BiggyListWithSQLCEDocuments() {
 
       // This one will be re-created automagically:
       if (dbCache.TableExists("ClientDocuments")) {

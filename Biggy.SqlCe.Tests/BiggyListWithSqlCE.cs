@@ -9,13 +9,13 @@ using Biggy.SqlCe;
 
 namespace Biggy.SqlCe.Tests {
 
-  [Trait("Biggy List with SQL Server", "")]
-  public class BiggyListWithSQL
+  [Trait("Biggy List with SQL CE", "")]
+  public class BiggyListWithSqlCE
   {
     string _connectionStringName = "chinook";
     IBiggy<Client> _clients;
 
-    public BiggyListWithSQL() {
+    public BiggyListWithSqlCE() {
       var context = new SqlCeCache("chinook");
       // Build a table to play with from scratch each time:
       if (context.TableExists("Client")) {

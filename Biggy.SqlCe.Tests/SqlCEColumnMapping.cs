@@ -7,8 +7,8 @@ using Xunit;
 
 namespace Biggy.SqlCe.Tests
 {
-    [Trait("SQL Server Compact column mapping", "")]
-    public class ColumnMapping {
+    [Trait("SQL CE Compact column mapping", "")]
+    public class SqlCEColumnMapping {
         public string _connectionStringName = "chinook";
 
         [Fact(DisplayName = "Maps Pk if specified by attribute")]

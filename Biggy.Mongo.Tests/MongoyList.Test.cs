@@ -6,6 +6,7 @@ using Xunit;
 
 namespace Biggy.Mongo.Tests
 {
+    [Trait("Biggy List with MongoDb", "")]
     public class MongoBackedList_Tests
     {
         public MongoBackedList_Tests()
