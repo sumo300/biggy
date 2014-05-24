@@ -8,7 +8,6 @@ namespace Biggy {
   public class BiggyList<T> : IBiggy<T> where T : new() {
     private readonly IBiggyStore<T> _store;
     private readonly IQueryableBiggyStore<T> _queryableStore;
-    private readonly IUpdateableBiggyStore<T> _updateableStore;
     private List<T> _items;
 
     bool _inMemory;
@@ -32,7 +31,6 @@ namespace Biggy {
     public BiggyList(IBiggyStore<T> store, bool inMemory = false) {
       _store = store;
       _queryableStore = _store as IQueryableBiggyStore<T>;
-      _updateableStore = _store as IUpdateableBiggyStore<T>;
       
       _items = (_store != null) ? _store.Load() : new List<T>();
       this.InMemory = inMemory;
@@ -80,12 +78,10 @@ namespace Biggy {
         // From here forward, the item passed in refers to the item in the list. 
       }
       if (_store != null && !this.InMemory) {
-        if (_updateableStore != null && !this.InMemory) {
-          _updateableStore.Update(item);
+          _store.Update(item);
         } else {
           _store.SaveAll(_items);
         }
-      }
       Fire(Changed, item: item);
       return item;
     }
@@ -93,11 +89,9 @@ namespace Biggy {
     public virtual T Remove(T item) {
       _items.Remove(item);
       if (_store != null && !this.InMemory) {
-        if (_updateableStore != null && !InMemory) {
-          _updateableStore.Remove(item);
+          _store.Remove(item);
         } else {
           _store.SaveAll(_items);
-        }
       }
       Fire(ItemRemoved, item: item);
       return item;
@@ -108,12 +102,10 @@ namespace Biggy {
         _items.Remove(item);
       }
       if (_store != null && !this.InMemory) {
-        if (_updateableStore != null && !this.InMemory) {
-          _updateableStore.Remove(items);
+        _store.Remove(items);
         } else {
           _store.SaveAll(_items);
         }
-      }
       Fire(ItemsRemoved, items: items);
       return items;
     }
