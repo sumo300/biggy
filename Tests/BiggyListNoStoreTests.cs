@@ -12,7 +12,7 @@ namespace Tests
 
         public BiggyListNoStoreTests()
         {
-            _biggyList = new BiggyList<Widget>();
+            _biggyList = new BiggyList<Widget>(null, inMemory: true);
         }
 
         [Fact(DisplayName = "Initializes Store with empty list")]

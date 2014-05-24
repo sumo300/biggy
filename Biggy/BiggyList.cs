@@ -33,9 +33,9 @@ namespace Biggy {
       _store = store;
       _queryableStore = _store as IQueryableBiggyStore<T>;
       _updateableStore = _store as IUpdateableBiggyStore<T>;
-      _items = _store.Load();
+      
+      _items = (_store != null) ? _store.Load() : new List<T>();
       this.InMemory = inMemory;
-
     }
 
     public BiggyList() 
