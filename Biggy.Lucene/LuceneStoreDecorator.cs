@@ -16,18 +16,16 @@ namespace Biggy.Lucene
     ///     Decorator class that adds lucene full text functionality to any store
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class LuceneStoreDecorator<T> : IQueryableBiggyStore<T>, IUpdateableBiggyStore<T>, IDisposable where T : new()
+    public class LuceneStoreDecorator<T> : IQueryableBiggyStore<T>, IDisposable where T : new()
     {
         private readonly IBiggyStore<T> _biggyStore;
         private readonly LuceneIndexer<T> _luceneIndexer;
         private readonly IQueryableBiggyStore<T> _queryableStore;
-        private readonly IUpdateableBiggyStore<T> _updateableBiggyStore;
 
         public LuceneStoreDecorator(IBiggyStore<T> biggyStore, bool useRamDirectory = false)
         {
             _biggyStore = biggyStore;
             _queryableStore = _biggyStore as IQueryableBiggyStore<T>;
-            _updateableBiggyStore = _biggyStore as IUpdateableBiggyStore<T>;
             _luceneIndexer = new LuceneIndexer<T>(useRamDirectory);
         }
 
@@ -83,9 +81,9 @@ namespace Biggy.Lucene
 
         public virtual T Update(T item)
         {
-            if (_updateableBiggyStore != null)
+            if (_biggyStore != null)
             {
-                _updateableBiggyStore.Update(item);
+                _biggyStore.Update(item);
                 _luceneIndexer.UpdateDocumentInIndex(item);
             }
 
@@ -94,9 +92,9 @@ namespace Biggy.Lucene
 
         public virtual T Remove(T item)
         {
-            if (_updateableBiggyStore != null)
+            if (_biggyStore != null)
             {
-                _updateableBiggyStore.Remove(item);
+                _biggyStore.Remove(item);
                 _luceneIndexer.DeleteDocumentFromIndex(item);
             }
 
@@ -105,9 +103,9 @@ namespace Biggy.Lucene
 
         public List<T> Remove(List<T> items)
         {
-            if (_updateableBiggyStore != null)
+            if (_biggyStore != null)
             {
-                _updateableBiggyStore.Remove(items);
+                _biggyStore.Remove(items);
                 _luceneIndexer.DeleteDocumentsFromIndex(items);
             }
             else
