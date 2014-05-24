@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Biggy
 {
-  public abstract class FileSystemStore<T> : IBiggyStore<T>, IUpdateableBiggyStore<T>, IQueryableBiggyStore<T> where T : new() {
+  public abstract class FileSystemStore<T> : IBiggyStore<T>, IQueryableBiggyStore<T> where T : new() {
     protected internal List<T> _items;
 
     public virtual string DbDirectory { get; set; }
@@ -105,7 +105,7 @@ namespace Biggy
 
     // IUPDATEABLEBIGGYSTORE IMPLEMENTATION:
 
-    T IUpdateableBiggyStore<T>.Update(T item) {
+    T IBiggyStore<T>.Update(T item) {
       T itemFromList = default(T);
       if (!_items.Contains(item)) {
         // Figure out what to do here. Retreive Key From Store and evaluate? Throw for now:
@@ -128,13 +128,13 @@ namespace Biggy
       return item;
     }
 
-    T IUpdateableBiggyStore<T>.Remove(T item) {
+    T IBiggyStore<T>.Remove(T item) {
       _items.Remove(item);
       ((IBiggyStore<T>)this).SaveAll(_items);
       return item;
     }
 
-    List<T> IUpdateableBiggyStore<T>.Remove(List<T> items) {
+    List<T> IBiggyStore<T>.Remove(List<T> items) {
       foreach (var item in items) {
         _items.Remove(item);
       }
