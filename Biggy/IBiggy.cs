@@ -13,7 +13,6 @@ namespace Biggy
         List<T> Remove(List<T> items);
         T Add(T item);
         List<T> Add(List<T> items);
-        IQueryable<T> AsQueryable();
         bool InMemory { get; set; }
 
         event EventHandler<BiggyEventArgs<T>> ItemRemoved;
@@ -23,5 +22,9 @@ namespace Biggy
         event EventHandler<BiggyEventArgs<T>> Changed;
         event EventHandler<BiggyEventArgs<T>> Loaded;
         event EventHandler<BiggyEventArgs<T>> Saved;
+    }
+
+    public interface IQueryableBiggyList<T> : IBiggy<T> {
+      IQueryable<T> AsQueryable();
     }
 }
