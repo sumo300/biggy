@@ -16,16 +16,16 @@ namespace Biggy.Lucene
     ///     Decorator class that adds lucene full text functionality to any store
     /// </summary>
     /// <typeparam name="T"></typeparam>
-    public class LuceneStoreDecorator<T> : IQueryableBiggyStore<T>, IDisposable where T : new()
+    public class LuceneStoreDecorator<T> : IBiggyStore<T>, IDisposable where T : new()
     {
         private readonly IBiggyStore<T> _biggyStore;
         private readonly LuceneIndexer<T> _luceneIndexer;
-        private readonly IQueryableBiggyStore<T> _queryableStore;
+        //private readonly IQueryableBiggyStore<T> _queryableStore;
 
         public LuceneStoreDecorator(IBiggyStore<T> biggyStore, bool useRamDirectory = false)
         {
             _biggyStore = biggyStore;
-            _queryableStore = _biggyStore as IQueryableBiggyStore<T>;
+            //_queryableStore = _biggyStore as IQueryableBiggyStore<T>;
             _luceneIndexer = new LuceneIndexer<T>(useRamDirectory);
         }
 
@@ -74,10 +74,10 @@ namespace Biggy.Lucene
             _luceneIndexer.Dispose();
         }
 
-        public IQueryable<T> AsQueryable()
-        {
-            return _queryableStore.AsQueryable();
-        }
+        //public IQueryable<T> AsQueryable()
+        //{
+        //    return _queryableStore.AsQueryable();
+        //}
 
         public virtual T Update(T item)
         {
