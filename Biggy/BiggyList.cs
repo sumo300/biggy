@@ -7,7 +7,6 @@ using Biggy.Extensions;
 namespace Biggy {
   public class BiggyList<T> : IBiggy<T> where T : new() {
     private readonly IBiggyStore<T> _store;
-    private readonly IQueryableBiggyStore<T> _queryableStore;
     private List<T> _items;
 
     bool _inMemory;
@@ -30,7 +29,7 @@ namespace Biggy {
     
     public BiggyList(IBiggyStore<T> store, bool inMemory = false) {
       _store = store;
-      _queryableStore = _store as IQueryableBiggyStore<T>;
+      //_queryableStore = _store as IQueryableBiggyStore<T>;
       
       _items = (_store != null) ? _store.Load() : new List<T>();
       this.InMemory = inMemory;
@@ -122,9 +121,9 @@ namespace Biggy {
       return items;
     }
 
-    public virtual IQueryable<T> AsQueryable() {
-      return _queryableStore != null && !this.InMemory ? _queryableStore.AsQueryable() : _items.AsQueryable();
-    }
+    //public virtual IQueryable<T> AsQueryable() {
+    //  return _queryableStore != null && !this.InMemory ? _queryableStore.AsQueryable() : _items.AsQueryable();
+    //}
 
     protected virtual void Fire(EventHandler<BiggyEventArgs<T>> @event, T item = default(T), IList<T> items = null) {
       if (@event != null) {
