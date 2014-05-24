@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Biggy
 {
-  public abstract class BiggyDocumentStore<T> : IBiggyStore<T>, IUpdateableBiggyStore<T>, IQueryableBiggyStore<T> where T : new()
+  public abstract class BiggyDocumentStore<T> : IBiggyStore<T>, IQueryableBiggyStore<T> where T : new()
   {
     public abstract T Insert(T item);
     public abstract List<T> BulkInsert(List<T> items);
@@ -196,15 +196,15 @@ namespace Biggy
       return this.BulkInsert(items.ToList());
     }
 
-    T IUpdateableBiggyStore<T>.Update(T item) {
+    T IBiggyStore<T>.Update(T item) {
       return this.Update(item);
     }
 
-    T IUpdateableBiggyStore<T>.Remove(T item) {
+    T IBiggyStore<T>.Remove(T item) {
       return this.Delete(item);
     }
 
-    List<T> IUpdateableBiggyStore<T>.Remove(List<T> items) {
+    List<T> IBiggyStore<T>.Remove(List<T> items) {
       return this.Delete(items.ToList());
     }
 
