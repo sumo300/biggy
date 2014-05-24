@@ -75,10 +75,15 @@ namespace Biggy.Lucene.Tests
             Assert.True(ellapsedLuceneTime < ellapsedContainsTime);
         }
 
-        private IPagedList<Film> DescriptionContainsSearch(string keywords)
-        {
-            var results = _store.AsQueryable().Where(x => x.Description.Contains("ipsum"));
-            return new PagedList<Film>(results, 1, 25);
+        private IPagedList<Film> DescriptionContainsSearch(string keywords) {
+          var results = _store.Load().Where(x => x.Description.Contains("ipsum"));
+          return new PagedList<Film>(results, 1, 25);
         }
+
+        //private IPagedList<Film> DescriptionContainsSearch(string keywords)
+        //{
+        //    var results = _store.AsQueryable().Where(x => x.Description.Contains("ipsum"));
+        //    return new PagedList<Film>(results, 1, 25);
+        //}
     }
 }

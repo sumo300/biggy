@@ -14,7 +14,6 @@ namespace Tests.Postgres
   {
     string _connectionStringName = "chinookPG";
     IBiggyStore<Client> _biggyStore;
-    IQueryableBiggyStore<Client> _queryableStore;
     PGStore<Client> _clientStore;
 
     public PostgresStore()

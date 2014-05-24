@@ -14,7 +14,6 @@ namespace Tests.Postgres
   {
     string _connectionStringName = "chinookPG";
     IBiggyStore<Client> _biggyStore;
-    IQueryableBiggyStore<Client> _queryableStore;
     PGStore<Client> _sqlStore;
 
     IBiggyStore<ClientDocument> clientDocs;
@@ -39,17 +38,13 @@ namespace Tests.Postgres
 
     [Fact(DisplayName = "Creates a store with a serial PK if one doesn't exist")]
     public void Creates_Document_Table_With_Serial_PK_If_Not_Present() {
-      //clientDocs = new PGDocumentStore<ClientDocument>(_connectionStringName);
-      var queryable = clientDocs as IQueryableBiggyStore<ClientDocument>;
-      Assert.True(queryable.AsQueryable().Count() == 0);
+      Assert.True(clientDocs.Load().Count() == 0);
     }
 
 
     [Fact(DisplayName = "Creates a store with a string PK if one doesn't exist")]
     public void Creates_Document_Table_With_String_PK_If_Not_Present() {
-      //monkeyDocs = new PGDocumentStore<MonkeyDocument>(_connectionStringName);
-      var queryable = monkeyDocs as IQueryableBiggyStore<MonkeyDocument>;
-      Assert.True(queryable.AsQueryable().Count() == 0);
+      Assert.True(monkeyDocs.Load().Count() == 0);
     }
 
     [Fact(DisplayName = "Adds a document with a serial PK")]

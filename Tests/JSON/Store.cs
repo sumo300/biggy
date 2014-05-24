@@ -12,11 +12,9 @@ namespace Tests.JSON {
   [Trait("JSON Store", "")]
   public class Store {
     IBiggyStore<Widget> _widgets;
-    IQueryableBiggyStore<Widget> _queryableWidgets;
 
     public Store() {
       _widgets = new JsonStore<Widget>(dbName: "widgets");
-      _queryableWidgets = _widgets as IQueryableBiggyStore<Widget>;
     }
 
     [Fact(DisplayName = "Initializes Store")]

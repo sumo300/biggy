@@ -11,14 +11,12 @@ namespace Tests.JSON {
   [Trait("Biggy List with File Db", "")]
   public class BiggyListWithFileDb {
     IBiggyStore<Widget> _widgets;
-    IQueryableBiggyStore<Widget> _queryableWidgets;
 
     IBiggy<Widget> _biggyWidgetList;
 
     public BiggyListWithFileDb() {
       // Set up the store for injection:
       _widgets = new JsonStore<Widget>(dbName: "widgets");
-      _queryableWidgets = _widgets as IQueryableBiggyStore<Widget>;
       _widgets.Clear();
 
       _biggyWidgetList = new Biggy.BiggyList<Widget>(_widgets);

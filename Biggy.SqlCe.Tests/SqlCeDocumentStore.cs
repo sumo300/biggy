@@ -13,7 +13,6 @@ namespace Biggy.SqlCe.Tests
   {
     string _connectionStringName = "chinook";
     IBiggyStore<Client> _biggyStore;
-    IQueryableBiggyStore<Client> _queryableStore;
     SqlCeStore<Client> _sqlStore;
 
     IBiggyStore<ClientDocument> clientDocs;
@@ -37,18 +36,14 @@ namespace Biggy.SqlCe.Tests
     [Fact(DisplayName = "Creates a store with a serial PK if one doesn't exist")]
     public void Creates_Document_Table_With_Serial_PK_If_Not_Present()
     {
-      //clientDocs = new SQLDocumentStore<ClientDocument>(_connectionStringName);
-      var queryable = clientDocs as IQueryableBiggyStore<ClientDocument>;
-      Assert.True(queryable.AsQueryable().Count() == 0);
+      Assert.True(clientDocs.Load().Count() == 0);
     }
 
 
     [Fact(DisplayName = "Creates a store with a string PK if one doesn't exist")]
     public void Creates_Document_Table_With_String_PK_If_Not_Present()
     {
-      //monkeyDocs = new SQLDocumentStore<MonkeyDocument>(_connectionStringName);
-      var queryable = monkeyDocs as IQueryableBiggyStore<MonkeyDocument>;
-      Assert.True(queryable.AsQueryable().Count() == 0);
+      Assert.True(monkeyDocs.Load().Count() == 0);
     }
 
     [Fact(DisplayName = "Adds a document with a serial PK")]

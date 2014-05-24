@@ -96,7 +96,7 @@ namespace Biggy.Lucene.Tests
         [Fact(DisplayName = "Updated film no longer matches search criteria")]
         public void Update_Fim_Shouldnt_Match_Search_Criteria()
         {
-            var filmToUpdate = _store.AsQueryable().First(x => x.FilmId == 3 /* 13 Assassins */);
+            var filmToUpdate = _store.Load().First(x => x.FilmId == 3 /* 13 Assassins */);
 
             filmToUpdate.Title = filmToUpdate.Title.Replace("Assassins", "ninjas");
 
@@ -112,7 +112,7 @@ namespace Biggy.Lucene.Tests
         [Fact(DisplayName = "Removed film no longer matches search criteria")]
         public void Removed_Fim_Shouldnt_Match_Search_Criteria()
         {
-            var filmToRemove = _store.AsQueryable().First(x => x.FilmId == 2 /* Raid 2 */);
+            var filmToRemove = _store.Load().First(x => x.FilmId == 2 /* Raid 2 */);
             _store.Remove(filmToRemove);
 
             var results = _store.Search("raid");

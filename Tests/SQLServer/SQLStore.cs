@@ -13,7 +13,6 @@ namespace Tests.SQLServer
   public class SQLStore {
     string _connectionStringName = "chinook";
     IBiggyStore<Client> _biggyStore;
-    IQueryableBiggyStore<Client> _queryableStore;
     SQLServerStore<Client> _sqlStore;
 
     public SQLStore() {

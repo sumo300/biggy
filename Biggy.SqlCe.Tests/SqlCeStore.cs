@@ -12,7 +12,6 @@ namespace Biggy.SqlCe.Tests
   public class SqlCeStoreTest {
     string _connectionStringName = "chinook";
     IBiggyStore<Client> _biggyStore;
-    IQueryableBiggyStore<Client> _queryableStore;
     SqlCeStore<Client> _sqlStore;
 
     public SqlCeStoreTest() {
