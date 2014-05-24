@@ -7,7 +7,7 @@ using MongoDB.Driver.Linq;
 
 namespace Biggy.Mongo
 {
-    public class MongoStore<T> : IBiggyStore<T>, IQueryableBiggyStore<T>, IUpdateableBiggyStore<T>
+    public class MongoStore<T> : IBiggyStore<T>, IQueryableBiggyStore<T>
     {
         public MongoStore(string host,
                           string database = "biggy",
