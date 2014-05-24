@@ -14,12 +14,11 @@ namespace Tests.SQLServer
   {
     string _connectionStringName = "chinook";
     IBiggyStore<Client> _biggyStore;
-    IUpdateableBiggyStore<Client> _updateableStore;
     IQueryableBiggyStore<Client> _queryableStore;
     SQLServerStore<Client> _sqlStore;
 
-    SQLDocumentStore<ClientDocument> clientDocs;
-    SQLDocumentStore<MonkeyDocument> monkeyDocs;
+    IBiggyStore<ClientDocument> clientDocs;
+    IBiggyStore<MonkeyDocument> monkeyDocs;
 
     public SQLServerDocumentStore()
     {
@@ -79,17 +78,16 @@ namespace Tests.SQLServer
         FirstName = "Rob",
         LastName = "Conery"
       };
-      var docStore = clientDocs as IUpdateableBiggyStore<ClientDocument>;
-      docStore.Add(newCustomer);
+      clientDocs.Add(newCustomer);
       int idToFind = newCustomer.ClientDocumentId;
       // Go find the new record after reloading:
 
-      var updateMe = docStore.Load().FirstOrDefault(cd => cd.ClientDocumentId == idToFind);
+      var updateMe = clientDocs.Load().FirstOrDefault(cd => cd.ClientDocumentId == idToFind);
       // Update:
       updateMe.FirstName = "Bill";
-      docStore.Update(updateMe);
+      clientDocs.Update(updateMe);
       // Go find the updated record after reloading:
-      var updated = docStore.Load().FirstOrDefault(cd => cd.ClientDocumentId == idToFind);
+      var updated = clientDocs.Load().FirstOrDefault(cd => cd.ClientDocumentId == idToFind);
       Assert.True(updated.FirstName == "Bill");
     }
 
@@ -103,13 +101,12 @@ namespace Tests.SQLServer
         FirstName = "Rob",
         LastName = "Conery"
       };
-      var docStore = clientDocs as IUpdateableBiggyStore<ClientDocument>;
-      docStore.Add(newCustomer);
+      clientDocs.Add(newCustomer);
       // Count after adding new:
-      int initialCount = docStore.Load().Count();
-      var removed = docStore.Remove(newCustomer);
+      int initialCount = clientDocs.Load().Count();
+      var removed = clientDocs.Remove(newCustomer);
       // Count after removing and reloading:
-      int finalCount = docStore.Load().Count();
+      int finalCount = clientDocs.Load().Count();
       Assert.True(finalCount < initialCount);
     }
 
@@ -117,7 +114,6 @@ namespace Tests.SQLServer
     [Fact(DisplayName = "Bulk-Inserts new records as JSON documents with string key")]
     public void Bulk_Inserts_Documents_With_String_PK()
     {
-      var updateable = monkeyDocs as IUpdateableBiggyStore<MonkeyDocument>;
       int INSERT_QTY = 100;
 
       var addRange = new List<MonkeyDocument>();
@@ -126,14 +122,13 @@ namespace Tests.SQLServer
         addRange.Add(new MonkeyDocument { Name = "MONKEY " + i, Birthday = DateTime.Today, Description = "The Monkey on my back" });
       }
 
-      updateable.Add(addRange);
-      var inserted = updateable.Load();
+      monkeyDocs.Add(addRange);
+      var inserted = monkeyDocs.Load();
       Assert.True(inserted.Count() == INSERT_QTY);
     }
 
     [Fact(DisplayName = "Bulk-Inserts new records as JSON documents with serial int key")]
     void Bulk_Inserts_Documents_With_Serial_PK() {
-      var updateable = clientDocs as IUpdateableBiggyStore<ClientDocument>;
       int INSERT_QTY = 100;
       var bulkList = new List<ClientDocument>();
       for (int i = 0; i < INSERT_QTY; i++) {
@@ -144,9 +139,9 @@ namespace Tests.SQLServer
         };
         bulkList.Add(newClientDocument);
       }
-      updateable.Add(bulkList);
+      clientDocs.Add(bulkList);
 
-      var inserted = updateable.Load();
+      var inserted = clientDocs.Load();
       Assert.True(inserted.Count() == INSERT_QTY);
     }
 

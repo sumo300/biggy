@@ -12,7 +12,6 @@ namespace Biggy.SqlCe.Tests
   public class SqlCeStoreTest {
     string _connectionStringName = "chinook";
     IBiggyStore<Client> _biggyStore;
-    IUpdateableBiggyStore<Client> _updateableStore;
     IQueryableBiggyStore<Client> _queryableStore;
     SqlCeStore<Client> _sqlStore;
 
@@ -84,53 +83,53 @@ namespace Biggy.SqlCe.Tests
 
     [Fact(DisplayName = "IUpdateableBiggyStore Adds a Record")]
     public void IUpdateableBiggyStore_Updates_Record() {
-      _updateableStore = new SqlCeStore<Client>(_connectionStringName) as IUpdateableBiggyStore<Client>;
+      _biggyStore = new SqlCeStore<Client>(_connectionStringName);
       var newClient = new Client() { LastName = "Atten", FirstName = "John", Email = "jatten@example.com" };
-      _updateableStore.Add(newClient);
+      _biggyStore.Add(newClient);
 
       // Stow the id so we can reload, then update (just to be SURE!!)
       int idToFind = newClient.ClientId;
-      newClient = _updateableStore.Load().FirstOrDefault(c => c.ClientId == idToFind);
+      newClient = _biggyStore.Load().FirstOrDefault(c => c.ClientId == idToFind);
       newClient.FirstName = "John Paul";
       newClient.LastName = "Jones";
-      _updateableStore.Update(newClient);
+      _biggyStore.Update(newClient);
 
-      var updatedClient = _updateableStore.Load().FirstOrDefault(c => c.ClientId == idToFind);
+      var updatedClient = _biggyStore.Load().FirstOrDefault(c => c.ClientId == idToFind);
       Assert.True(updatedClient.LastName == "Jones");
     }
 
 
     [Fact(DisplayName = "IUpdateableBiggyStore Deletes a Record")]
     public void IUpdateableBiggyStore_Deletes_Record() {
-      _updateableStore = new SqlCeStore<Client>(_connectionStringName) as IUpdateableBiggyStore<Client>;
+      _biggyStore = new SqlCeStore<Client>(_connectionStringName);
       var newClient = new Client() { LastName = "Atten", FirstName = "John", Email = "jatten@example.com" };
-      _updateableStore.Add(newClient);
+      _biggyStore.Add(newClient);
 
       // Stow the id so we can reload, then update (just to be SURE!!)
       int idToFind = newClient.ClientId;
-      newClient = _updateableStore.Load().FirstOrDefault(c => c.ClientId == idToFind);
+      newClient = _biggyStore.Load().FirstOrDefault(c => c.ClientId == idToFind);
 
-      var deleteMe = _updateableStore.Load().FirstOrDefault(c => c.ClientId == idToFind);
-      _updateableStore.Remove(deleteMe);
-      var clients = _updateableStore.Load();
+      var deleteMe = _biggyStore.Load().FirstOrDefault(c => c.ClientId == idToFind);
+      _biggyStore.Remove(deleteMe);
+      var clients = _biggyStore.Load();
       Assert.True(clients.Count == 0);
     }
 
 
     [Fact(DisplayName = "IUpdateableBiggyStore Deletes a Bunch of Records")]
     public void IUpdateableBiggyStore_Deletes_Many_Records() {
-      _updateableStore = new SqlCeStore<Client>(_connectionStringName) as IUpdateableBiggyStore<Client>;
+      _biggyStore = new SqlCeStore<Client>(_connectionStringName);
       var insertThese = new List<Client>();
 
       for (int i = 0; i < 10; i++) {
         var newClient = new Client() { LastName = string.Format("LastName {0}", i), FirstName = "John", Email = "jatten@example.com" };
         insertThese.Add(newClient);
       }
-      _updateableStore.Add(insertThese);
-      var newClients = _updateableStore.Load();
+      _biggyStore.Add(insertThese);
+      var newClients = _biggyStore.Load();
 
-      _updateableStore.Remove(newClients);
-      newClients = _updateableStore.Load();
+      _biggyStore.Remove(newClients);
+      newClients = _biggyStore.Load();
       Assert.True(newClients.Count == 0);
     }
 

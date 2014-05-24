@@ -11,7 +11,6 @@ namespace Tests.JSON {
   [Trait("Biggy List In Memory", "")]
   public class BiggyListWithFileDbInMemory {
     IBiggyStore<Widget> _widgetStore;
-    IUpdateableBiggyStore<Widget> _updateableWidgets;
     IQueryableBiggyStore<Widget> _queryableWidgets;
 
     IBiggy<Widget> _biggyWidgetList;
@@ -20,7 +19,6 @@ namespace Tests.JSON {
     public BiggyListWithFileDbInMemory() {
       // Set up the store for injection:
       _widgetStore = new JsonStore<Widget>(dbName: "widgets");
-      _updateableWidgets = _widgetStore as IUpdateableBiggyStore<Widget>;
       _queryableWidgets = _widgetStore as IQueryableBiggyStore<Widget>;
       _widgetStore.Clear();
 

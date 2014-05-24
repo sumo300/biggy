@@ -78,10 +78,8 @@ namespace Biggy {
         // From here forward, the item passed in refers to the item in the list. 
       }
       if (_store != null && !this.InMemory) {
-          _store.Update(item);
-        } else {
-          _store.SaveAll(_items);
-        }
+        _store.Update(item);
+      } 
       Fire(Changed, item: item);
       return item;
     }
@@ -89,9 +87,7 @@ namespace Biggy {
     public virtual T Remove(T item) {
       _items.Remove(item);
       if (_store != null && !this.InMemory) {
-          _store.Remove(item);
-        } else {
-          _store.SaveAll(_items);
+        _store.Remove(item);
       }
       Fire(ItemRemoved, item: item);
       return item;
@@ -103,9 +99,7 @@ namespace Biggy {
       }
       if (_store != null && !this.InMemory) {
         _store.Remove(items);
-        } else {
-          _store.SaveAll(_items);
-        }
+      }
       Fire(ItemsRemoved, items: items);
       return items;
     }

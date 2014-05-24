@@ -12,12 +12,10 @@ namespace Tests.JSON {
   [Trait("JSON Store", "")]
   public class Store {
     IBiggyStore<Widget> _widgets;
-    IUpdateableBiggyStore<Widget> _updateableWidgets;
     IQueryableBiggyStore<Widget> _queryableWidgets;
 
     public Store() {
       _widgets = new JsonStore<Widget>(dbName: "widgets");
-      _updateableWidgets = _widgets as IUpdateableBiggyStore<Widget>;
       _queryableWidgets = _widgets as IQueryableBiggyStore<Widget>;
     }
 
@@ -41,7 +39,7 @@ namespace Tests.JSON {
       _widgets.Add(new Widget { SKU = "001", Name = "Test widget 1", Price = 2.00M });
       var updateMe = _widgets.Load().FirstOrDefault();
       updateMe.Name = "UPDATED";
-      _updateableWidgets.Update(updateMe);
+      _widgets.Update(updateMe);
 
       var updated = _widgets.Load().FirstOrDefault();
       
@@ -53,7 +51,7 @@ namespace Tests.JSON {
       _widgets.Clear();
       _widgets.Add(new Widget { SKU = "001", Name = "Test widget 1", Price = 2.00M });
       var removeMe = _widgets.Load().FirstOrDefault();
-      _updateableWidgets.Remove(removeMe);
+      _widgets.Remove(removeMe);
       var remainingWidgets = _widgets.Load();
       Assert.True(remainingWidgets.Count() == 0);
     }
@@ -84,7 +82,7 @@ namespace Tests.JSON {
       _widgets.Add(batch);
       var itemsToRemove = _widgets.Load().Where(w => w.Price > 5 && w.Price <= 20);
       int removedQty = itemsToRemove.Count();
-      _updateableWidgets.Remove(itemsToRemove.ToList());
+      _widgets.Remove(itemsToRemove.ToList());
       var remaining = _widgets.Load();
       Assert.True(removedQty > 0 && removedQty < INSERT_QTY && remaining.Count() == (INSERT_QTY - removedQty));
     }
