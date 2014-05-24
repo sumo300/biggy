@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace Biggy
 {
-  public abstract class FileSystemStore<T> : IBiggyStore<T>, IQueryableBiggyStore<T> where T : new() {
+  public abstract class FileSystemStore<T> : IBiggyStore<T> where T : new() {
     protected internal List<T> _items;
 
     public virtual string DbDirectory { get; set; }
@@ -141,12 +141,5 @@ namespace Biggy
       ((IBiggyStore<T>)this).SaveAll(_items);
       return items;
     }
-
-    // IQUERYABLESTORE IMPLEMENTATION:
-
-    IQueryable<T> IQueryableBiggyStore<T>.AsQueryable() {
-      return _items.AsQueryable();
-    }
-
   }
 }
