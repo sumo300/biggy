@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace Biggy
 {
-  public abstract class BiggyRelationalStore<T> : IBiggyStore<T>, IUpdateableBiggyStore<T>, IQueryableBiggyStore<T> where T : new() {
+  public abstract class BiggyRelationalStore<T> : IBiggyStore<T>, IQueryableBiggyStore<T> where T : new() {
     public DbCache Cache { get; set; }
 
     public abstract DbConnection OpenConnection();
@@ -544,17 +544,17 @@ namespace Biggy
 
     // IMPLEMENTATION FOR IUPDATEABLEBIGGYSTORE<T>:
 
-    T IUpdateableBiggyStore<T>.Update(T item) {
+    T IBiggyStore<T>.Update(T item) {
       this.Update(item);
       return item;
     }
 
-    T IUpdateableBiggyStore<T>.Remove(T item) {
+    T IBiggyStore<T>.Remove(T item) {
       this.Delete(item);
       return item;
     }
 
-    List<T> IUpdateableBiggyStore<T>.Remove(List<T> items) {
+    List<T> IBiggyStore<T>.Remove(List<T> items) {
       this.Delete(items.ToList());
       return items;
     }
