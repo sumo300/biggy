@@ -11,7 +11,7 @@ using System.Text.RegularExpressions;
 
 namespace Biggy
 {
-  public abstract class BiggyRelationalStore<T> : IBiggyStore<T>, IQueryableBiggyStore<T> where T : new() {
+  public abstract class BiggyRelationalStore<T> : IBiggyStore<T> where T : new() {
     public DbCache Cache { get; set; }
 
     public abstract DbConnection OpenConnection();
@@ -558,14 +558,5 @@ namespace Biggy
       this.Delete(items.ToList());
       return items;
     }
-
-    // IMPLEMENTATION FOR IQUERYABLEBIGGYSTORE<T>:
-
-    IQueryable<T> IQueryableBiggyStore<T>.AsQueryable() {
-      return this.All<T>().AsQueryable();
-    }
-
-
-
   }
 }

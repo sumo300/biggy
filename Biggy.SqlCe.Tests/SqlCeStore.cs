@@ -71,16 +71,6 @@ namespace Biggy.SqlCe.Tests
     }
 
 
-    [Fact(DisplayName = "IQueryableBiggyStore Finds a Record")]
-    public void IQueryableBiggyStore_Finds_Record() {
-      _queryableStore = new SqlCeStore<Client>(_connectionStringName);
-      var newClient = new Client() { LastName = "Atten", FirstName = "John", Email = "jatten@example.com" };
-      _queryableStore.Add(newClient);
-      var foundClient = _queryableStore.AsQueryable().FirstOrDefault(c => c.LastName == "Atten");
-      Assert.True(foundClient.LastName == "Atten");
-    }
-
-
     [Fact(DisplayName = "IUpdateableBiggyStore Adds a Record")]
     public void IUpdateableBiggyStore_Updates_Record() {
       _biggyStore = new SqlCeStore<Client>(_connectionStringName);
