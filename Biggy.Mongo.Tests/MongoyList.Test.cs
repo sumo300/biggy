@@ -139,7 +139,7 @@ namespace Biggy.Mongo.Tests
         IBiggy<Widget> CreateBiggyList()
         {
             var store = new MongoStore<Widget>(Host, Database, Collection);
-            var list = new BiggyList<Widget>(store);
+            var list = new QueryableBiggylist<Widget>(store);
             return list;
         }
 
