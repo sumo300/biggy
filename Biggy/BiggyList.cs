@@ -28,15 +28,20 @@ namespace Biggy {
     }
     
     public BiggyList(IBiggyStore<T> store, bool inMemory = false) {
-      _store = store;
-      //_queryableStore = _store as IQueryableBiggyStore<T>;
-      
+      _store = store;     
       _items = (_store != null) ? _store.Load() : new List<T>();
       this.InMemory = inMemory;
     }
 
-    public BiggyList() 
-        :this (new JSON.JsonStore<T>()) { }
+    public BiggyList(bool inMemory = false) {
+
+      // Unless the in-memory flag is set, initialize with JSON store:
+      if (!inMemory) {
+        _store = new JSON.JsonStore<T>();
+      }
+      _items = (_store != null) ? _store.Load() : new List<T>();
+      this.InMemory = inMemory;
+    }
 
     public virtual IEnumerator<T> GetEnumerator() {
       return _items.GetEnumerator();
