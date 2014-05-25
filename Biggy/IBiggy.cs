@@ -10,9 +10,9 @@ namespace Biggy
         int Count();
         T Update(T item);
         T Remove(T item);
-        List<T> Remove(List<T> items);
+        IList<T> Remove(List<T> items);
         T Add(T item);
-        List<T> Add(List<T> items);
+        IList<T> Add(List<T> items);
         bool InMemory { get; set; }
 
         event EventHandler<BiggyEventArgs<T>> ItemRemoved;

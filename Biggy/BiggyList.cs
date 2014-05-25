@@ -97,7 +97,7 @@ namespace Biggy {
       return item;
     }
 
-    public List<T> Remove(List<T> items) {
+    public IList<T> Remove(List<T> items) {
       foreach (var item in items) {
         _items.Remove(item);
       }
@@ -117,7 +117,7 @@ namespace Biggy {
       return item;
     }
 
-    public virtual List<T> Add(List<T> items) {
+    public virtual IList<T> Add(List<T> items) {
       if (_store != null && !this.InMemory) {
         _store.Add(items);
       }

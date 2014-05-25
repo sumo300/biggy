@@ -53,9 +53,9 @@ namespace Biggy.Lucene
             return item;
         }
 
-        public List<T> Add(List<T> items)
+        public IList<T> Add(List<T> items)
         {
-            items = _biggyStore.Add(items);
+            items = _biggyStore.Add(items) as List<T>;
             _luceneIndexer.AddDocumentsToIndex(items);
 
             return items;
@@ -93,7 +93,7 @@ namespace Biggy.Lucene
             return item;
         }
 
-        public List<T> Remove(List<T> items)
+        public IList<T> Remove(List<T> items)
         {
             if (_biggyStore != null)
             {

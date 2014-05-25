@@ -44,7 +44,7 @@ namespace Biggy.Mongo
             return item;
         }
 
-        public List<T> Add(List<T> items)
+        public IList<T> Add(List<T> items)
         {
             _collection.InsertBatch(items);
             return items;
@@ -68,7 +68,7 @@ namespace Biggy.Mongo
             return item;
         }
 
-        public List<T> Remove(List<T> items)
+        public IList<T> Remove(List<T> items)
         {
             foreach (var item in items)
             {

@@ -98,7 +98,7 @@ namespace Biggy
       return item;
     }
 
-    List<T> IBiggyStore<T>.Add(List<T> items) {
+    IList<T> IBiggyStore<T>.Add(List<T> items) {
       using (var stream = new FileStream(DbPath, FileMode.Append)) {
         Append(stream, items);
       }
@@ -140,7 +140,7 @@ namespace Biggy
       return item;
     }
 
-    List<T> IBiggyStore<T>.Remove(List<T> items) {
+    IList<T> IBiggyStore<T>.Remove(List<T> items) {
       foreach (var item in items) {
         _items.Remove(item);
       }

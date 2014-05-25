@@ -188,7 +188,7 @@ namespace Biggy
       return this.Insert(item);
     }
 
-    List<T> IBiggyStore<T>.Add(List<T> items) {
+    IList<T> IBiggyStore<T>.Add(List<T> items) {
       return this.BulkInsert(items.ToList());
     }
 
@@ -200,7 +200,7 @@ namespace Biggy
       return this.Delete(item);
     }
 
-    List<T> IBiggyStore<T>.Remove(List<T> items) {
+    IList<T> IBiggyStore<T>.Remove(List<T> items) {
       return this.Delete(items.ToList());
     }
   }

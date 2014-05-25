@@ -51,7 +51,7 @@ namespace Biggy.Examples
       return item;
     }
  
-    List<T> IBiggyStore<T>.Add(List<T> items) {
+    IList<T> IBiggyStore<T>.Add(List<T> items) {
       _items.AddRange(items);
       using (var stream = new FileStream(DbPath, FileMode.Create)) {
         FlushToDisk(stream, _items);
