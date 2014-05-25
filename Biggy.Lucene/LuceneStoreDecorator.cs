@@ -39,14 +39,6 @@ namespace Biggy.Lucene
             return items;
         }
 
-        public void SaveAll(List<T> items)
-        {
-            _biggyStore.SaveAll(items);
-
-            _luceneIndexer.DeleteAll();
-            _luceneIndexer.AddDocumentsToIndex(items);
-        }
-
         public void Clear()
         {
             _biggyStore.Clear();

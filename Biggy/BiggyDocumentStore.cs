@@ -179,10 +179,6 @@ namespace Biggy
       return this.LoadAll();
     }
 
-    void IBiggyStore<T>.SaveAll(List<T> items) {
-      throw new NotImplementedException();
-    }
-
     void IBiggyStore<T>.Clear() {
       var store = this.Model as IBiggyStore<dynamic>;
       store.Clear();

@@ -34,9 +34,9 @@ namespace Biggy.Examples
         return _fs.Load(gzip);
     }
 
-    public override void SaveAll(Stream stream, List<T> items) {
+    public override void FlushToDisk(Stream stream, List<T> items) {
       using (var gzip = new GZipStream(stream, CompressionLevel.Fastest))
-        _fs.SaveAll(gzip, items);
+        _fs.FlushToDisk(gzip, items);
     }
 
     // However there is one catch here. JsonStore can append items to list without rewrite whole file 
@@ -45,13 +45,17 @@ namespace Biggy.Examples
     // the entire file in case of adding items.
     T IBiggyStore<T>.Add(T item) {
       _items.Add(item);
-      ((IBiggyStore<T>)this).SaveAll(_items);
+      using (var stream = new FileStream(DbPath, FileMode.Create)) {
+        FlushToDisk(stream, _items);
+      }
       return item;
     }
  
     List<T> IBiggyStore<T>.Add(List<T> items) {
       _items.AddRange(items);
-      ((IBiggyStore<T>)this).SaveAll(_items);
+      using (var stream = new FileStream(DbPath, FileMode.Create)) {
+        FlushToDisk(stream, _items);
+      }
       return items;
     }
  

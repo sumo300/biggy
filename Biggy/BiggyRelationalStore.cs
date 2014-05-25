@@ -524,10 +524,6 @@ namespace Biggy
       return this.All<T>().ToList();
     }
 
-    void IBiggyStore<T>.SaveAll(List<T> items) {
-      throw new NotImplementedException();
-    }
-
     void IBiggyStore<T>.Clear() {
       this.DeleteAll();
     }

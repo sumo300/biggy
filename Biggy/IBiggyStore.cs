@@ -5,7 +5,7 @@ namespace Biggy
 {
   public interface IBiggyStore<T> {
     List<T> Load();
-    void SaveAll(List<T> items);
+    //void SaveAll(List<T> items);
     void Clear();
     T Add(T item);
     List<T> Add(List<T> items);

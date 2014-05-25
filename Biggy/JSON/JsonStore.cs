@@ -33,7 +33,7 @@ namespace Biggy.JSON
       }
     }
 
-    public override void SaveAll(Stream stream, List<T> items) {
+    public override void FlushToDisk(Stream stream, List<T> items) {
       using (var outstream = new StreamWriter(stream)) {
         var writer = new JsonTextWriter(outstream);
         var serializer = JsonSerializer.CreateDefault();

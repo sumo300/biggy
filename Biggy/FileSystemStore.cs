@@ -56,7 +56,7 @@ namespace Biggy
     
     public abstract List<T> Load(Stream stream); 
 
-    public abstract void SaveAll(Stream stream, List<T> items);
+    public abstract void FlushToDisk(Stream stream, List<T> items);
 
     public abstract void Append(Stream stream, List<T> items);
 
@@ -77,14 +77,17 @@ namespace Biggy
       return result;
     }
 
-    void IBiggyStore<T>.SaveAll(List<T> items) {
-      using (var stream = new FileStream(DbPath, FileMode.Create))
-        SaveAll(stream, items);
-    }
+    //void IBiggyStore<T>.SaveAll(List<T> items) {
+    //  using (var stream = new FileStream(DbPath, FileMode.Create)) {
+    //    FlushToDisk(stream, items);
+    //  }
+    //}
 
     void IBiggyStore<T>.Clear() {
       _items = new List<T>();
-      ((IBiggyStore<T>)this).SaveAll(_items);
+      using (var stream = new FileStream(DbPath, FileMode.Create)) {
+        FlushToDisk(stream, _items);
+      }
     }
 
     T IBiggyStore<T>.Add(T item) {
@@ -122,15 +125,18 @@ namespace Biggy
         }
         // Otherwise, the item passed is reference-equal. item now refers to it. Process as normal
       }
-      ((IBiggyStore<T>)this).SaveAll(_items);
-      
+      using (var stream = new FileStream(DbPath, FileMode.Create)) {
+        FlushToDisk(stream, _items);
+      }      
       // The item in the list now refers to the item passed in, including updated data:
       return item;
     }
 
     T IBiggyStore<T>.Remove(T item) {
       _items.Remove(item);
-      ((IBiggyStore<T>)this).SaveAll(_items);
+      using (var stream = new FileStream(DbPath, FileMode.Create)) {
+        FlushToDisk(stream, _items);
+      }
       return item;
     }
 
@@ -138,7 +144,9 @@ namespace Biggy
       foreach (var item in items) {
         _items.Remove(item);
       }
-      ((IBiggyStore<T>)this).SaveAll(_items);
+      using (var stream = new FileStream(DbPath, FileMode.Create)) {
+        FlushToDisk(stream, _items);
+      }
       return items;
     }
   }
