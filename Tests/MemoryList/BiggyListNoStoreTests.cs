@@ -15,14 +15,14 @@ namespace Tests
             _biggyList = new BiggyList<Widget>(null, inMemory: true);
         }
 
-        [Fact(DisplayName = "Initializes Store with empty list")]
+        [Fact(DisplayName = "Initializes empty list with no store")]
         public void Initializes_Typed_Store_With_Empty_List()
         {
             Assert.True(_biggyList.ToList() != null);
         }
 
         [Fact(DisplayName = "Adds an item")]
-        public void Adds_Item_To_Store()
+        public void Adds_Item_To_List_Not_Store()
         {
             _biggyList.Add(new Widget { SKU = "001", Name = "Test widget 1", Price = 2.00M });
             var item = _biggyList.FirstOrDefault(x => x.SKU == "001");
