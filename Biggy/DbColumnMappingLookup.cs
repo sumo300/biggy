@@ -17,13 +17,11 @@ namespace Biggy
       this.ByColumn = new Dictionary<string, DbColumnMapping>(StringComparer.InvariantCultureIgnoreCase);
     }
 
-    public int Count()
-    {
+    public int Count() {
       return this.ByProperty.Count();
     }
 
-    public DbColumnMapping Add(string columnName, string propertyName)
-    {
+    public DbColumnMapping Add(string columnName, string propertyName) {
       string delimited = string.Format(_delimiterFormatString, columnName);
       var mapping = new DbColumnMapping(_delimiterFormatString);
       mapping.ColumnName = columnName;
@@ -35,9 +33,7 @@ namespace Biggy
       return mapping;
     }
 
-
-    public DbColumnMapping Add(DbColumnMapping mapping)
-    {
+    public DbColumnMapping Add(DbColumnMapping mapping) {
       this.ByColumn.Add(mapping.ColumnName, mapping);
       this.ByProperty.Add(mapping.PropertyName, mapping);
       return mapping;
@@ -55,13 +51,11 @@ namespace Biggy
       return mapping;
     }
 
-    public bool ContainsPropertyName(string propertyName)
-    {
+    public bool ContainsPropertyName(string propertyName) {
       return this.ByProperty.ContainsKey(propertyName);
     }
 
-    public bool ContainsColumnName(string columnName)
-    {
+    public bool ContainsColumnName(string columnName) {
       return this.ByColumn.ContainsKey(columnName);
     }
   }

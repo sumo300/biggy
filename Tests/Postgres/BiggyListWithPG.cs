@@ -10,11 +10,9 @@ using Biggy.Postgres;
 namespace Tests.Postgres {
 
   [Trait("Biggy List with Postgres", "")]
-  public class BiggyListWithPG
-  {
+  public class BiggyListWithPG {
     string _connectionStringName = "chinookPG";
     IBiggy<Client> _clients;
-    IBiggy<ClientDocument> _clientDocuments;
 
     public BiggyListWithPG() {
       var _cache = new PGCache(_connectionStringName);
@@ -45,7 +43,7 @@ namespace Tests.Postgres {
       _clients.Clear();
       var newClient = new Client() { LastName = "Atten", FirstName = "John", Email = "jatten@example.com" };
       _clients.Add(newClient);
-      
+
       // Open a new instance, to see if the item was added to the backing store as well:
       var altClientList = new BiggyList<Client>(new PGStore<Client>(_connectionStringName));
       Assert.True(altClientList.Count() > 0);

@@ -11,7 +11,6 @@ namespace Tests.JSON {
   [Trait("Biggy List with File Db", "")]
   public class BiggyListWithFileDb {
     IBiggyStore<Widget> _widgets;
-
     IBiggy<Widget> _biggyWidgetList;
 
     public BiggyListWithFileDb() {
@@ -22,7 +21,7 @@ namespace Tests.JSON {
       _biggyWidgetList = new Biggy.BiggyList<Widget>(_widgets);
     }
 
-    [Fact(DisplayName = "Initializes Biggy List from JASON Store")]
+    [Fact(DisplayName = "Initializes Biggy List from JSON Store")]
     public void Initializes_List() {
       Assert.True(_biggyWidgetList != null);
     }

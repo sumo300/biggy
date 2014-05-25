@@ -6,8 +6,7 @@ using System.Threading.Tasks;
 using Xunit;
 using Biggy;
 
-namespace Biggy.SqlCe.Tests
-{
+namespace Biggy.SqlCe.Tests {
   [Trait("SQL CE Store", "")]
   public class SqlCeStoreTest {
     string _connectionStringName = "chinook";
@@ -18,7 +17,7 @@ namespace Biggy.SqlCe.Tests
       var context = new SqlCeCache(_connectionStringName);
 
       // Build a table to play with from scratch each time:
-      if(context.TableExists("Client")) {
+      if (context.TableExists("Client")) {
         context.DropTable("Client");
       }
       var columnDefs = new List<string>();
@@ -29,7 +28,7 @@ namespace Biggy.SqlCe.Tests
 
       context.CreateTable("Client", columnDefs);
     }
-    
+
 
     [Fact(DisplayName = "Initializes with Injected Context")]
     public void Intialize_With_Injected_Context() {
@@ -60,7 +59,7 @@ namespace Biggy.SqlCe.Tests
       _biggyStore = new SqlCeStore<Client>(_connectionStringName);
       var insertThese = new List<Client>();
 
-      for(int i = 0; i < 10; i++) {
+      for (int i = 0; i < 10; i++) {
         var newClient = new Client() { LastName = string.Format("LastName {0}", i), FirstName = "John", Email = "jatten@example.com" };
         insertThese.Add(newClient);
       }

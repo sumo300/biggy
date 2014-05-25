@@ -12,7 +12,6 @@ namespace Tests.SQLServer {
 
   [Trait("BiggyList With SQL Server Document Store", "")]
   public class BiggyListWithSQLDocuments {
-    string _connectionStringName = "chinook";
     IBiggy<ClientDocument> _clientDocuments;
     IBiggy<MonkeyDocument> _monkeyDocuments;
     DbCache _host;

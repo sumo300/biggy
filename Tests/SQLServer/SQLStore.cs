@@ -7,8 +7,7 @@ using Xunit;
 using Biggy;
 using Biggy.SQLServer;
 
-namespace Tests.SQLServer
-{
+namespace Tests.SQLServer {
   [Trait("SQL Server Store", "")]
   public class SQLStore {
     string _connectionStringName = "chinook";
@@ -19,7 +18,7 @@ namespace Tests.SQLServer
       var _cache = new SQLServerCache(_connectionStringName);
 
       // Build a table to play with from scratch each time:
-      if(_cache.TableExists("Client")) {
+      if (_cache.TableExists("Client")) {
         _cache.DropTable("Client");
       }
       var columnDefs = new List<string>();
@@ -30,7 +29,7 @@ namespace Tests.SQLServer
 
       _cache.CreateTable("Client", columnDefs);
     }
-    
+
 
     [Fact(DisplayName = "Initializes with Injected Cache")]
     public void Intialize_With_Injected_Context() {
@@ -61,7 +60,7 @@ namespace Tests.SQLServer
       _biggyStore = new SQLServerStore<Client>(_connectionStringName);
       var insertThese = new List<Client>();
 
-      for(int i = 0; i < 10; i++) {
+      for (int i = 0; i < 10; i++) {
         var newClient = new Client() { LastName = string.Format("LastName {0}", i), FirstName = "John", Email = "jatten@example.com" };
         insertThese.Add(newClient);
       }

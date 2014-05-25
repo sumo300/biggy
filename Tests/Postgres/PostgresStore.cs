@@ -7,21 +7,18 @@ using Xunit;
 using Biggy;
 using Biggy.Postgres;
 
-namespace Tests.Postgres
-{
+namespace Tests.Postgres {
   [Trait("Postgres Store", "")]
-  public class PostgresStore
-  {
+  public class PostgresStore {
     string _connectionStringName = "chinookPG";
     IBiggyStore<Client> _biggyStore;
     PGStore<Client> _clientStore;
 
-    public PostgresStore()
-    {
+    public PostgresStore() {
       var context = new PGCache(_connectionStringName);
 
       // Build a table to play with from scratch each time:
-      if(context.TableExists("client")) {
+      if (context.TableExists("client")) {
         context.DropTable("client");
       }
       var columnDefs = new List<string>();
@@ -32,7 +29,7 @@ namespace Tests.Postgres
 
       context.CreateTable("client", columnDefs);
     }
-    
+
 
     [Fact(DisplayName = "Initializes with Injected Cache")]
     public void Intialize_With_Injected_Context() {
@@ -63,7 +60,7 @@ namespace Tests.Postgres
       _biggyStore = new PGStore<Client>(_connectionStringName);
       var insertThese = new List<Client>();
 
-      for(int i = 0; i < 10; i++) {
+      for (int i = 0; i < 10; i++) {
         var newClient = new Client() { LastName = string.Format("LastName {0}", i), FirstName = "John", Email = "jatten@example.com" };
         insertThese.Add(newClient);
       }

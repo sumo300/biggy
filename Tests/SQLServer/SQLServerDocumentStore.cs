@@ -7,24 +7,19 @@ using Xunit;
 using Biggy;
 using Biggy.SQLServer;
 
-namespace Tests.SQLServer
-{
+namespace Tests.SQLServer {
   [Trait("SQL Server Document Store", "")]
-  public class SQLServerDocumentStore
-  {
+  public class SQLServerDocumentStore {
     string _connectionStringName = "chinook";
-    IBiggyStore<Client> _biggyStore;
-    SQLServerStore<Client> _sqlStore;
 
     IBiggyStore<ClientDocument> clientDocs;
     IBiggyStore<MonkeyDocument> monkeyDocs;
 
-    public SQLServerDocumentStore()
-    {
+    public SQLServerDocumentStore() {
       var context = new SQLServerCache(_connectionStringName);
 
       // Build a table to play with from scratch each time:
-      if(context.TableExists("ClientDocuments")) {
+      if (context.TableExists("ClientDocuments")) {
         context.DropTable("ClientDocuments");
       }
       if (context.TableExists("MonkeyDocuments")) {
@@ -36,23 +31,19 @@ namespace Tests.SQLServer
 
 
     [Fact(DisplayName = "Creates a store with a serial PK if one doesn't exist")]
-    public void Creates_Document_Table_With_Serial_PK_If_Not_Present()
-    {
+    public void Creates_Document_Table_With_Serial_PK_If_Not_Present() {
       Assert.True(clientDocs.Load().Count() == 0);
     }
 
 
     [Fact(DisplayName = "Creates a store with a string PK if one doesn't exist")]
-    public void Creates_Document_Table_With_String_PK_If_Not_Present()
-    {
+    public void Creates_Document_Table_With_String_PK_If_Not_Present() {
       Assert.True(monkeyDocs.Load().Count() == 0);
     }
 
     [Fact(DisplayName = "Adds a document with a serial PK")]
-    public void Adds_Document_With_Serial_PK()
-    {
-      var newCustomer = new ClientDocument
-      {
+    public void Adds_Document_With_Serial_PK() {
+      var newCustomer = new ClientDocument {
         Email = "rob@tekpub.com",
         FirstName = "Rob",
         LastName = "Conery"
@@ -65,10 +56,8 @@ namespace Tests.SQLServer
     }
 
     [Fact(DisplayName = "Updates a document with a serial PK")]
-    public void Updates_Document_With_Serial_PK()
-    {
-      var newCustomer = new ClientDocument
-      {
+    public void Updates_Document_With_Serial_PK() {
+      var newCustomer = new ClientDocument {
         Email = "rob@tekpub.com",
         FirstName = "Rob",
         LastName = "Conery"
@@ -88,10 +77,8 @@ namespace Tests.SQLServer
 
 
     [Fact(DisplayName = "Deletes a document with a serial PK")]
-    public void Deletes_Document_With_Serial_PK()
-    {
-      var newCustomer = new ClientDocument
-      {
+    public void Deletes_Document_With_Serial_PK() {
+      var newCustomer = new ClientDocument {
         Email = "rob@tekpub.com",
         FirstName = "Rob",
         LastName = "Conery"
@@ -107,13 +94,11 @@ namespace Tests.SQLServer
 
 
     [Fact(DisplayName = "Bulk-Inserts new records as JSON documents with string key")]
-    public void Bulk_Inserts_Documents_With_String_PK()
-    {
+    public void Bulk_Inserts_Documents_With_String_PK() {
       int INSERT_QTY = 100;
 
       var addRange = new List<MonkeyDocument>();
-      for (int i = 0; i < INSERT_QTY; i++)
-      {
+      for (int i = 0; i < INSERT_QTY; i++) {
         addRange.Add(new MonkeyDocument { Name = "MONKEY " + i, Birthday = DateTime.Today, Description = "The Monkey on my back" });
       }
 

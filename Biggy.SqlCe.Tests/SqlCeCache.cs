@@ -6,33 +6,27 @@ using System.Threading.Tasks;
 using Xunit;
 using Biggy;
 
-namespace Biggy.SqlCe.Tests
-{
+namespace Biggy.SqlCe.Tests {
   [Trait("SQL CE Cache", "")]
-  public class SqlCeCacheTest
-  {
+  public class SqlCeCacheTest {
     string _connectionStringName = "chinook";
     SqlCeCache _context;
 
-    public SqlCeCacheTest()
-    {
+    public SqlCeCacheTest() {
       _context = new SqlCeCache(_connectionStringName);
-      if(_context.TableExists("test_table"))
-      {
+      if (_context.TableExists("test_table")) {
         _context.DropTable("test_table");
       }
     }
 
     [Fact(DisplayName = "Confirms a table does not exist")]
-    public void Creates_New_Table_With_Arbitrary_SQL()
-    {
+    public void Creates_New_Table_With_Arbitrary_SQL() {
       var exists = _context.TableExists("test_table");
       Assert.False(exists);
     }
 
     [Fact(DisplayName = "Executes Arbitrary SQL")]
-    public void Execute_Abritrary_SQL()
-    {
+    public void Execute_Abritrary_SQL() {
       var columnDefs = new List<string>();
       columnDefs.Add("id int IDENTITY(1,1) PRIMARY KEY");
       columnDefs.Add("name nTEXT");
