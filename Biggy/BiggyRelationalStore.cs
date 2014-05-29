@@ -9,8 +9,7 @@ using Biggy.Extensions;
 using System.Dynamic;
 using System.Text.RegularExpressions;
 
-namespace Biggy
-{
+namespace Biggy {
   public abstract class BiggyRelationalStore<T> : IBiggyStore<T> where T : new() {
     public DbCache Cache { get; set; }
 
@@ -19,28 +18,18 @@ namespace Biggy
     public abstract string GetSingleSelect(string delimitedTableName, string where);
     public abstract string BuildSelect(string where, string orderBy = "", int limit = 0);
     public virtual  string ConnectionString { get { return this.Cache.ConnectionString; } }
-
-
-    public DBTableMapping tableMapping { get; set; }
-    public DbColumnMapping PrimaryKeyMapping { get; set; }
+    public DBTableMapping TableMapping { get; set; }
 
     protected BiggyRelationalStore() { }
 
     public BiggyRelationalStore(DbCache dbCache) {
       this.Cache = dbCache;
-      this.tableMapping = this.getTableMappingForT();
-
-      // Is there a PK? If so, set the member variable:
-      if(this.tableMapping.PrimaryKeyMapping.Count == 1) {
-        this.PrimaryKeyMapping = this.tableMapping.PrimaryKeyMapping[0];
-      }
+      this.TableMapping = this.getTableMappingForT();
     }
-
 
     public virtual DBTableMapping getTableMappingForT() {
       return this.Cache.getTableMappingFor<T>();
     }
-
 
     /// <summary>
     /// Returns all records complying with the passed-in WHERE clause and arguments, 
@@ -48,7 +37,7 @@ namespace Biggy
     /// </summary>
     public virtual IEnumerable<T> All<T>(string where = "", string orderBy = "", int limit = 0, string columns = "*", params object[] args) where T : new() {
       string sql = this.BuildSelect(where, orderBy, limit);
-      var formatted = string.Format(sql, columns, this.tableMapping.DelimitedTableName);
+      var formatted = string.Format(sql, columns, this.TableMapping.DelimitedTableName);
       return Query<T>(formatted, args);
     }
 
@@ -56,10 +45,14 @@ namespace Biggy
       if(this.BeforeSave(item)) {
         using (var conn = Cache.OpenConnection()) {
           var cmd = (DbCommand)this.CreateInsertCommand(item);
-          cmd.CommandText += this.GetInsertReturnValueSQL(this.PrimaryKeyMapping.DelimitedColumnName);
-          var newId = cmd.ExecuteScalar();
-          if (this.PrimaryKeyMapping != null) {
-            this.SetPrimaryKey(item, newId);
+          if (!this.TableMapping.HasCompoundPk && this.TableMapping.PrimaryKeyMapping[0].IsAutoIncementing) {
+            cmd.CommandText += this.GetInsertReturnValueSQL(this.TableMapping.PrimaryKeyMapping[0].DelimitedColumnName);
+            var newId = cmd.ExecuteScalar();
+            if (this.TableMapping.PrimaryKeyMapping[0] != null) {
+              this.SetPropertyValue(item, this.TableMapping.PrimaryKeyMapping[0].PropertyName, newId);
+            }
+          } else {
+            cmd.ExecuteNonQuery();
           }
         }
         this.Inserted(item);
@@ -82,38 +75,78 @@ namespace Biggy
     /// Removes one or more records from the DB according to the passed-in WHERE
     /// </summary>
     public virtual int Delete(T item) {
-      var key = this.GetPrimaryKey(item);
+      var pkValues = new List<object>();
+      var expando = item.ToExpando();
+      var settings = (IDictionary<string, object>)expando;
+      StringBuilder sbWhere = new StringBuilder("");
+      var counter = 0;
+
+      //Accomodate the case where composite pk exists:
+      foreach (var pk in this.TableMapping.PrimaryKeyMapping) {
+        var value = settings[pk.PropertyName];
+        var name = pk.DelimitedColumnName;
+        pkValues.Add(value);
+        if (pk == this.TableMapping.PrimaryKeyMapping[0]) {
+          sbWhere.Append(string.Format(" WHERE {0} = @{1}", name, counter));
+        } else {
+          sbWhere.Append(string.Format(" AND {0} = @{1}", name, counter));
+        }
+        counter++;
+      }
       var result = 0;
-      if(BeforeDelete(item)) {
-        result = this.Execute(CreateDeleteCommand(key: key));
+      if (BeforeDelete(item)) {
+        result = this.Execute(CreateDeleteCommand(where: sbWhere.ToString(), args: pkValues.ToArray()));
         this.Deleted(item);
       }
       return result;
     }
 
-    /// <summary>
-    /// Drops all data from the table - BEWARE
-    /// </summary>
-    public virtual void DeleteAll()
-    {
-      this.Execute("DELETE FROM " + this.tableMapping.DelimitedTableName);
-    }
 
     /// <summary>
     /// Drops all data from the table - BEWARE
     /// </summary>
-    public virtual int Delete(List<T> items)
-    {
+    public virtual void DeleteAll() {
+      this.Execute("DELETE FROM " + this.TableMapping.DelimitedTableName);
+    }
+
+    /// <summary>
+    /// Deletes a range of items from the table - BEWARE
+    /// </summary>
+    public virtual int Delete(List<T> items) {
       var removed = 0;
       if (items.Count() > 0) {
-        //remove from the DB
+        string keyColumnNames;
         var keyList = new List<string>();
-        foreach (var item in items) {
-          keyList.Add(this.GetPrimaryKey(item).ToString());
+
+        // If a compund key is present, we need to handle things a little differently:
+        if (this.TableMapping.HasCompoundPk) {
+          // we need to build a DELETE with an IN statement like this:
+          // DELETE FROM myTable WHERE (pk1, pk2) IN ((value1, value2), (value3, value4), ...)
+          var columnArray = from k in this.TableMapping.PrimaryKeyMapping select k.DelimitedColumnName;
+          keyColumnNames = string.Format("({0})", string.Join(",", columnArray));
+          foreach (var item in items) {
+            var expando = item.ToExpando();
+            var dict = (IDictionary<string, object>)expando;
+            var sbValues = new StringBuilder("");
+            foreach (var pk in this.TableMapping.PrimaryKeyMapping) {
+              sbValues.Append(string.Format("{0},", dict[pk.PropertyName].ToString()));
+            }
+            string values = sbValues.ToString().Substring(0, sbValues.Length - 1);
+            keyList.Add(string.Format("({0})", values));
+          }
+        } else {
+          // Otherwise, the first pk in the list is what we want, to build a 
+          // standard IN statement like this: DELETE FROM myTable WHERE pk1 IN (value1, value2, value3, value4, ...)
+          keyColumnNames = this.TableMapping.PrimaryKeyMapping[0].DelimitedColumnName;
+          foreach (var item in items) {
+            var expando = item.ToExpando();
+            var dict = (IDictionary<string, object>)expando;
+            keyList.Add(dict[this.TableMapping.PrimaryKeyMapping[0].PropertyName].ToString());
+          }
         }
         var keySet = String.Join(",", keyList.ToArray());
-        var inStatement = this.PrimaryKeyMapping.DelimitedColumnName + " IN (" + keySet + ")";
-        removed = this.DeleteWhere(inStatement, "");
+        var inStatement = keyColumnNames + " IN (" + keySet + ")";
+        removed = this.DeleteWhere(inStatement);
       }
       return removed;
     }
@@ -152,22 +185,24 @@ namespace Biggy
             var itemEx = item.ToExpando();
             var itemSchema = itemEx as IDictionary<string, object>;
             var sbParamGroup = new StringBuilder();
-            if (this.PrimaryKeyMapping.IsAutoIncementing) {
-              // Don't insert against a serial id:
-              string mappedPkPropertyName = this.PrimaryKeyMapping.PropertyName;
-              string key = itemSchema.Keys.First(k => k.ToString().Equals(mappedPkPropertyName, StringComparison.OrdinalIgnoreCase));
-              itemSchema.Remove(key);
+
+            foreach (var pk in this.TableMapping.PrimaryKeyMapping) {
+              if (pk.IsAutoIncementing) {
+                // Don't insert against a serial id:
+                string key = itemSchema.Keys.First(k => k.ToString().Equals(pk.PropertyName, StringComparison.OrdinalIgnoreCase));
+                itemSchema.Remove(key);
+              }
             }
             // Build the first part of the INSERT, including delimited column names:
             if (ReferenceEquals(item, first)) {
               var sbFieldNames = new StringBuilder();
               foreach (var field in itemSchema) {
-                string mappedColumnName = this.tableMapping.ColumnMappings.FindByProperty(field.Key).DelimitedColumnName;
+                string mappedColumnName = this.TableMapping.ColumnMappings.FindByProperty(field.Key).DelimitedColumnName;
                 sbFieldNames.AppendFormat("{0},", mappedColumnName);
               }
               var keys = sbFieldNames.ToString().Substring(0, sbFieldNames.Length - 1);
               string stub = "INSERT INTO {0} ({1}) VALUES ";
-              insertClause = string.Format(stub, this.tableMapping.DelimitedTableName, string.Join(", ", keys));
+              insertClause = string.Format(stub, this.TableMapping.DelimitedTableName, string.Join(", ", keys));
               sbSql = new StringBuilder(insertClause);
             }
             foreach (var key in itemSchema.Keys) {
@@ -215,7 +250,10 @@ namespace Biggy
     /// </summary>
     public virtual T Find<T>(object key) where T : new() {
       var result = new T();
-      var sql = this.GetSingleSelect(this.tableMapping.DelimitedTableName, this.PrimaryKeyMapping.DelimitedColumnName + "=@0");
+      if (this.TableMapping.HasCompoundPk) {
+        throw new InvalidOperationException("The find method cannot be used on a table with a composite primary key. Try the Query method instead.");
+      }
+      var sql = this.GetSingleSelect(this.TableMapping.DelimitedTableName, this.TableMapping.PrimaryKeyMapping[0] + "=@0");
       return Query<T>(sql, key).FirstOrDefault();
     }
 
@@ -256,8 +294,8 @@ namespace Biggy
       var item = new T();
       var props = item.GetType().GetProperties();
       foreach (var property in props) {
-        if (this.tableMapping.ColumnMappings.ContainsPropertyName(property.Name)) {
-          string mappedColumn = this.tableMapping.ColumnMappings.FindByProperty(property.Name).ColumnName;
+        if (this.TableMapping.ColumnMappings.ContainsPropertyName(property.Name)) {
+          string mappedColumn = this.TableMapping.ColumnMappings.FindByProperty(property.Name).ColumnName;
           int ordinal = reader.GetOrdinal(mappedColumn);
           var val = reader.GetValue(ordinal);
           if (val.GetType() != typeof(DBNull)) {
@@ -277,13 +315,18 @@ namespace Biggy
       var stub = "INSERT INTO {0} ({1}) \r\n VALUES ({2})";
       result = this.CreateCommand(stub, null);
       int counter = 0;
-      if (this.PrimaryKeyMapping.IsAutoIncementing) {
-        string mappedPropertyName = this.PrimaryKeyMapping.PropertyName;
-        var col = settings.FirstOrDefault(x => x.Key.Equals(mappedPropertyName, StringComparison.OrdinalIgnoreCase));
-        settings.Remove(col);
+
+      var autoPkColumn = this.TableMapping.PrimaryKeyMapping.FirstOrDefault(c => c.IsAutoIncementing == true);
+      if (autoPkColumn != null) {
+        settings.Remove(autoPkColumn.PropertyName);
       }
+      //if (!this.TableMapping.HasCompoundPk && this.TableMapping.PrimaryKeyMapping[0].IsAutoIncementing) {
+      //  string mappedPropertyName = this.TableMapping.PrimaryKeyMapping[0].PropertyName;
+      //  var col = settings.FirstOrDefault(x => x.Key.Equals(mappedPropertyName, StringComparison.OrdinalIgnoreCase));
+      //  settings.Remove(col);
+      //}
       foreach (var item in settings) {
-        sbKeys.AppendFormat("{0},", this.tableMapping.ColumnMappings.FindByProperty(item.Key).DelimitedColumnName);
+        sbKeys.AppendFormat("{0},", this.TableMapping.ColumnMappings.FindByProperty(item.Key).DelimitedColumnName);
 
         //this is a special case for a search directive
         //TODO: This will need to be handled differently if SQL Server FTS is implemented:
@@ -298,7 +341,7 @@ namespace Biggy
       if (counter > 0) {
         var keys = sbKeys.ToString().Substring(0, sbKeys.Length - 1);
         var vals = sbVals.ToString().Substring(0, sbVals.Length - 1);
-        var sql = string.Format(stub, this.tableMapping.DelimitedTableName, keys, vals);
+        var sql = string.Format(stub, this.TableMapping.DelimitedTableName, keys, vals);
         result.CommandText = sql;
       }
       else throw new InvalidOperationException("Can't parse this object to the database - there are no properties set");
@@ -310,31 +353,42 @@ namespace Biggy
     /// </summary>
     public virtual DbCommand CreateUpdateCommand(T updateItem) {
       var expando = updateItem.ToExpando();
-      var key = GetPrimaryKey(updateItem);
       var settings = (IDictionary<string, object>)expando;
       var sbKeys = new StringBuilder();
-      var stub = "UPDATE {0} SET {1} WHERE {2} = @{3}";
-      var args = new List<object>();
+      var stub = "UPDATE {0} SET {1}{2}";
+      //var args = new List<object>();
       var result = this.CreateCommand(stub, null);
       int counter = 0;
-      var mappedPkPropertyName = this.PrimaryKeyMapping.PropertyName;
+
+      var pkPropertNames = from n in this.TableMapping.PrimaryKeyMapping select n.PropertyName;
       foreach (var item in settings) {
         var val = item.Value;
         // Find the property name mapped to this column name:
-        if (!item.Key.Equals(mappedPkPropertyName, StringComparison.OrdinalIgnoreCase) && item.Value != null) {
+        if (!pkPropertNames.Contains(item.Key) && item.Value != null) {
           result.AddParam(val);
           //// use the mapped, delimited database column name:
-          string dbColumnName = this.tableMapping.ColumnMappings.FindByProperty(item.Key).DelimitedColumnName;
+          string dbColumnName = this.TableMapping.ColumnMappings.FindByProperty(item.Key).DelimitedColumnName;
           sbKeys.AppendFormat("{0} = @{1}, \r\n", dbColumnName, counter.ToString());
           counter++;
         }
       }
       if (counter > 0) {
+        StringBuilder sbWhere = new StringBuilder("");
+        foreach (var pk in this.TableMapping.PrimaryKeyMapping) {
+          var value = settings[pk.PropertyName];
+          var name = pk.DelimitedColumnName;
+          result.AddParam(value);
+          if (pk == this.TableMapping.PrimaryKeyMapping[0]) {
+            sbWhere.Append(string.Format(" WHERE {0} = @{1}", name, counter));
+          } else {
+            sbWhere.Append(string.Format(" AND {0} = @{1}", name, counter));
+          }
+          counter++;
+        }
         //add the key
-        result.AddParam(key);
         //strip the last commas
         var keys = sbKeys.ToString().Substring(0, sbKeys.Length - 4);
-        result.CommandText = string.Format(stub, this.tableMapping.DelimitedTableName, keys, this.PrimaryKeyMapping.DelimitedColumnName, counter);
+        result.CommandText = string.Format(stub, this.TableMapping.DelimitedTableName, keys, sbWhere.ToString());
       } else {
         throw new InvalidOperationException("No parsable object was sent in - could not divine any name/value pairs");
       }
@@ -345,9 +399,12 @@ namespace Biggy
     /// Removes one or more records from the DB according to the passed-in WHERE
     /// </summary>
     public virtual DbCommand CreateDeleteCommand(string where = "", object key = null, params object[] args) {
-      var sql = string.Format("DELETE FROM {0} ", this.tableMapping.DelimitedTableName);
+      var sql = string.Format("DELETE FROM {0} ", this.TableMapping.DelimitedTableName);
       if (key != null) {
-        sql += string.Format("WHERE {0}=@0", this.PrimaryKeyMapping.DelimitedColumnName);
+        if (this.TableMapping.HasCompoundPk) {
+          throw new InvalidOperationException("passing a key value will not work if the backing table has a composite pk. Ttry passing a where statement insteaad.");
+        }
+        sql += string.Format("WHERE {0}=@0", this.TableMapping.PrimaryKeyMapping[0].DelimitedColumnName);
         args = new object[] { key };
       }
       else if (!string.IsNullOrEmpty(where)) {
@@ -356,24 +413,48 @@ namespace Biggy
       return this.CreateCommand(sql, null, args);
     }
 
-    public virtual object GetPrimaryKey(object o) {
+    //public virtual object GetPrimaryKey(object o) {
+    //  object result = null;
+    //  var lookup = o.ToDictionary();
+    //  string propName = this.PrimaryKeyMapping.PropertyName;
+    //  var found = lookup.FirstOrDefault(x => x.Key.Equals(propName, StringComparison.OrdinalIgnoreCase));
+    //  result = found.Value;
+    //  return result;
+    //}
+
+    //public virtual void SetPrimaryKey(T item, object value) {
+    //  if (this.PrimaryKeyMapping != null) {
+    //    var props = item.GetType().GetProperties();
+    //    if (item is ExpandoObject) {
+    //      var d = item as IDictionary<string, object>;
+    //      d[this.PrimaryKeyMapping.PropertyName] = value;
+    //    } else {
+    //      // Find the property the PK maps to:
+    //      string mappedPropertyName = this.PrimaryKeyMapping.PropertyName;
+    //      var pkProp = props.FirstOrDefault(x => x.Name.Equals(mappedPropertyName, StringComparison.OrdinalIgnoreCase));
+    //      var converted = Convert.ChangeType(value, pkProp.PropertyType);
+    //      pkProp.SetValue(item, converted);
+    //    }
+    //  }
+    //}
+
+    public virtual object GetPropertyValue(object o, string propertyName) {
       object result = null;
       var lookup = o.ToDictionary();
-      string propName = this.PrimaryKeyMapping.PropertyName;
-      var found = lookup.FirstOrDefault(x => x.Key.Equals(propName, StringComparison.OrdinalIgnoreCase));
+      var found = lookup.FirstOrDefault(x => x.Key.Equals(propertyName, StringComparison.OrdinalIgnoreCase));
       result = found.Value;
       return result;
     }
 
-    public virtual void SetPrimaryKey(T item, object value) {
-      if (this.PrimaryKeyMapping != null) {
+    public virtual void SetPropertyValue(T item, string propertyName, object value) {
+      if (!string.IsNullOrWhiteSpace(propertyName)) {
         var props = item.GetType().GetProperties();
         if (item is ExpandoObject) {
           var d = item as IDictionary<string, object>;
-          d[this.PrimaryKeyMapping.PropertyName] = value;
+          d[propertyName] = value;
         } else {
           // Find the property the PK maps to:
-          string mappedPropertyName = this.PrimaryKeyMapping.PropertyName;
+          string mappedPropertyName = propertyName;
           var pkProp = props.FirstOrDefault(x => x.Name.Equals(mappedPropertyName, StringComparison.OrdinalIgnoreCase));
           var converted = Convert.ChangeType(value, pkProp.PropertyType);
           pkProp.SetValue(item, converted);
@@ -431,6 +512,34 @@ namespace Biggy
     }
 
 
+    ///// <summary>
+    ///// Checks for the presence of a PK field and a non-default value. 
+    ///// This method is generally called by the Save method to determine 
+    ///// whether the object represents a new record, or an existing record. 
+    ///// </summary>
+    //public bool HasPrimaryKey(object o) {
+    //  bool keyIsPresent = false;
+    //  var dict = o.ToDictionary();
+    //  Type propertyType = null;
+    //  object propertyValue = null;
+      
+    //  object defaultValue;
+    //  if(dict.ContainsKey(this.PrimaryKeyMapping.PropertyName))
+    //  {
+    //    keyIsPresent = true;
+    //    propertyValue = dict[this.PrimaryKeyMapping.PropertyName];
+    //    propertyType = dict[this.PrimaryKeyMapping.PropertyName].GetType();
+    //  }
+
+    //  if(propertyType.IsValueType) {
+    //    defaultValue = Activator.CreateInstance(propertyType);
+    //  } else {
+    //    defaultValue = null;
+    //  }
+    //  bool hasPK = keyIsPresent && !propertyValue.Equals(defaultValue);
+    //  return hasPK;
+    //}
+
     /// <summary>
     /// Checks for the presence of a PK field and a non-default value. 
     /// This method is generally called by the Save method to determine 
@@ -441,27 +550,32 @@ namespace Biggy
       var dict = o.ToDictionary();
       Type propertyType = null;
       object propertyValue = null;
-      
-      object defaultValue;
-      if(dict.ContainsKey(this.PrimaryKeyMapping.PropertyName))
-      {
-        keyIsPresent = true;
-        propertyValue = dict[this.PrimaryKeyMapping.PropertyName];
-        propertyType = dict[this.PrimaryKeyMapping.PropertyName].GetType();
-      }
 
-      if(propertyType.IsValueType) {
-        defaultValue = Activator.CreateInstance(propertyType);
-      } else {
-        defaultValue = null;
+      foreach (var pk in this.TableMapping.PrimaryKeyMapping) {
+        object defaultValue;
+        if (dict.ContainsKey(pk.PropertyName)) {
+          keyIsPresent = true;
+          propertyValue = dict[pk.PropertyName];
+          propertyType = dict[pk.PropertyName].GetType();
+        }
+        if (propertyType.IsValueType) {
+          defaultValue = Activator.CreateInstance(propertyType);
+        } else {
+          defaultValue = null;
+        }
+        bool hasPK = keyIsPresent && !propertyValue.Equals(defaultValue);
+        // If hasPk is ever false, then the object does not have the full PK:
+        if (!hasPK) {
+          return hasPK;
+        }
       }
-      bool hasPK = keyIsPresent && !propertyValue.Equals(defaultValue);
-      return hasPK;
+      // if we get here, the full PK is present on the object and has values assigned:
+      return true;
     }
 
 
     public int Count() {
-      return Count(this.tableMapping.DelimitedTableName);
+      return Count(this.TableMapping.DelimitedTableName);
     }
 
     public int Count(string delimitedTableName, string where = "", params object[] args) {

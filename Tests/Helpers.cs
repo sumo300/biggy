@@ -7,6 +7,34 @@ using Biggy;
 
 namespace Tests {
 
+  public class Property {
+    public int PropertyDocumentId { get; set; }
+    public string Name { get; set; }
+  }
+
+  public class Building {
+    // for tests, both PropertyId and BuildingId should be considered
+    // as participating in a composite PK:
+    public int PropertyId { get; set; }
+    public int BuildingId { get; set; }
+    public string Name { get; set; }
+  }
+
+  public class PropertyDocument {
+    [PrimaryKey(Auto: true)]
+    public int PropertyDocumentId { get; set; }
+    public string Name { get; set; }
+  }
+
+  public class BuildingDocument {
+    [PrimaryKey (Auto: false)]
+    public int PropertyId { get; set; }
+    [PrimaryKey(Auto: false)]
+    public int BuildingId { get; set; }
+    public string Name { get; set; }
+  }
+
+
   public class Film {
     [PrimaryKey]
     public int Film_ID { get; set; }
@@ -39,7 +67,7 @@ namespace Tests {
 
 
   public class MonkeyDocument {
-    [PrimaryKey]
+    [PrimaryKey(Auto: false)]
     public string Name { get; set; }
     public DateTime Birthday { get; set; }
     [FullText]

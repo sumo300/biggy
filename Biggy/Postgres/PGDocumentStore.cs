@@ -26,12 +26,26 @@ namespace Biggy.Postgres {
         if (x.Message.Contains("does not exist")) {
 
           //create the table
-          var idType = Model.PrimaryKeyMapping.DataType == typeof(int) ? " serial" : "varchar(255)";
+          var sql = "";
+          var keyColumnDefs = new List<string>();
+          var keyColumnNames = new List<string>();
           string fullTextColumn = "";
           if (this.FullTextFields.Length > 0) {
             fullTextColumn = ", search tsvector";
           }
-          var sql = string.Format("CREATE TABLE {0} ({1} {2} primary key not null, body json not null {3});", this.TableMapping.DelimitedTableName, this.PrimaryKeyMapping.DelimitedColumnName, idType, fullTextColumn);
+          string keyDefStub = "{0} {1} not null";
+          foreach (var pk in Model.TableMapping.PrimaryKeyMapping) {
+            string integerKeyType = "integer";
+            if (pk.IsAutoIncementing) {
+              integerKeyType = "serial";
+            }
+            var pkType = pk.DataType == typeof(int) ? " " + integerKeyType : "varchar(255)";
+            keyColumnDefs.Add(string.Format(keyDefStub, pk.DelimitedColumnName, pkType));
+            keyColumnNames.Add(pk.DelimitedColumnName);
+          }
+          string keyColumnsStatement = string.Join(",", keyColumnDefs.ToArray());
+          string pkColumns = string.Join(",", keyColumnNames.ToArray());
+          sql = string.Format("CREATE TABLE {0} ({1}, body json not null {2}, PRIMARY KEY ({3}));", this.TableMapping.DelimitedTableName, keyColumnsStatement, fullTextColumn, pkColumns);
           this.Model.Execute(sql);
           return TryLoadData();
         } else {
@@ -40,10 +54,12 @@ namespace Biggy.Postgres {
       }
     }
 
+
     public override T Insert(T item) {
       this.addItem(item);
-      if (this.PrimaryKeyMapping.IsAutoIncementing) {
-        //// Sync the JSON ID with the serial PK:
+      // if there is a single, auto-incrementing pk:
+      if (!this.TableMapping.HasCompoundPk && this.TableMapping.PrimaryKeyMapping[0].IsAutoIncementing) {
+        // Sync the JSON ID with the serial PK:
         this.Update(item);
       }
       return item;
@@ -56,26 +72,36 @@ namespace Biggy.Postgres {
       var args = new List<object>();
       var index = 0;
 
-      var keyColumn = dc.FirstOrDefault(x => x.Key.Equals(this.PrimaryKeyMapping.PropertyName, StringComparison.OrdinalIgnoreCase));
-      if (this.Model.PrimaryKeyMapping.IsAutoIncementing) {
+      var autoPkColumn = this.TableMapping.PrimaryKeyMapping.FirstOrDefault(c => c.IsAutoIncementing == true);
+      if (autoPkColumn != null) {
+        var keyColumn = dc.FirstOrDefault(x => x.Key.Equals(autoPkColumn.PropertyName, StringComparison.OrdinalIgnoreCase));
         //don't update the Primary Key
         dc.Remove(keyColumn);
       }
+      var columnNames = new List<string>();
       foreach (var key in dc.Keys) {
         if (key == "search") {
           vals.Add(string.Format("to_tsvector(@{0})", index));
+          columnNames.Add(this.TableMapping.ColumnMappings.FindByProperty(key).DelimitedColumnName);
         } else {
           vals.Add(string.Format("@{0}", index));
+          columnNames.Add(this.TableMapping.ColumnMappings.FindByProperty(key).DelimitedColumnName);
         }
         args.Add(dc[key]);
         index++;
       }
       var sb = new StringBuilder();
-      sb.AppendFormat("INSERT INTO {0} ({1}) VALUES ({2}) RETURNING {3} as newID;", this.TableMapping.DelimitedTableName, string.Join(",", dc.Keys), string.Join(",", vals), Model.PrimaryKeyMapping.DelimitedColumnName);
+      if (autoPkColumn != null) {
+        sb.AppendFormat("INSERT INTO {0} ({1}) VALUES ({2}) RETURNING {3} as newID;", this.TableMapping.DelimitedTableName, string.Join(",", columnNames), string.Join(",", vals), autoPkColumn.DelimitedColumnName);
+      } else {
+        sb.AppendFormat("INSERT INTO {0} ({1}) VALUES ({2});", this.TableMapping.DelimitedTableName, string.Join(",", columnNames), string.Join(",", vals));
+      }
       var sql = sb.ToString();
       var newKey = this.Model.Scalar(sql, args.ToArray());
       //set the key
-      this.Model.SetPrimaryKey(item, newKey);
+      if (autoPkColumn != null) {
+        this.Model.SetPropertyValue(item, autoPkColumn.PropertyName, newKey);
+      }
     }
 
     /// <summary>
@@ -98,11 +124,12 @@ namespace Biggy.Postgres {
           DbCommand dbCommand = this.Model.CreateCommand(lockTableSQL, connection);
           dbCommand.Transaction = tdbTransaction;
           dbCommand.ExecuteNonQuery();
+          var autoPkColumn = this.TableMapping.PrimaryKeyMapping.FirstOrDefault(c => c.IsAutoIncementing == true);
 
           int nextSerialPk = 0;
-          if (Model.PrimaryKeyMapping.IsAutoIncementing) {
+          if (autoPkColumn != null) {
             // Now get the next serial Id. ** Need to do this within the transaction/table lock scope **:
-            string sequence = string.Format("\"{0}_{1}_seq\"", this.TableMapping.DBTableName, this.PrimaryKeyMapping.ColumnName);
+            string sequence = string.Format("\"{0}_{1}_seq\"", this.TableMapping.DBTableName, autoPkColumn.ColumnName);
             var sql_get_seq = string.Format("SELECT last_value FROM {0}", sequence);
             dbCommand.CommandText = sql_get_seq;
             // if this is a fresh sequence, the "seed" value is returned. We will assume 1:
@@ -117,9 +144,9 @@ namespace Biggy.Postgres {
           var rowValueCounter = 0;
           foreach (var item in items) {
             // Set the soon-to-be inserted serial int value:
-            if (Model.PrimaryKeyMapping.IsAutoIncementing) {
+            if (autoPkColumn != null) {
               var props = item.GetType().GetProperties();
-              var pk = props.First(p => p.Name == this.PrimaryKeyMapping.PropertyName);
+              var pk = props.First(p => p.Name == autoPkColumn.PropertyName);
               pk.SetValue(item, nextSerialPk);
               nextSerialPk++;
             }
@@ -127,8 +154,8 @@ namespace Biggy.Postgres {
             var itemEx = SetDataForDocument(item);
             var itemSchema = itemEx as IDictionary<string, object>;
             var sbParamGroup = new StringBuilder();
-            if (itemSchema.ContainsKey(this.PrimaryKeyMapping.PropertyName) && this.PrimaryKeyMapping.IsAutoIncementing) {
-              itemSchema.Remove(this.PrimaryKeyMapping.PropertyName);
+            if (autoPkColumn != null && itemSchema.ContainsKey(autoPkColumn.PropertyName)) {
+              itemSchema.Remove(autoPkColumn.PropertyName);
             }
             if (ReferenceEquals(item, first)) {
               var sbFieldNames = new StringBuilder();
@@ -194,7 +221,45 @@ namespace Biggy.Postgres {
     }
 
     public override List<T> Delete(List<T> items) {
-      Model.Delete(items);
+      // NOTE: We need to implement this directly in here because the Model is typed 
+      // dynammically, so a call into the model defaults to the Delete(item) method, 
+      // and fails to parse the list object. Calling into the Model.Delete(List<T> items)
+      // Method throws because on the model, T is type dynamic. List<T> cannot be cast to List<dynamic>.
+
+      var removed = 0;
+      if (items.Count() > 0) {
+        string keyColumnNames;
+        var keyList = new List<string>();
+
+        // If a compund key is present, we need to handle things a little differently:
+        if (this.TableMapping.HasCompoundPk) {
+          // we need to build a DELETE with an IN statement like this:
+          // DELETE FROM myTable WHERE (pk1, pk2) IN ((value1, value2), (value3, value4), ...)
+          var columnArray = from k in this.TableMapping.PrimaryKeyMapping select k.DelimitedColumnName;
+          keyColumnNames = string.Format("({0})", string.Join(",", columnArray));
+          foreach (var item in items) {
+            var expando = item.ToExpando();
+            var dict = (IDictionary<string, object>)expando;
+            var sbValues = new StringBuilder("");
+            foreach (var pk in this.TableMapping.PrimaryKeyMapping) {
+              sbValues.Append(string.Format("{0},", dict[pk.PropertyName].ToString()));
+            }
+            string values = sbValues.ToString().Substring(0, sbValues.Length - 1);
+            keyList.Add(string.Format("({0})", values));
+          }
+        } else {
+          // Otherwise, the first pk in the list is what we want:
+          keyColumnNames = this.TableMapping.PrimaryKeyMapping[0].DelimitedColumnName;
+          foreach (var item in items) {
+            var expando = item.ToExpando();
+            var dict = (IDictionary<string, object>)expando;
+            keyList.Add(dict[this.TableMapping.PrimaryKeyMapping[0].PropertyName].ToString());
+          }
+        }
+        var keySet = String.Join(",", keyList.ToArray());
+        var inStatement = keyColumnNames + " IN (" + keySet + ")";
+        removed = Model.DeleteWhere(inStatement);
+      }
       return items;
     }
   }

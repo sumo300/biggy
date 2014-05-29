@@ -17,52 +17,31 @@ namespace Biggy
     public abstract T Delete(T item);
     public abstract List<T> Delete(List<T> items);
     protected abstract List<T> TryLoadData();
-
     public abstract BiggyRelationalStore<dynamic> getModel();
 
-      public string[] FullTextFields { get; set; }
+    public string[] FullTextFields { get; set; }
     public BiggyRelationalStore<dynamic> Model { get; set; }
     public DbCache DbCache { get; set; }
 
     public DBTableMapping TableMapping  {
-      get { return this.Model.tableMapping; }
-      set { this.Model.tableMapping = value; }
-    }
-
-    public DbColumnMapping PrimaryKeyMapping {
-      get { return this.Model.PrimaryKeyMapping; }
-      set { this.Model.PrimaryKeyMapping = value; }
-    }
-
-    public virtual object GetPrimaryKey(T item) {
-      return Model.GetPrimaryKey(item);
-    }
-
-    public virtual void SetPrimaryKey(T item, object value) {
-      Model.SetPrimaryKey(item, value);
+      get { return this.Model.TableMapping; }
+      set { this.Model.TableMapping = value; }
     }
 
     public BiggyDocumentStore(DbCache dbCache) {
       this.DbCache = dbCache;
       this.Model = this.getModel();
-
-      //this.Model = new BiggyRelationalStore<dynamic>(context);
       this.TableMapping = this.getTableMappingForT();
-      this.PrimaryKeyMapping = this.TableMapping.PrimaryKeyMapping[0];
       SetFullTextColumns();
       TryLoadData();
     }
 
     string _userDefinedTableName = "";
-    public BiggyDocumentStore(DbCache dbCache, string tableName)
-    {
+    public BiggyDocumentStore(DbCache dbCache, string tableName) {
       _userDefinedTableName = tableName;
       this.DbCache = dbCache;
-
       this.Model = this.getModel();
-      //this.Model = new BiggyRelationalStore<dynamic>(context);
       this.TableMapping = this.getTableMappingForT();
-      this.PrimaryKeyMapping = this.TableMapping.PrimaryKeyMapping[0];
       SetFullTextColumns();
       TryLoadData();
     }
@@ -76,9 +55,11 @@ namespace Biggy
     public DBTableMapping getTableMappingForT() {
       var result = new DBTableMapping(this.DbCache.DbDelimiterFormatString);
       result.DBTableName = this.DecideTableName();
-      var pk = this.getPrimaryKeyForT();
-      result.PrimaryKeyMapping.Add(pk);
-      result.ColumnMappings.Add(pk);
+      var pks = this.getPrimaryKeyForT();
+      foreach (var pk in pks) {
+        result.PrimaryKeyMapping.Add(pk);
+        result.ColumnMappings.Add(pk);
+      }
       result.ColumnMappings.Add("body", "body");
       result.ColumnMappings.Add("search", "search");
       return result;
@@ -102,33 +83,50 @@ namespace Biggy
       this.FullTextFields = foundProps.Select(x => x.Name).ToArray();
     }
 
-    DbColumnMapping getPrimaryKeyForT() {
-      DbColumnMapping result = new DbColumnMapping(this.DbCache.DbDelimiterFormatString);
-      result.TableName = this.DecideTableName();
+    List<DbColumnMapping> getPrimaryKeyForT() {
+      List<DbColumnMapping> result = new List<DbColumnMapping>();
+      string newTableName = this.DecideTableName();
       var baseName = this.GetBaseName();
       var acceptableKeys = new string[] { "ID", baseName + "ID" };
-      var props = typeof(T).GetProperties();
-      var conventionalKey = props.FirstOrDefault(x => x.Name.Equals("id", StringComparison.OrdinalIgnoreCase)) ??
-         props.FirstOrDefault(x => x.Name.Equals(baseName + "ID", StringComparison.OrdinalIgnoreCase));
+      //var props = typeof(T).GetProperties();
 
-      if (conventionalKey == null) {
-        var foundProp = props
-          .FirstOrDefault(p => p.GetCustomAttributes(false)
-            .Any(a => a.GetType() == typeof(PrimaryKeyAttribute)));
+      var item = new T();
+      var itemType = item.GetType();
+      var props = itemType.GetProperties();
+      
+      // Check for custom attributes first - for doc stores, this should be 
+      // the primary way to define keys:
+      var foundProps = props.Where(p => p.GetCustomAttributes(false)
+        .Any(a => a.GetType() == typeof(PrimaryKeyAttribute)));
 
-        if (foundProp != null) {
-          result.ColumnName = foundProp.Name;
-          result.DataType = foundProp.PropertyType;
-          result.PropertyName = foundProp.Name;
+      if (foundProps != null && foundProps.Count() > 0) {
+        foreach (var pk in foundProps) {
+          var attribute = pk.GetCustomAttributes(false).First(a => a.GetType() == typeof(PrimaryKeyAttribute));
+          var pkAttribute = attribute as PrimaryKeyAttribute;
+          //PrimaryKeyAttribute pkAttribute = pk.GetCustomAttributes(typeof(PrimaryKeyAttribute), false).FirstOrDefault() as PrimaryKeyAttribute;
+          var newMapping = new DbColumnMapping(this.DbCache.DbDelimiterFormatString);
+          newMapping.TableName = newTableName;
+          newMapping.ColumnName = pk.Name;
+          newMapping.DataType = pk.PropertyType;
+          newMapping.PropertyName = pk.Name;
+          newMapping.IsPrimaryKey = true;
+          newMapping.IsAutoIncementing = pkAttribute.IsAutoIncrementing;
+          result.Add(newMapping);
         }
       } else {
-        result.DataType = typeof(int);
-        result.ColumnName = conventionalKey.Name;
-        result.PropertyName = conventionalKey.Name;
+        // No custom attributes were found. Do your best with column names:
+        var conventionalKey = props.FirstOrDefault(x => x.Name.Equals("id", StringComparison.OrdinalIgnoreCase)) ??
+            props.FirstOrDefault(x => x.Name.Equals(baseName + "ID", StringComparison.OrdinalIgnoreCase));
+
+        var newMapping = new DbColumnMapping(this.DbCache.DbDelimiterFormatString);
+        newMapping.DataType = typeof(int);
+        newMapping.ColumnName = conventionalKey.Name;
+        newMapping.PropertyName = conventionalKey.Name;
+        newMapping.IsPrimaryKey = true;
+        newMapping.IsAutoIncementing = newMapping.DataType == typeof(int);
+        result.Add(newMapping);
       }
-      result.IsPrimaryKey = true;
-      result.IsAutoIncementing = result.DataType == typeof(int);
-      if (String.IsNullOrWhiteSpace(result.ColumnName)) {
+      if (result.Count == 0) {
         throw new InvalidOperationException("Can't tell what the primary key is. You can use ID, " + baseName + "ID, or specify with the PrimaryKey attribute");
       }
       return result;
@@ -136,11 +134,14 @@ namespace Biggy
 
     protected ExpandoObject SetDataForDocument(T item) {
       var json = JsonConvert.SerializeObject(item);
-      var key = this.GetPrimaryKey(item);
       var expando = new ExpandoObject();
       var dict = expando as IDictionary<string, object>;
 
-      dict[this.PrimaryKeyMapping.PropertyName] = key;
+      var itemProperties = item.ToExpando();
+      var itemPropertiesDictionary = itemProperties as IDictionary<string, object>;
+      foreach (var pk in this.TableMapping.PrimaryKeyMapping) {
+        dict[pk.PropertyName] = itemPropertiesDictionary[pk.PropertyName];
+      }
       dict["body"] = json;
 
       if (this.FullTextFields.Length > 0) {

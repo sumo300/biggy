@@ -125,5 +125,28 @@ namespace Tests.SQLServer {
       Assert.True(inserted.Count() == INSERT_QTY);
     }
 
+
+    [Fact(DisplayName = "Deletes a range of documents with serial key")]
+    void Deletes_Range_of_Documents_With_Serial_PK() {
+      int INSERT_QTY = 100;
+      var bulkList = new List<ClientDocument>();
+      for (int i = 1; i <= INSERT_QTY; i++) {
+        var newBuildingDocument = new ClientDocument {
+          FirstName = "ClientDocument " + i,
+          LastName = "Test",
+          Email = "jatten@example.com"
+        };
+        bulkList.Add(newBuildingDocument);
+      }
+      clientDocs.Add(bulkList);
+
+      var inserted = clientDocs.Load();
+      int insertedCount = inserted.Count;
+
+      var deleteUs = inserted.Where(b => b.ClientDocumentId > 50);
+      clientDocs.Remove(deleteUs.ToList());
+      var remaining = clientDocs.Load();
+      Assert.True(insertedCount > remaining.Count && remaining.Count == 50);
+    }
   }
 }

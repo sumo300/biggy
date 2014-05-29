@@ -23,5 +23,14 @@ namespace Biggy {
 
     public List<DbColumnMapping> PrimaryKeyMapping { get; set; }
     public DbColumnMappingLookup ColumnMappings { get; set; }
+    public bool HasCompoundPk {
+      get {
+        if (this.PrimaryKeyMapping.Count > 1) {
+          return true;
+        } else {
+          return false;
+        }
+      }
+    }
   }
 }
