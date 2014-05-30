@@ -20,9 +20,10 @@ namespace Biggy.SqlCe {
     public override T Insert(T item) {
       var expando = SetDataForDocument(item);
       expando = Model.Insert(expando);
-      if (Model.PrimaryKeyMapping.IsAutoIncementing) {
-        var newId = Model.GetPrimaryKey(expando);
-        this.SetPrimaryKey(item, newId);
+      var pkMap = Model.TableMapping.PrimaryKeyMapping.Single();       //TODO: compound Pk not supported
+      if (pkMap.IsAutoIncementing) {
+        var newId = Model.GetPropertyValue(expando, pkMap.PropertyName);
+        this.Model.SetPropertyValue(item, pkMap.PropertyName, newId);
         // update document body of autoinc Pk value (insert and update should go within transaction, wait for Biggy transactions)
         Update(item);
       }
@@ -34,11 +35,12 @@ namespace Biggy.SqlCe {
       var first = items.First();
       var expando = SetDataForDocument(first);
 
+      var pkMap = Model.TableMapping.PrimaryKeyMapping.Single();  //TODO: compound Pk not supported
       var insertCmd = Model.CreateInsertCommand(expando);
       var updateSql = string.Format("update {0} set [body] = @0 where {1} = @1",
-                  Model.tableMapping.DelimitedTableName, Model.PrimaryKeyMapping.DelimitedColumnName);
+                  Model.TableMapping.DelimitedTableName, pkMap.DelimitedColumnName);
 
-      bool fetchNewId = Model.PrimaryKeyMapping.IsAutoIncementing;
+      bool fetchNewId = pkMap.IsAutoIncementing;
 
       // Reuse a connection and commands object, SqlCe has a limit of open sessions
       using (var conn = Model.Cache.OpenConnection())
@@ -54,14 +56,14 @@ namespace Biggy.SqlCe {
         foreach (var item in items) {
           if (false == object.ReferenceEquals(first, item)) {
             expando = SetDataForDocument(item);
-            var args = expando.GetInsertParamValues(Model.PrimaryKeyMapping);
+            var args = expando.GetInsertParamValues(pkMap);
             insertCmd.SetNewParameterValues(args);
           }
           insertCmd.ExecuteNonQuery();
 
           if (true == fetchNewId) {
             var newId = newIdQuery.ExecuteScalar();
-            SetPrimaryKey(item, newId);
+            Model.SetPropertyValue(item, pkMap.PropertyName, newId);
             expando = SetDataForDocument(item);
             updateCmd.Parameters[0].Value = ((dynamic)expando).body as string;
             updateCmd.Parameters[1].Value = newId;
@@ -95,16 +97,16 @@ namespace Biggy.SqlCe {
       }
       catch (System.Data.SqlServerCe.SqlCeException x) {
         if (x.Message.StartsWith("The specified table does not exist.")) {
+          var pkMap = TableMapping.PrimaryKeyMapping.Single();    //TODO: compound Pk not supported
           //create the table
-          var idType = Model.PrimaryKeyMapping.IsAutoIncementing
-                     ? " int identity(1,1)" : " nvarchar(255)";
+          var idType = pkMap.IsAutoIncementing ? " int identity(1,1)" : " nvarchar(255)";
           string fullTextColumn = string.Empty;
           if (this.FullTextFields.Length > 0) {
             fullTextColumn = ", search ntext";
           }
           var sql = string.Format(
               "CREATE TABLE {0} ({1} {2} primary key not null, body ntext not null{3});",
-              this.TableMapping.DelimitedTableName, this.PrimaryKeyMapping.DelimitedColumnName, idType, fullTextColumn);
+              this.TableMapping.DelimitedTableName, pkMap.DelimitedColumnName, idType, fullTextColumn);
           this.Model.Execute(sql);
 
           return TryLoadData();

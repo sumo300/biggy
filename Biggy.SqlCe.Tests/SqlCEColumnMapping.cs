@@ -14,20 +14,22 @@ namespace Biggy.SqlCe.Tests {
     public void MapingSpecifiedPk() {
       var db = new SqlCeStore<Album>(_connectionStringName);  //, "Album"
 
-      var pkMap = db.PrimaryKeyMapping;
-      Assert.Equal("Id", pkMap.PropertyName);
-      Assert.Equal("AlbumId", pkMap.ColumnName);
-      Assert.True(pkMap.IsAutoIncementing);
+        var pkMap = db.TableMapping.PrimaryKeyMapping;
+      Assert.Single(pkMap);
+      Assert.Equal("Id", pkMap[0].PropertyName);
+      Assert.Equal("AlbumId", pkMap[0].ColumnName);
+      Assert.True(pkMap[0].IsAutoIncementing);
     }
 
     [Fact(DisplayName = "Maps Pk even if wasn't specified by attribute")]
     public void MapingNotSpecifiedPk() {
       var db = new SqlCeStore<Genre>(_connectionStringName);  //, "Genre"
 
-      var pkMap = db.PrimaryKeyMapping;
-      Assert.Equal("Id", pkMap.PropertyName);
-      Assert.Equal("GenreId", pkMap.ColumnName);
-      Assert.True(pkMap.IsAutoIncementing);
+      var pkMap = db.TableMapping.PrimaryKeyMapping;
+      Assert.Single(pkMap);
+      Assert.Equal("Id", pkMap[0].PropertyName);
+      Assert.Equal("GenreId", pkMap[0].ColumnName);
+      Assert.True(pkMap[0].IsAutoIncementing);
     }
   }
 }

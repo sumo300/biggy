@@ -7,6 +7,14 @@ using System.Threading.Tasks;
 
 namespace Biggy.SqlCe {
   public class SqlCeStore<T> : Biggy.SQLServer.SQLServerStore<T> where T : new() {
+    public override DBTableMapping getTableMappingForT() {
+      var maps = base.getTableMappingForT();
+      // just for now, remove this method when compound Pks will be ready
+      if (maps.HasCompoundPk)
+        throw new NotImplementedException("Sorry guys, no compound Pk supported for SqlCe.");
+      
+      return maps;
+    }
 
     public SqlCeStore(DbCache dbCache) : base(dbCache) { }
     public SqlCeStore(string connectionString) : base(new SqlCeCache(connectionString)) { }
@@ -33,7 +41,9 @@ namespace Biggy.SqlCe {
             tx.Commit();
           //TODO: ?? else return null;
         }
-        this.SetPrimaryKey(item, newId);
+        var pk = TableMapping.PrimaryKeyMapping.Single();   //TODO: compound Pk not supported
+        if (pk.IsAutoIncementing)
+            this.SetPropertyValue(item, pk.PropertyName, newId);
         Inserted(item);
       }
       return item;
@@ -45,7 +55,7 @@ namespace Biggy.SqlCe {
       if (false == items.Any()) {
         return items;
       }
-      DBTableMapping dbtmap = this.tableMapping;
+      DBTableMapping dbtmap = this.TableMapping;
       var pkMap = dbtmap.PrimaryKeyMapping.First();//HACK: Now everywhere is assumed there is single column Pk
 
       var first = items.First();
@@ -72,7 +82,7 @@ namespace Biggy.SqlCe {
 
           if (pkMap.IsAutoIncementing) {
             var newId = newIdQuery.ExecuteScalar();
-            this.SetPrimaryKey(item, newId);
+            this.SetPropertyValue(item, pkMap.PropertyName, newId);
           }
         }
         tx.Commit();
