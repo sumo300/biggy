@@ -39,7 +39,7 @@ namespace Biggy
       var itemType = item.GetType();
       var properties = itemType.GetProperties();
 
-      string replaceString = "[^a-zA-Z1-9]";
+      string replaceString = "[^a-zA-Z0-9]";
       var rgx = new Regex(replaceString);
 
       string flattenedItemTypeName = rgx.Replace(itemType.Name.ToLower(), "");
