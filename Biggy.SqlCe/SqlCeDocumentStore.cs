@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Biggy.SqlCe {
-    public class SqlCeDocumentStore<T> : SQLServer.SQLDocumentStore<T> where T : new() {
+  public class SqlCeDocumentStore<T> : SQLServer.SQLDocumentStore<T> where T : new() {
     
     public SqlCeDocumentStore(DbCache dbCache) : base(dbCache, null) { }
     public SqlCeDocumentStore(DbCache dbCache, string tableName) : base(dbCache, tableName) { }
