@@ -259,10 +259,10 @@ namespace Biggy.SQLServer {
             var expando = item.ToExpando();
             var dict = (IDictionary<string, object>)expando;
             keyList.Add(dict[this.TableMapping.PrimaryKeyMapping[0].PropertyName].ToString());
-            var keySet = String.Join(",", keyList.ToArray());
-            criteriaStatement = keyColumnNames + " IN (" + keySet + ")";
-            removed = Model.DeleteWhere(criteriaStatement);
           }
+          var keySet = String.Join(",", keyList.ToArray());
+          criteriaStatement = keyColumnNames + " IN (" + keySet + ")";
+          removed = Model.DeleteWhere(criteriaStatement);
         }
       }
       return items;

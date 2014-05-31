@@ -5,12 +5,12 @@ using System.Text;
 using System.Threading.Tasks;
 
 namespace Biggy.SqlCe {
-  public class SqlCeDocumentStore<T> : BiggyDocumentStore<T> where T : new() {
-
-    public SqlCeDocumentStore(string connectionStringName) : base(new SqlCeCache(connectionStringName)) { }
-    public SqlCeDocumentStore(string connectionStringName, string tableName) : base(new SqlCeCache(connectionStringName), tableName) { }
+    public class SqlCeDocumentStore<T> : SQLServer.SQLDocumentStore<T> where T : new() {
+    
     public SqlCeDocumentStore(DbCache dbCache) : base(dbCache, null) { }
     public SqlCeDocumentStore(DbCache dbCache, string tableName) : base(dbCache, tableName) { }
+    public SqlCeDocumentStore(string connectionStringName) : base(new SqlCeCache(connectionStringName)) { }
+    public SqlCeDocumentStore(string connectionStringName, string tableName) : base(new SqlCeCache(connectionStringName), tableName) { }
 
 
     public override BiggyRelationalStore<dynamic> getModel() {
@@ -72,22 +72,6 @@ namespace Biggy.SqlCe {
         }
         tx.Commit();
       }
-      return items;
-    }
-
-    public override T Update(T item) {
-      var expando = SetDataForDocument(item);
-      Model.Update(expando);
-      return item;
-    }
-
-    public override T Delete(T item) {
-      Model.Delete(item);
-      return item;
-    }
-
-    public override List<T> Delete(List<T> items) {
-      Model.Delete(items);
       return items;
     }
 
