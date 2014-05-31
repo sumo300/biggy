@@ -61,7 +61,7 @@ namespace Biggy.SqlCe.Tests {
   }
 
   class MonkeyDocument {
-    [PrimaryKey]
+    [PrimaryKey(false)]
     public string Name { get; set; }
     public DateTime Birthday { get; set; }
     [FullText]
