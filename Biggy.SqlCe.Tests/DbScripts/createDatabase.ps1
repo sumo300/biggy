@@ -12,4 +12,4 @@ $connStr = "Data Source=$dbFolder/chinook.sdf;Persist Security Info=False;"
 #echo $connStr
 
 &$sqlCeCmd -d $connStr -e create
-&$sqlCeCmd -d $connStr -i Chinook_SqlServer_AutoIncrementPKs.sql
+&$sqlCeCmd -d $connStr -i Chinook_SqlCe_AutoIncrementPKs.sqlce

@@ -123,5 +123,54 @@ namespace Biggy.SqlCe.Tests {
       Assert.True(inserted.Count() == INSERT_QTY);
     }
 
+    [Fact(DisplayName = "Non Auto-Incrementing Pk should not be overwritten")]
+    void Non_Auto_Incrementing_Pk_should_not_be_overwritten() {
+      string monkeyPk = "Monkey#1";
+      var monkey = new MonkeyDocument { Name = monkeyPk, Birthday = DateTime.Now };
+
+      monkeyDocs.Add(monkey);
+      Assert.Equal(monkeyPk, monkeyDocs.Load().Single().Name);
+    }
+
+    [Fact(DisplayName = "Removing list of documents from db")]
+    void Removing_list_of_documents() {
+        var startDate = new DateTime(1980, 1, 1);
+        var addRange = new List<ClientDocument>();
+        int i = 0;
+        while (++i < 30) {
+            addRange.Add(new ClientDocument {
+                FirstName = "Client"+i,
+                Email = string.Concat("client", i, "@host.email")
+            });
+        }
+        clientDocs.Add(addRange);
+
+        var clients = addRange.Skip(10).Take(9).ToList();
+        clientDocs.Remove(clients);
+
+        clients = clientDocs.Load();
+        Assert.Equal(20, clients.Count);
+    }
+
+    [Fact(DisplayName = "Removing list of documents from db, non-autoincrement Pk")]
+    void Removing_list_of_documents_no_auto_Pk() {
+      var startDate = new DateTime(1980, 1, 1);
+      var addRange = new List<MonkeyDocument>();
+      int i=0;
+      while (++i < 30) {
+        addRange.Add(new MonkeyDocument {
+          Name = "Monkey"+i.ToString(),
+          Birthday = startDate.AddYears(i)
+        });
+      }
+      monkeyDocs.Add(addRange);
+
+      var monkeys = addRange.Where(m => m.Birthday.Year > 1988 && m.Birthday.Year < 1999).ToList();
+      monkeyDocs.Remove(monkeys);
+
+      monkeys = monkeyDocs.Load();
+      Assert.False(monkeys.Any(m => m.Birthday.Year > 1988 && m.Birthday.Year < 1999));
+    }
+
   }
 }
