@@ -180,5 +180,27 @@ namespace Tests.Postgres {
       Assert.True(insertedCount > remaining.Count && remaining.Count == 50);
     }
 
+    [Fact(DisplayName = "Deletes a range of documents with string key")]
+    void Deletes_Range_of_Documents_With_String_PK() {
+      int INSERT_QTY = 100;
+      var bulkList = new List<MonkeyDocument>();
+      for (int i = 1; i <= INSERT_QTY; i++) {
+        var newMonkeyDocument = new MonkeyDocument {
+          Name = "MonkeyDocument " + i,
+          Birthday = DateTime.Now,
+          Description = "This is Monkey number " + i
+        };
+        bulkList.Add(newMonkeyDocument);
+      }
+      monkeyDocs.Add(bulkList);
+
+      var inserted = monkeyDocs.Load();
+      int insertedCount = inserted.Count;
+
+      var deleteUs = monkeyDocs.Remove(inserted);
+      var remaining = monkeyDocs.Load();
+      Assert.True(insertedCount > remaining.Count && remaining.Count == 0);
+    }
+
   }
 }

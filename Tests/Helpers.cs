@@ -49,7 +49,16 @@ namespace Tests {
 
 
   public class Widget {
+    [PrimaryKey(Auto: false)]
     public string SKU { get; set; }
+    public string Name { get; set; }
+    public Decimal Price { get; set; }
+  }
+
+  public class CompoundWidget {
+    [PrimaryKey(Auto: false)]
+    public string SKU { get; set; }
+    [PrimaryKey(Auto: false)]
     public string Name { get; set; }
     public Decimal Price { get; set; }
   }
