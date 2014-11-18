@@ -1,100 +1,111 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project DefaultTargets="Build" ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
-    <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{EAD25F46-9C16-4DC3-B312-4FC74C8E3B9F}</ProjectGuid>
+    <Platform Condition=" '$(Platform)' == '' ">x86</Platform>
+    <ProjectGuid>{B0BBD31B-49BC-42C5-806F-2D8B5F32C131}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>Tests</RootNamespace>
     <AssemblyName>Tests</AssemblyName>
-    <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
-    <FileAlignment>512</FileAlignment>
+    <NuGetPackageImportStamp>3b6a8de7</NuGetPackageImportStamp>
+    <SolutionDir Condition="$(SolutionDir) == '' Or $(SolutionDir) == '*Undefined*'">..\</SolutionDir>
+    <RestorePackages>true</RestorePackages>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|x86' ">
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
+    <OutputPath>bin\Debug</OutputPath>
+    <DefineConstants>DEBUG;</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
-  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
-    <DebugType>pdbonly</DebugType>
+  <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|x86' ">
+    <DebugType>full</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
+    <OutputPath>bin\Release</OutputPath>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
+    <ConsolePause>false</ConsolePause>
+    <PlatformTarget>x86</PlatformTarget>
   </PropertyGroup>
   <ItemGroup>
-    <Reference Include="Newtonsoft.Json, Version=6.0.0.0, Culture=neutral, PublicKeyToken=30ad4fe6b2a6aeed, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\Newtonsoft.Json.6.0.1\lib\net45\Newtonsoft.Json.dll</HintPath>
+    <Reference Include="nunit.core">
+      <HintPath>..\packages\NUnitTestAdapter.1.2\lib\nunit.core.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="nunit.core.interfaces">
+      <HintPath>..\packages\NUnitTestAdapter.1.2\lib\nunit.core.interfaces.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="nunit.framework">
+      <HintPath>..\packages\NUnit.2.6.3\lib\nunit.framework.dll</HintPath>
+    </Reference>
+    <Reference Include="nunit.util">
+      <HintPath>..\packages\NUnitTestAdapter.1.2\lib\nunit.util.dll</HintPath>
+      <Private>False</Private>
+    </Reference>
+    <Reference Include="NUnit.VisualStudio.TestAdapter">
+      <HintPath>..\packages\NUnitTestAdapter.1.2\lib\NUnit.VisualStudio.TestAdapter.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.ComponentModel.DataAnnotations" />
-    <Reference Include="System.Core" />
-    <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
-    <Reference Include="Microsoft.CSharp" />
+    <Reference Include="Mono.Data.Sqlite" />
     <Reference Include="System.Data" />
-    <Reference Include="System.Xml" />
-    <Reference Include="xunit">
-      <HintPath>..\packages\xunit.1.9.2\lib\net20\xunit.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="MemoryList\BiggyListNoStoreTests.cs" />
-    <Compile Include="Helpers.cs" />
-    <Compile Include="MemoryList\BiggyListWithFileDbInMemory.cs" />
-    <Compile Include="JSON\BiggyListWithFileDb.cs" />
-    <Compile Include="JSON\Store.cs" />
-    <Compile Include="Postgres\BiggyListWithPG.cs" />
-    <Compile Include="Postgres\BiggyListWithPGDocuments.cs" />
-    <Compile Include="Postgres\PostgresCompositePk.cs" />
-    <Compile Include="Postgres\FullText.cs" />
-    <Compile Include="Postgres\PostgresStore.cs" />
-    <Compile Include="Postgres\PostgresDocumentStore.cs" />
-    <Compile Include="Postgres\PostgresDocStoreCompositePk.cs" />
-    <Compile Include="SQLServer\BiggyListWithSQL.cs" />
-    <Compile Include="SQLServer\BiggyListWithSQLDocuments.cs" />
-    <Compile Include="SQLServer\SQLServerDocStoreCompositePk.cs" />
-    <Compile Include="SQLServer\SqlServerCompositePk.cs" />
-    <Compile Include="SQLServer\SQLServerDocumentStore.cs" />
-    <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="SQLServer\SQLStore.cs" />
+    <Compile Include="BiggyList\BiggyListWithJsonStore.cs" />
+    <Compile Include="BiggyList\BiggyListWithSqliteDocumentStore.cs" />
+    <Compile Include="BiggyList\BiggyListWithPgDocumentStore.cs" />
+    <Compile Include="BiggyList\BiggyListWithSqliteRelationalStore.cs" />
+    <Compile Include="BiggyList\BiggyListWithPgRelationalStore.cs" />
+    <Compile Include="JsonDb\jsonStoreWithStringKey.cs" />
+    <Compile Include="JsonDb\jsonDbCore.Tests.cs" />
+    <Compile Include="pgDbCore\pgDbCore.Tests.cs" />
+    <Compile Include="PostgresDocuments\PgDocumentStoreWithIntKeyAttribute.cs" />
+    <Compile Include="PostgresDocuments\PgDocumentStoreWithSerialKey.cs" />
+    <Compile Include="PostgresDocuments\PgDocumentStoreWithStringKey.cs" />
+    <Compile Include="PostgresDocuments\pgDocumentStoreWithStringKeyAttribute.cs" />
+    <Compile Include="PostgresRelationalStore\PgRelationalStoreWithPgNameAttributes.cs" />
+    <Compile Include="PostgresRelationalStore\PgRelationalStoreWithPgNames.cs" />
+    <Compile Include="PostgresRelationalStore\PgRelationalStoreWithStringKey.cs" />
+    <Compile Include="PostgresRelationalStore\PgRelationalStoreWithSerialKey.cs" />
+    <Compile Include="RelationalTestObjects.cs" />
+    <Compile Include="sqliteDbCore\sqliteDbCore.Tests.cs" />
+    <Compile Include="SqliteDocuments\sqliteDocumentStoreWithAutoIntKey.cs" />
+    <Compile Include="SqliteDocuments\sqliteDocumentStoreWithIntKeyAttribute.cs" />
+    <Compile Include="SqliteDocuments\sqliteDocumentStoreWithStringKey.cs" />
+    <Compile Include="SqliteDocuments\sqliteDocumentStoreWithStringKeyAttribute.cs" />
+    <Compile Include="DocumentTestObjects.cs" />
+    <Compile Include="sqliteRelationalStore\sqliteRelationalStoreWithPgNameAttributes.cs" />
+    <Compile Include="sqliteRelationalStore\sqliteRelationalStoreWithUnderscoreNames.cs" />
+    <Compile Include="sqliteRelationalStore\sqliteRelationalStoreWithSerialKey.cs" />
+    <Compile Include="sqliteRelationalStore\sqliteRelationalStoreWithStringKey.cs" />
   </ItemGroup>
+  <Import Project="$(MSBuildBinPath)\Microsoft.CSharp.targets" />
   <ItemGroup>
-    <None Include="App.config" />
-    <None Include="DbScripts\CreateSqlServer.bat" />
+    <None Include="app.config" />
     <None Include="packages.config" />
-  </ItemGroup>
-  <ItemGroup>
-    <ProjectReference Include="..\Biggy\Biggy.csproj">
-      <Project>{49dbd996-032d-4b58-b35a-2621da0eaeaf}</Project>
-      <Name>Biggy</Name>
-    </ProjectReference>
   </ItemGroup>
   <ItemGroup>
     <Service Include="{82A7F48D-3B50-4B1E-B82E-3ADA8210C358}" />
   </ItemGroup>
-  <ItemGroup />
   <ItemGroup>
-    <Content Include="DbScripts\chinook_pg_serial_pk.sql" />
-    <Content Include="DbScripts\chinook_pg_serial_pk_proper_naming.sql" />
-    <Content Include="DbScripts\Chinook_SqlServer.sql" />
-    <Content Include="DbScripts\Chinook_SqlServer_AutoIncrementPKs.sql" />
-    <Content Include="DbScripts\dvdrental_postgres.sql" />
+    <Folder Include="DbScripts\" />
   </ItemGroup>
-  <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
-  <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
-       Other similar extension points exist, see Microsoft.Common.targets.
-  <Target Name="BeforeBuild">
+  <ItemGroup>
+    <ProjectReference Include="..\Biggy\Biggy.csproj">
+      <Project>{539cdf13-4cd2-41c2-9284-a7020a2563d4}</Project>
+      <Name>Biggy</Name>
+    </ProjectReference>
+  </ItemGroup>
+  <Import Project="$(SolutionDir)\.nuget\NuGet.targets" Condition="Exists('$(SolutionDir)\.nuget\NuGet.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Enable NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('$(SolutionDir)\.nuget\NuGet.targets')" Text="$([System.String]::Format('$(ErrorText)', '$(SolutionDir)\.nuget\NuGet.targets'))" />
   </Target>
-  <Target Name="AfterBuild">
-  </Target>
-  -->
 </Project>

@@ -1,279 +1,347 @@
-﻿using System;
+using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Text;
-using System.Threading.Tasks;
-using System.Data.Common;
 using Biggy.Extensions;
-
+using System.Dynamic;
+using Biggy.Core;
 
 namespace Biggy.Postgres {
-  public class PGDocumentStore<T> : BiggyDocumentStore<T> where T : new() {
-    public PGDocumentStore(DbCache context) : base(context) { }
-    public PGDocumentStore(DbCache context, string tableName) : base(context, tableName) { }
-    public PGDocumentStore(string connectionStringName) : base(new PGCache(connectionStringName)) { }
-    public PGDocumentStore(string connectionStringName, string tableName) : base(new PGCache(connectionStringName), tableName) { }
+  public class pgDocumentStore<T> : IDataStore<T> where T : new() {
+    IDbCore _database;
 
-    public override BiggyRelationalStore<dynamic> getModel() {
-      return new PGStore<dynamic>(this.DbCache);
+    public bool KeyIsAutoIncrementing { get; set; }
+    public string TableName { get; set; }
+
+    string _pkName;
+    public string KeyName {
+      get {
+        if (string.IsNullOrWhiteSpace(_pkName)) {
+          _pkName = this.GetKeyName();
+        }
+        return _pkName;
+      }
     }
 
-    protected override List<T> TryLoadData() {
+    Type _keyType;
+    public Type KeyType {
+      get {
+        if (_keyType == null) {
+          _keyType = this.GetKeyType();
+        }
+        return _keyType;
+      }
+    }
+
+    PropertyInfo _keyProperty;
+    protected virtual PropertyInfo KeyProperty {
+      get {
+        if (_keyProperty == null) {
+          _keyProperty = this.GetKeyProperty();
+          return _keyProperty;
+        }
+        return _keyProperty;
+      }
+    }
+
+    protected virtual string DecideTableName() {
+      if (String.IsNullOrWhiteSpace(this.TableName)) {
+        this.TableName = Inflector.Inflector.Pluralize(typeof(T).Name.ToLower());
+      }
+      return this.TableName;
+    }
+
+    public pgDocumentStore(string connectionStringName, string tableName) {
+      this._database = new pgDbCore(connectionStringName);
+      _keyProperty = this.GetKeyProperty();
+      this.KeyIsAutoIncrementing = this.DecideKeyIsAutoIncrementing();
+      TryLoadData();
+    }
+
+    public pgDocumentStore(string connectionStringName) {
+      this._database = new pgDbCore(connectionStringName);
+      _keyProperty = this.GetKeyProperty();
+      this.KeyIsAutoIncrementing = this.DecideKeyIsAutoIncrementing();
+      TryLoadData();
+    }
+
+    public pgDocumentStore(pgDbCore dbCore) {
+      this._database = dbCore;
+      _keyProperty = this.GetKeyProperty();
+      this.KeyIsAutoIncrementing = this.DecideKeyIsAutoIncrementing();
+      TryLoadData();
+    }
+
+    public pgDocumentStore(pgDbCore dbCore, string tableName) {
+      this.TableName = tableName;
+      this._database = dbCore;
+      _keyProperty = this.GetKeyProperty();
+      this.KeyIsAutoIncrementing = this.DecideKeyIsAutoIncrementing();
+      TryLoadData();
+    }
+
+    public virtual int Add(T item) {
+      // This is actually equally performant to any code I found to handle a single insert. 
+      // Syncing auto-ids within json incurrs some overhead either way. 
+      return this.Add(new T[] { item });
+    }
+
+    public virtual int Add(IEnumerable<T> items) {
+      if (items.Count() == 0) {
+        return 0;
+      }
+      var sb = new StringBuilder();
+      var args = new List<object>();
+      var tableName = DecideTableName();
+      var paramIndex = 0;
+
+      string sqlFormat = "insert into {0} (id, body, created_at) values ({1}, now());";
+      if (this.KeyIsAutoIncrementing) {
+        // We have to use some tricks to batch insert the proper sequence values:
+        string sequenceName = string.Format("{0}_id_seq", this.TableName);
+        int itemCount = items.Count();
+        string sqlReservedSequenceValues = string.Format("SELECT nextval('{0}') FROM generate_series( 1, {1} ) n", sequenceName, itemCount);
+
+        // Load up the reserved values into the Id field for each item:
+        using (var dr = _database.OpenReader(sqlReservedSequenceValues)) {
+          int row = 0;
+          while (dr.Read()) {
+            var curr = items.ElementAt(row);
+            this.SetKeyValue(curr, dr[0]);
+            row++;
+          }
+        }
+      }
+      foreach (var item in items) {
+        var ex = this.SetDataForDocument(item);
+        var dc = ex as IDictionary<string, object>;
+        var parameterPlaceholders = new List<string>();
+        foreach (var kvp in dc) {
+          args.Add(kvp.Value);
+          parameterPlaceholders.Add("@" + paramIndex++.ToString());
+        }
+        sb.AppendFormat(sqlFormat, this.TableName, string.Join(",", parameterPlaceholders));
+      }
+      var batchedSQL = sb.ToString();
+      return _database.Transact(batchedSQL, args.ToArray());
+    }
+
+    public int Update(T item) {
+      return this.Update(new T[] { item });
+    }
+
+    public virtual int Update(IEnumerable<T> items) {
+      var args = new List<object>();
+      var paramIndex = 0;
+      string ParameterAssignmentFormat = "{0} = @{1}";
+      string sqlFormat = ""
+      + "update {0} set {1} where {2};";
+      var sb = new StringBuilder();
+
+      foreach (var item in items) {
+        var ex = this.SetDataForDocument(item);
+        var dc = ex as IDictionary<string, object>;
+        var setValueStatements = new List<string>();
+        foreach (var kvp in dc) {
+          if (kvp.Key != this.KeyName) {
+            args.Add(kvp.Value);
+            string setItem = string.Format(ParameterAssignmentFormat, kvp.Key, paramIndex++.ToString());
+            setValueStatements.Add(setItem);
+          }
+        }
+        args.Add(this.GetKeyValue(item));
+        string whereCriteria = string.Format(ParameterAssignmentFormat, "id", paramIndex++.ToString());
+        sb.AppendFormat(sqlFormat, this.TableName, string.Join(",", setValueStatements), whereCriteria);
+      }
+      var batchedSQL = sb.ToString();
+      return _database.Transact(batchedSQL, args.ToArray());
+    }
+
+    public virtual int Delete(T item) {
+      return this.Delete(new T[] { item });
+    }
+
+    public virtual int Delete(IEnumerable<T> items) {
+      var args = new List<object>();
+      var parameterPlaceholders = new List<string>();
+      var paramIndex = 0;
+
+      string sqlFormat = ""
+        + "delete from {0} where id in({1})";
+
+      foreach (var item in items) {
+        args.Add(this.GetKeyValue(item));
+        parameterPlaceholders.Add("@" + paramIndex++.ToString());
+      }
+
+      var sql = string.Format(sqlFormat, this.TableName, string.Join(",", parameterPlaceholders));
+      var cmd = _database.BuildCommand(sql, args.ToArray());
+      return _database.Transact(cmd);
+    }
+
+    public virtual int DeleteAll() {
+      string sql = string.Format("delete from {0}", this.TableName);
+      var cmd = _database.BuildCommand(sql);
+      return _database.Transact(cmd);
+    }
+
+    public virtual void SetKeyValue(T item, object value) {
+      var props = item.GetType().GetProperties();
+      if (item is ExpandoObject) {
+        var d = item as IDictionary<string, object>;
+        d[this.KeyName] = value;
+      } else {
+        var pkProp = this.KeyProperty;
+        var converted = Convert.ChangeType(value, pkProp.PropertyType);
+        pkProp.SetValue(item, converted, null);
+      }
+    }
+
+    protected virtual ExpandoObject SetDataForDocument(T item) {
+      var json = JsonConvert.SerializeObject(item);
+      var key = this.GetKeyValue(item);
+      var expando = new ExpandoObject();
+      var dict = expando as IDictionary<string, object>;
+
+      dict[this.KeyName] = key;
+      dict["body"] = json;
+      return expando;
+    }
+
+    public virtual List<T> TryLoadData() {
+      var result = new List<T>();
+      var tableName = DecideTableName();
       try {
-        return this.LoadAll();
+        var sql = "select * from " + tableName;
+        var data = _database.ExecuteDynamic(sql);
+        //hopefully we have data
+        foreach (var item in data) {
+          //pull out the JSON
+          var deserialized = JsonConvert.DeserializeObject<T>(item.body);
+          result.Add(deserialized);
+        }
       }
       catch (Npgsql.NpgsqlException x) {
         if (x.Message.Contains("does not exist")) {
-
-          //create the table
-          var sql = "";
-          var keyColumnDefs = new List<string>();
-          var keyColumnNames = new List<string>();
-          string fullTextColumn = "";
-          if (this.FullTextFields.Length > 0) {
-            fullTextColumn = ", search tsvector";
+          var sql = this.GetCreateTableSql();
+          var added = _database.TransactDDL(_database.BuildCommand(sql));
+          if (added == 0) {
+            throw new InvalidProgramException("Document table not created");
           }
-          string keyDefStub = "{0} {1} not null";
-          foreach (var pk in Model.TableMapping.PrimaryKeyMapping) {
-            string integerKeyType = "integer";
-            if (pk.IsAutoIncementing) {
-              integerKeyType = "serial";
-            }
-            var pkType = pk.DataType == typeof(int) ? " " + integerKeyType : "varchar(255)";
-            keyColumnDefs.Add(string.Format(keyDefStub, pk.DelimitedColumnName, pkType));
-            keyColumnNames.Add(pk.DelimitedColumnName);
-          }
-          string keyColumnsStatement = string.Join(",", keyColumnDefs.ToArray());
-          string pkColumns = string.Join(",", keyColumnNames.ToArray());
-          sql = string.Format("CREATE TABLE {0} ({1}, body json not null {2}, PRIMARY KEY ({3}));", this.TableMapping.DelimitedTableName, keyColumnsStatement, fullTextColumn, pkColumns);
-          this.Model.Execute(sql);
-          return TryLoadData();
+          TryLoadData();
         } else {
           throw;
         }
       }
+      return result;
     }
 
-
-    public override T Insert(T item) {
-      this.addItem(item);
-      // if there is a single, auto-incrementing pk:
-      if (!this.TableMapping.HasCompoundPk && this.TableMapping.PrimaryKeyMapping[0].IsAutoIncementing) {
-        // Sync the JSON ID with the serial PK:
-        this.Update(item);
-      }
-      return item;
+    protected virtual object GetKeyValue(T item) {
+      var property = this.KeyProperty;
+      return property.GetValue(item, null);
     }
 
-    internal void addItem(T item) {
-      var expando = base.SetDataForDocument(item);
-      var dc = expando as IDictionary<string, object>;
-      var vals = new List<string>();
-      var args = new List<object>();
-      var index = 0;
+    protected virtual string GetCreateTableSql() {
+      string tableName = this.DecideTableName();
+      string pkName = this.GetKeyName();
+      Type keyType = this.GetKeyType();
+      bool isAuto = this.DecideKeyIsAutoIncrementing();
 
-      var autoPkColumn = this.TableMapping.PrimaryKeyMapping.FirstOrDefault(c => c.IsAutoIncementing == true);
-      if (autoPkColumn != null) {
-        var keyColumn = dc.FirstOrDefault(x => x.Key.Equals(autoPkColumn.PropertyName, StringComparison.OrdinalIgnoreCase));
-        //don't update the Primary Key
-        dc.Remove(keyColumn);
+      string pkTypeStatement = "serial primary key";
+      if (!isAuto) {
+        pkTypeStatement = "int primary key";
       }
-      var columnNames = new List<string>();
-      foreach (var key in dc.Keys) {
-        if (key == "search") {
-          vals.Add(string.Format("to_tsvector(@{0})", index));
-          columnNames.Add(this.TableMapping.ColumnMappings.FindByProperty(key).DelimitedColumnName);
-        } else {
-          vals.Add(string.Format("@{0}", index));
-          columnNames.Add(this.TableMapping.ColumnMappings.FindByProperty(key).DelimitedColumnName);
+      if (keyType == typeof(string) || keyType == typeof(Guid)) {
+        pkTypeStatement = "text primary key";
+      }
+
+      string sqlformat = @"create table {0} (id {1}, body json, created_at timestamptz)";
+      return string.Format(sqlformat, tableName, pkTypeStatement);
+    }
+
+    protected virtual bool DecideKeyIsAutoIncrementing() {
+      var info = this.GetKeyProperty();
+      var propertyType = info.PropertyType;
+
+      // Key needs to be int, string:
+      if (propertyType != typeof(int)
+        && propertyType != typeof(string)) {
+        throw new Exception("key must be either int or string");
+      }
+      // Decoration with an attribute overrides everything else:
+      var attributes = info.GetCustomAttributes(false);
+      if (attributes != null && attributes.Count() > 0) {
+        var attribute = info.GetCustomAttributes(false).First(a => a.GetType() == typeof(PrimaryKeyAttribute));
+        var pkAttribute = attribute as PrimaryKeyAttribute;
+        if (pkAttribute.IsAutoIncrementing && propertyType == typeof(string)) {
+          throw new Exception("A string key cannot be auto-incrementing. Set the 'IsAuto' Property on the PrimaryKey Attribute to False");
         }
-        args.Add(dc[key]);
-        index++;
+        return pkAttribute.IsAutoIncrementing;
       }
-      var sb = new StringBuilder();
-      if (autoPkColumn != null) {
-        sb.AppendFormat("INSERT INTO {0} ({1}) VALUES ({2}) RETURNING {3} as newID;", this.TableMapping.DelimitedTableName, string.Join(",", columnNames), string.Join(",", vals), autoPkColumn.DelimitedColumnName);
+      // Default for int is auto:
+      if (propertyType == typeof(int)) {
+        return true;
+      }
+      // Default for any other type is false, unless overridden with attribute:
+      return false;
+    }
+
+    protected virtual string GetKeyName() {
+      var info = this.GetKeyProperty();
+      return info.Name;
+    }
+
+    protected virtual Type GetKeyType() {
+      var info = this.GetKeyProperty();
+      return info.PropertyType;
+    }
+
+    protected virtual PropertyInfo GetKeyProperty() {
+      var myObject = new T();
+      var myType = myObject.GetType();
+      var myProperties = myType.GetProperties();
+      string objectTypeName = myType.Name;
+      PropertyInfo pkProperty = null;
+
+      // Decoration with a [PrimaryKey] attribute overrides everything else:
+      var foundProps = myProperties.Where(p => p.GetCustomAttributes(false)
+        .Any(a => a.GetType() == typeof(PrimaryKeyAttribute)));
+
+      if (foundProps != null && foundProps.Count() > 0) {
+        // For now, more than one pk attribute is a problem:
+        if (foundProps.Count() > 1) {
+          var names = (from p in foundProps select p.Name).ToArray();
+          string namelist = "";
+          foreach (var pk in foundProps) {
+            namelist = string.Join(",", names);
+          }
+          string keyIsAmbiguousMessageFormat = ""
+            + "The key property for {0} is ambiguous between {1}. Please define a single key property.";
+          throw new Exception(string.Format(keyIsAmbiguousMessageFormat, objectTypeName, namelist));
+        } else {
+          pkProperty = foundProps.ElementAt(0);
+        }
       } else {
-        sb.AppendFormat("INSERT INTO {0} ({1}) VALUES ({2});", this.TableMapping.DelimitedTableName, string.Join(",", columnNames), string.Join(",", vals));
-      }
-      var sql = sb.ToString();
-      var newKey = this.Model.Scalar(sql, args.ToArray());
-      //set the key
-      if (autoPkColumn != null) {
-        this.Model.SetPropertyValue(item, autoPkColumn.PropertyName, newKey);
-      }
-    }
-
-    /// <summary>
-    /// A high-performance bulk-insert that can drop 10,000 documents in about 900 ms
-    /// </summary>
-    public override List<T> BulkInsert(List<T> items) {
-      const int MAGIC_PG_PARAMETER_LIMIT = 2100;
-      const int MAGIC_PG_ROW_VALUE_LIMIT = 1000;
-      int rowsAffected = 0;
-
-      var first = items.First();
-      string insertClause = "";
-      var sbSql = new StringBuilder("");
-
-      using (var connection = this.DbCache.OpenConnection()) {
-        using (var tdbTransaction = connection.BeginTransaction(System.Data.IsolationLevel.RepeatableRead)) {
-          var commands = new List<DbCommand>();
-          // Lock the table, so nothing will disrupt the pk sequence:
-          string lockTableSQL = string.Format("LOCK TABLE {0} in ACCESS EXCLUSIVE MODE", this.TableMapping.DelimitedTableName);
-          DbCommand dbCommand = this.Model.CreateCommand(lockTableSQL, connection);
-          dbCommand.Transaction = tdbTransaction;
-          dbCommand.ExecuteNonQuery();
-          var autoPkColumn = this.TableMapping.PrimaryKeyMapping.FirstOrDefault(c => c.IsAutoIncementing == true);
-
-          int nextSerialPk = 0;
-          if (autoPkColumn != null) {
-            // Now get the next serial Id. ** Need to do this within the transaction/table lock scope **:
-            string sequence = string.Format("\"{0}_{1}_seq\"", this.TableMapping.DBTableName, autoPkColumn.ColumnName);
-            var sql_get_seq = string.Format("SELECT last_value FROM {0}", sequence);
-            dbCommand.CommandText = sql_get_seq;
-            // if this is a fresh sequence, the "seed" value is returned. We will assume 1:
-            nextSerialPk = Convert.ToInt32(dbCommand.ExecuteScalar());
-            // If this is not a fresh sequence, increment:
-            if (nextSerialPk > 1) {
-              nextSerialPk++;
-            }
-          }
-
-          var paramCounter = 0;
-          var rowValueCounter = 0;
-          foreach (var item in items) {
-            // Set the soon-to-be inserted serial int value:
-            if (autoPkColumn != null) {
-              var props = item.GetType().GetProperties();
-              var pk = props.First(p => p.Name == autoPkColumn.PropertyName);
-              pk.SetValue(item, nextSerialPk);
-              nextSerialPk++;
-            }
-            // Set the JSON object, including the interpolated serial PK
-            var itemEx = SetDataForDocument(item);
-            var itemSchema = itemEx as IDictionary<string, object>;
-            var sbParamGroup = new StringBuilder();
-            if (autoPkColumn != null && itemSchema.ContainsKey(autoPkColumn.PropertyName)) {
-              itemSchema.Remove(autoPkColumn.PropertyName);
-            }
-            if (ReferenceEquals(item, first)) {
-              var sbFieldNames = new StringBuilder();
-              foreach (var field in itemSchema) {
-                string mappedColumnName = this.TableMapping.ColumnMappings.FindByProperty(field.Key).DelimitedColumnName;
-                sbFieldNames.AppendFormat("{0},", mappedColumnName);
-              }
-              var delimitedColumnNames = sbFieldNames.ToString().Substring(0, sbFieldNames.Length - 1);
-              string stub = "INSERT INTO {0} ({1}) VALUES ";
-              insertClause = string.Format(stub, this.TableMapping.DelimitedTableName, string.Join(", ", delimitedColumnNames));
-              sbSql = new StringBuilder(insertClause);
-            }
-            foreach (var key in itemSchema.Keys) {
-              if (paramCounter + itemSchema.Count >= MAGIC_PG_PARAMETER_LIMIT || rowValueCounter >= MAGIC_PG_ROW_VALUE_LIMIT) {
-                dbCommand.CommandText = sbSql.ToString().Substring(0, sbSql.Length - 1);
-                commands.Add(dbCommand);
-                sbSql = new StringBuilder(insertClause);
-                paramCounter = 0;
-                rowValueCounter = 0;
-                dbCommand = this.Model.CreateCommand("", connection);
-                dbCommand.Transaction = tdbTransaction;
-              }
-              if (key == "search") {
-                sbParamGroup.AppendFormat("to_tsvector(@{0}),", paramCounter.ToString());
-              } else {
-                sbParamGroup.AppendFormat("@{0},", paramCounter.ToString());
-              }
-              dbCommand.AddParam(itemSchema[key]);
-              paramCounter++;
-            }
-            // Add the row params to the end of the sql:
-            sbSql.AppendFormat("({0}),", sbParamGroup.ToString().Substring(0, sbParamGroup.Length - 1));
-            rowValueCounter++;
-          }
-          dbCommand.CommandText = sbSql.ToString().Substring(0, sbSql.Length - 1);
-          commands.Add(dbCommand);
-          try {
-            foreach (var cmd in commands) {
-              rowsAffected += cmd.ExecuteNonQuery();
-            }
-            tdbTransaction.Commit();
-          }
-          catch (Exception) {
-            tdbTransaction.Rollback();
-          }
+        // Is there a property named id (case irrelevant)?
+        pkProperty = myProperties
+          .FirstOrDefault(n => n.Name.Equals("id", StringComparison.InvariantCultureIgnoreCase));
+        if (pkProperty == null) {
+          // Is there a property named TypeNameId (case irrelevant)?
+          string findName = string.Format("{0}{1}", objectTypeName, "id");
+          pkProperty = myProperties
+            .FirstOrDefault(n => n.Name.Equals(findName, StringComparison.InvariantCultureIgnoreCase));
+        }
+        if (pkProperty == null) {
+          string keyNotDefinedMessageFormat = ""
+            + "No key property is defined on {0}. Please define a property which forms a unique key for objects of this type.";
+          throw new Exception(string.Format(keyNotDefinedMessageFormat, objectTypeName));
         }
       }
-      return items;
+      return pkProperty;
     }
 
-    /// <summary>
-    /// Updates a single T item
-    /// </summary>
-    public override T Update(T item) {
-      var expando = SetDataForDocument(item);
-      this.Model.Update(expando);
-      return item;
-    }
-
-    public override T Delete(T item) {
-      Model.Delete(item);
-      return item;
-    }
-
-    public override List<T> Delete(List<T> items) {
-      // NOTE: We need to implement this directly in here because the Model is typed 
-      // dynammically, so a call into the model defaults to the Delete(item) method, 
-      // and fails to parse the list object. Calling into the Model.Delete(List<T> items)
-      // Method throws because on the model, T is type dynamic. List<T> cannot be cast to List<dynamic>.
-
-      var removed = 0;
-      if (items.Count() > 0) {
-        string keyColumnNames;
-        var keyList = new List<string>();
-
-        // If a compund key is present, we need to handle things a little differently:
-        if (this.TableMapping.HasCompoundPk) {
-          // we need to build a DELETE with an IN statement like this:
-          // DELETE FROM myTable WHERE (pk1, pk2) IN ((value1, value2), (value3, value4), ...)
-          var columnArray = from k in this.TableMapping.PrimaryKeyMapping select k.DelimitedColumnName;
-          keyColumnNames = string.Format("({0})", string.Join(",", columnArray));
-          foreach (var item in items) {
-            var expando = item.ToExpando();
-            var dict = (IDictionary<string, object>)expando;
-            var sbValues = new StringBuilder("");
-            foreach (var pk in this.TableMapping.PrimaryKeyMapping) {
-              // This will usually be an int:
-              string arrayItemFormatString = "{0},";
-              if (pk.DataType == typeof(string)) {
-                // It's a string. Wrap in single quotes:
-                arrayItemFormatString = "'{0}',";
-              }
-              sbValues.AppendFormat(arrayItemFormatString, dict[pk.PropertyName].ToString());
-            }
-            string values = sbValues.ToString().Substring(0, sbValues.Length - 1);
-            keyList.Add(string.Format("({0})", values));
-          }
-        } else {
-          // Otherwise, the first pk in the list is what we want:
-          keyColumnNames = this.TableMapping.PrimaryKeyMapping[0].DelimitedColumnName;
-          foreach (var item in items) {
-            var expando = item.ToExpando();
-            var dict = (IDictionary<string, object>)expando;
-            var pk = this.TableMapping.PrimaryKeyMapping[0];
-            if (pk.DataType == typeof(string)) {
-              // Wrap in single quotes
-              keyList.Add(string.Format("'{0}'", dict[pk.PropertyName].ToString()));
-            } else {
-              // Don't wrap:
-              keyList.Add(dict[pk.PropertyName].ToString());
-            }
-          }
-        }
-        var keySet = String.Join(",", keyList.ToArray());
-        var inStatement = keyColumnNames + " IN (" + keySet + ")";
-        removed = Model.DeleteWhere(inStatement);
-      }
-      return items;
-    }
   }
 }
+
