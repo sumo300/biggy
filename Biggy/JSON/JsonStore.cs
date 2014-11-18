@@ -90,8 +90,8 @@ namespace Biggy.Json {
     //  this.TryLoadData();
     //}
 
-    public JsonStore(string dbDirectory, string tableName) {
-      Database = new jsonDbCore(dbDirectory);
+    public JsonStore(string dbName, string tableName) {
+      Database = new jsonDbCore(dbName);
       this.TableName = tableName;
       this.TryLoadData();
     }
