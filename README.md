@@ -164,7 +164,7 @@ var artistAlbums = from a in albums
 ## Postgresql
 All of the above works with Postgres as well, except that Postgres, of course, doesn;t store files in your project. 
 
-If we want to use Buiggy with a Posgres store, all we need to do is pass it the name of the connection string as defined in our App.config or Web.config file in our project.
+If we want to use Buiggy with a Posgres store, all we need to do is pass it the name of the connection string as defined in the `App.config` or `Web.config` file in our project.
 
 ### Define a connection string in App.config:
 ```xml
