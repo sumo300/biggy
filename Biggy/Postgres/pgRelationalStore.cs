@@ -11,6 +11,8 @@ namespace Biggy.Postgres {
   public class pgRelationalStore<T> : RelationalStoreBase<T> where T : new() {
 
     public pgRelationalStore(IDbCore dbCore) : base(dbCore) { }
+    public pgRelationalStore(string connectionStringName) : base(new pgDbCore(connectionStringName)) { }
+
 
     public override int Add(IEnumerable<T> items) {
       const int MAGIC_PG_PARAMETER_LIMIT = 2100;

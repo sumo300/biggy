@@ -12,6 +12,8 @@ namespace Biggy.Sqlite {
   public class sqliteRelationalStore<T> : RelationalStoreBase<T> where T : new() {
 
     public sqliteRelationalStore(IDbCore dbCore) : base(dbCore) { }
+    public sqliteRelationalStore(string connectionStringName) : base(new sqliteDbCore(connectionStringName)) { }
+
 
     public override int Add(IEnumerable<T> items) {
       const int MAGIC_SQLITE_PARAMETER_LIMIT = 999;
