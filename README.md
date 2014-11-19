@@ -112,7 +112,11 @@ artists.Update(someArtist);
 ## Relational Database Engines
 If your needs grow beyond storage to a flat JSON file, you can easily use SQLite or Posgres as a backing store for both document structures and standard relational table data. 
 
-Our primary Relational store of choice is, and has been, Postgresql. Not only is Postgres an amzing database, it has a JSON datatype right out of the box, which lends itself easily to the document storage aspects of Biggy. 
+If we use `pgDocumentStore` or `sqliteDocumentstore`, our objects are serialilzed into JSON and stored in the `body` field of a record. 
+
+if we use `pgRelationalStore` or `sqliteRelationalStore`, data is read/written to the source table as we would expect. 
+
+Our primary relational store of choice is, and has been, Postgresql. Not only is Postgres an amzing database, it has a JSON datatype right out of the box, which lends itself easily to the document storage aspects of Biggy. 
 
 In between the flat JSON file and a full-blown Posgres install is SQLite. SQLite is a file-based local relational storate option offering some really nice performance characteristics. 
 
@@ -140,7 +144,7 @@ Using SQLite with Biggy is almost as simple as using a flat JSON file:
 The code above will create a SQLite database file named `TestDb.db` in our <Project Root>/Data directory if a db by that name does not already exist, and then also create a table named artistdocuments (again, if one doesn't already exist). 
 
 ## Get All Relational With It...
-Biggy works with relational data too. 
+Biggy works with relational data too. When we want to read/write standard relational data, we use the RelationalStore implementation instead of DocumentStore. 
 
 We could pull down the SQLite version of [Chinook Database](http://chinookdatabase.codeplex.com/), drop it in our ../../Data directory, and work with some ready-to-use sample data to do some fancy querying with LINQ:
 
@@ -162,7 +166,7 @@ var artistAlbums = from a in albums
 ```
 
 ## Postgresql
-All of the above works with Postgres as well, except that Postgres, of course, doesn;t store files in your project. 
+All of the above works with Postgres as well, except that Postgres, of course, doesn't store files in your project. 
 
 If we want to use Buiggy with a Posgres store, all we need to do is pass it the name of the connection string as defined in the `App.config` or `Web.config` file in our project.
 
