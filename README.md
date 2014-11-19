@@ -137,7 +137,7 @@ Using SQLite with Biggy is almost as simple as using a flat JSON file:
       artistDocs.Add(newArtist);
 ```
 
-The code above will create a SQLite database file named `TestDb.db` in our <Project Root>/Data directory if a db by that name does not already exist, and then also create a table named artistdocuments (again, if one doesn;t already exist). 
+The code above will create a SQLite database file named `TestDb.db` in our <Project Root>/Data directory if a db by that name does not already exist, and then also create a table named artistdocuments (again, if one doesn't already exist). 
 
 ## Get All Relational With It...
 Biggy works with relational data too. 
@@ -145,14 +145,14 @@ Biggy works with relational data too.
 We could pull down the SQLite version of [Chinook Database](http://chinookdatabase.codeplex.com/), drop it in our ../../Data directory, and work with some ready-to-use sample data to do some fancy querying with LINQ:
 
 ```csharp
-var artistStore = new sqliteDocumentStore<Artist>("Chinook");
-var albumStore = new sqliteDocumentStore<Album>("Chinook");
+var artistStore = new sqliteRelationalStore<Artist>("Chinook");
+var albumStore = new sqliteRelationalStore<Album>("Chinook");
 
 // Loads all data from the Artist table into memory:
 var artists = new BiggyList<Artist>(artistStore);
 
 // Loads all data from the Album table into memory:
-var albums = new BiggyList<Artist>(artistStore);
+var albums = new BiggyList<Album>(albumStore);
 
 // Find all the albums by a particular artist using LINQ:
 var artistAlbums = from a in albums
@@ -161,8 +161,69 @@ var artistAlbums = from a in albums
                     select a;
 ```
 
-.... Add updated Relational DB Discussion ....
+## Postgresql
+All of the above works with Postgres as well, except that Postgres, of course, doesn;t store files in your project. 
 
+If we want to use Buiggy with a Posgres store, all we need to do is pass it the name of the connection string as defined in our App.config or Web.config file in our project.
+
+### Define a connection string in App.config:
+```xml
+<configuration>
+  <startup>
+    <supportedRuntime version="v4.0" sku=".NETFramework,Version=v4.0"/>
+  </startup>
+  <connectionStrings>
+    <add name="chinook-pg" connectionString="server=localhost;user id=biggy;password=password;database=chinook"/>
+  </connectionStrings>
+</configuration>
+```
+Now, assuming we have the Chinook Database for Postgres defined in our PG database, we can do the following:
+```csharp
+var artistStore = new pgRelationalStore<Artist>("chinook-pg");
+var albumStore = new pgRelationalStore<Album>("chinook-pg");
+var trackStore = new pgRelationalStore<Track>("chinook-pg");
+
+// Loads all data from the Artist table into memory:
+var artists = new BiggyList<Artist>(artistStore);
+
+// Loads all data from the Album table into memory:
+var albums = new BiggyList<Album>(albumStore);
+
+// Loads all data from the Album table into memory:
+var tracks = new BiggyList<Track>(trackStore);
+
+
+// Find all the tracks by a particular artist using LINQ:
+var artistTracks = (from t in tracks
+                    join al in albums on t.AlbumId equals al.AlbumId
+                    join ar in artists on al.ArtistId equals ar.ArtistId
+                    where ar.Name == "Black Sabbath"
+                    select t).ToList();
+```
+## Cache Schema Info
+
+Of course, the idea behind Biggy is to load data in memory once, and then read/write away as your application needs. The only time Biggy hits the disk is during Writes, which makes things extremely fast (the tripe-joined LINQ query above returns in a less than 5 milliseconds). 
+
+Biggy works against standard relational tables by reading and caching schema info. Instead of doign this three times like we did above, we can use the DBCore object, and load all that once, during initialization. Then we can inject each store into our separate BiggyLists, and all reference the same schema info:
+
+```csharp
+// Loads and caches connection and schema info needed for all tables and columns
+var _db = new pgDbCore("chinook-pg");
+
+var artists = new BiggyList<Artist>(_db.CreateRelationalStoreFor<Artist>());
+var albums = new BiggyList<Album>(_db.CreateRelationalStoreFor<Album>());
+var tracks = new BiggyList<Track>(_db.CreateRelationalStoreFor<Track>());
+
+
+// Find all the tracks by a particular artist using LINQ:
+var artistTracks = (from t in tracks
+                    join al in albums on t.AlbumId equals al.AlbumId
+                    join ar in artists on al.ArtistId equals ar.ArtistId
+                    where ar.Name == "Black Sabbath"
+                    select t).ToList();
+```
+
+...To Be Continued...
 
 ## What It's Good For
 
