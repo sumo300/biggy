@@ -8,7 +8,7 @@ using Biggy.Extensions;
 using System.Dynamic;
 using Biggy.Core;
 
-namespace Biggy.Postgres {
+namespace Biggy.Data.Postgres {
   public class pgDocumentStore<T> : IDataStore<T> where T : new() {
     IDbCore _database;
 

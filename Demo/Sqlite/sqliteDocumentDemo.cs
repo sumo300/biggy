@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Biggy.Core;
-using Biggy.Sqlite;
+using Biggy.Data.Sqlite;
 using System.Diagnostics;
 using Demo.Models;
 

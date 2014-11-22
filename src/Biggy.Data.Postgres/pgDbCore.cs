@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using Biggy.Core;
 
-namespace Biggy.Postgres {
+namespace Biggy.Data.Postgres {
   public class pgDbCore : DbCore {
 
     public IDataStore<T> CreateRelationalStoreFor<T>() where T : new() {

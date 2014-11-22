@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using Biggy.Sqlite;
+using Biggy.Data.Sqlite;
 using Biggy.Core;
 using Demo.Models;
 

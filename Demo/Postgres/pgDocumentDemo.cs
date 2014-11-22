@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Biggy.Core;
-using Biggy.Postgres;
+using Biggy.Data.Postgres;
 using System.Diagnostics;
 using Demo.Models;
 

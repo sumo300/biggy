@@ -3,7 +3,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.IO;
-using Biggy.Sqlite;
+using Biggy.Data.Sqlite;
 
 namespace Tests {
   [TestFixture()]

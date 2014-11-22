@@ -64,21 +64,21 @@ namespace Biggy.Json {
     //  this.TryLoadData();
     //}
 
-    public jsonDbCore Database { get; set; }
+    public JsonDbCore Database { get; set; }
 
     public JsonStore() {
       this.DecideTableName();
-      Database = new jsonDbCore();
+      Database = new JsonDbCore();
       this.TryLoadData();
     }
 
     public JsonStore(string tableName) {
       this.TableName = tableName;
-      Database = new jsonDbCore();
+      Database = new JsonDbCore();
       this.TryLoadData();
     }
 
-    public JsonStore(jsonDbCore dbCore) {
+    public JsonStore(JsonDbCore dbCore) {
       this.DecideTableName();
       Database = dbCore;
       this.TryLoadData();
@@ -91,13 +91,13 @@ namespace Biggy.Json {
     //}
 
     public JsonStore(string dbName, string tableName) {
-      Database = new jsonDbCore(dbName);
+      Database = new JsonDbCore(dbName);
       this.TableName = tableName;
       this.TryLoadData();
     }
 
     public JsonStore(string dbDirectory, string dbName, string tableName) {
-      Database = new jsonDbCore(dbDirectory, dbName);
+      Database = new JsonDbCore(dbDirectory, dbName);
       this.TableName = tableName;
       this.TryLoadData();
     }

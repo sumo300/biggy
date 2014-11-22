@@ -149,7 +149,7 @@ namespace Biggy.Core {
 
     protected virtual void FireChangedEvents() {
       if (this.Changed != null) {
-        var args = new PiggyEventArgs<T>();
+        var args = new BiggyEventArgs<T>();
         args.Items = _items;
         this.ItemRemoved.Invoke(this, args);
       }
@@ -157,7 +157,7 @@ namespace Biggy.Core {
 
     protected virtual void FireRemovedEvents(T item) {
       if (this.ItemRemoved != null) {
-        var args = new PiggyEventArgs<T>();
+        var args = new BiggyEventArgs<T>();
         args.Item = item;
         this.ItemRemoved.Invoke(this, args);
       }
@@ -165,7 +165,7 @@ namespace Biggy.Core {
 
     protected virtual void FireRemovedEvents(IEnumerable<T> items) {
       if (this.ItemsRemoved != null) {
-        var args = new PiggyEventArgs<T>();
+        var args = new BiggyEventArgs<T>();
         args.Items = items.ToList();
         this.ItemsRemoved.Invoke(this, args);
       }
@@ -173,7 +173,7 @@ namespace Biggy.Core {
 
     protected virtual void FireInsertedEvents(T item) {
       if (this.ItemAdded != null) {
-        var args = new PiggyEventArgs<T>();
+        var args = new BiggyEventArgs<T>();
         args.Item = item;
         this.ItemAdded.Invoke(this, args);
       }
@@ -181,7 +181,7 @@ namespace Biggy.Core {
 
     protected virtual void FireInsertedEvents(IEnumerable<T> items) {
       if (this.ItemsAdded != null) {
-        var args = new PiggyEventArgs<T>();
+        var args = new BiggyEventArgs<T>();
         args.Items = items.ToList();
         this.ItemsAdded.Invoke(this, args);
       }
@@ -189,7 +189,7 @@ namespace Biggy.Core {
 
     protected virtual void FireUpdatedEvents(T item) {
       if (this.ItemUpdated != null) {
-        var args = new PiggyEventArgs<T>();
+        var args = new BiggyEventArgs<T>();
         args.Item = item;
         this.ItemUpdated.Invoke(this, args);
       }
@@ -197,7 +197,7 @@ namespace Biggy.Core {
 
     protected virtual void FireUpdatedEvents(IEnumerable<T> items) {
       if (this.ItemsUpdated != null) {
-        var args = new PiggyEventArgs<T>();
+        var args = new BiggyEventArgs<T>();
         args.Items = items.ToList();
         this.ItemsUpdated.Invoke(this, args);
       }
@@ -205,7 +205,7 @@ namespace Biggy.Core {
 
     protected virtual void FireLoadedEvents() {
       if (this.Loaded != null) {
-        var args = new PiggyEventArgs<T>();
+        var args = new BiggyEventArgs<T>();
         args.Items = _items;
         this.Loaded.Invoke(this, args);
       }
@@ -213,7 +213,7 @@ namespace Biggy.Core {
 
     protected virtual void FireSavedEvents() {
       if (this.Saved != null) {
-        var args = new PiggyEventArgs<T>();
+        var args = new BiggyEventArgs<T>();
         args.Items = _items;
         this.Saved.Invoke(this, args);
       }

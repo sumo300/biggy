@@ -2,7 +2,7 @@ using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Biggy.Sqlite;
+using Biggy.Data.Sqlite;
 using Biggy.Core;
 
 namespace Tests {
