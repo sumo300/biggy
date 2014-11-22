@@ -208,7 +208,7 @@ var artistTracks = (from t in tracks
 
 Of course, the idea behind Biggy is to load data in memory once, and then read/write away as your application needs. The only time Biggy hits the disk is during Writes, which makes things extremely fast (the tripe-joined LINQ query above returns in a less than 5 milliseconds). 
 
-Biggy works against standard relational tables by reading and caching schema info. Instead of doign this three times like we did above, we can use the DBCore object, and load all that once, during initialization. Then we can inject each store into our separate BiggyLists, and all reference the same schema info:
+Biggy works against standard relational tables by reading and caching schema info. Instead of doing this three times like we did above, we can use the DBCore object, and load all that once, during initialization. Then we can inject each store into our separate BiggyLists, and all reference the same schema info:
 
 ```csharp
 // Loads and caches connection and schema info needed for all tables and columns
@@ -227,7 +227,6 @@ var artistTracks = (from t in tracks
                     select t).ToList();
 ```
 
-...To Be Continued...
 
 ## What It's Good For
 
@@ -237,7 +236,7 @@ A relational, write-oriented transactional situation is great for "slowly changi
 
 ## Strategies
 
-
+ . . . This section will be updated shortly . . .
 
 
 ## A Note on Speed and Memory
@@ -263,7 +262,7 @@ Please do! Here's what we ask of you:
  - If you've found a bug, please log it in the Issue list. 
  - If you want to fork and fix (thanks!) - please fork then open a branch on your fork specifically for this issue. Give it a nice name.
  - Make the fix and then in your final commit message please use the Github magic syntax ("Closes #X" or Fixes etc) so we can tie your PR to you and your issue
- - Please please please verify your bug or issue with a test (we use XUnit and it's simple to get going)
+ - Please please please verify your bug or issue with a test (we use NUnit and it's simple to get going)
 
 Thanks so much!
 
