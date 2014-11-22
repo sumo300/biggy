@@ -54,7 +54,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="PpgDbCore.cs" />
+    <Compile Include="PgDbCore.cs" />
     <Compile Include="PGDocumentStore.cs" />
     <Compile Include="PgRelationalStore.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

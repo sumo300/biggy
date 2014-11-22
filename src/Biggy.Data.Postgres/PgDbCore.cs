@@ -5,7 +5,7 @@ using Biggy.Core;
 
 namespace Biggy.Data.Postgres
 {
-    public class PpgDbCore : DbCore
+    public class PgDbCore : DbCore
     {
         public IDataStore<T> CreateRelationalStoreFor<T>() where T : new()
         {
@@ -17,7 +17,7 @@ namespace Biggy.Data.Postgres
             return new pgDocumentStore<T>(this);
         }
 
-        public PpgDbCore(string connectionStringName) : base(connectionStringName)
+        public PgDbCore(string connectionStringName) : base(connectionStringName)
         {
         }
 

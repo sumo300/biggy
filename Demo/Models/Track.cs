@@ -1,13 +1,15 @@
+namespace Demo.Models
+{
+    using System;
 
-namespace Demo.Models {
+    public partial class Track
+    {
+        public int TrackId { get; set; }
 
-  using System;
-  using System.Collections.Generic;
+        public int AlbumId { get; set; }
 
-  public partial class Track {
-    public int TrackId { get; set; }
-    public int AlbumId { get; set; }
-    string Composer { get; set; }
-    public string Name { get; set; }
-  }
+        private string Composer { get; set; }
+
+        public string Name { get; set; }
+    }
 }

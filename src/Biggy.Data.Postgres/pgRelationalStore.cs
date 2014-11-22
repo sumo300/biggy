@@ -13,7 +13,7 @@ namespace Biggy.Data.Postgres
         {
         }
 
-        public PgRelationalStore(string connectionStringName) : base(new PpgDbCore(connectionStringName))
+        public PgRelationalStore(string connectionStringName) : base(new PgDbCore(connectionStringName))
         {
         }
 
