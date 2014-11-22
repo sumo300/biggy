@@ -11,11 +11,11 @@ namespace Tests {
   [Category("SQLite Document Store")]
   public class sqliteDocumentStoreWithStringKeyAttribute {
 
-    sqliteDbCore _db;
+    SqliteDbCore _db;
 
     [SetUp]
     public void init() {
-      _db = new sqliteDbCore("BiggyTest");
+      _db = new SqliteDbCore("BiggyTest");
     }
 
     [Test()]
@@ -25,7 +25,7 @@ namespace Tests {
       // without an attribute decoration, and horrible plague and pesilence will result.
 
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new sqliteDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new SqliteDocumentStore<GuitarDocuments>(_db);
       bool exists = _db.TableExists(guitarstore.TableName);
       Assert.IsTrue(exists);
     }
@@ -41,13 +41,13 @@ namespace Tests {
     }
 
     public void TryCreateWithAutoStringKey() {
-      var guitarstore = new sqliteDocumentStore<ErrorGuitarDocuments>(_db);
+      var guitarstore = new SqliteDocumentStore<ErrorGuitarDocuments>(_db);
     }
 
     [Test()]
     public void Inserts_record_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new sqliteDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new SqliteDocumentStore<GuitarDocuments>(_db);
       var newGuitar = new GuitarDocuments { Sku = "USA123", Make = "Gibson", Model = "Les Paul Custom"  };
       guitarstore.Add(newGuitar);
 
@@ -58,7 +58,7 @@ namespace Tests {
     [Test()]
     public void Inserts_range_of_records_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new sqliteDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new SqliteDocumentStore<GuitarDocuments>(_db);
       var myBatch = new List<GuitarDocuments>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -72,7 +72,7 @@ namespace Tests {
     [Test()]
     public void Updates_record_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new sqliteDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new SqliteDocumentStore<GuitarDocuments>(_db);
       var newGuitar = new GuitarDocuments { Sku = "USA123", Make = "Gibson", Model = "Les Paul Custom" };
       guitarstore.Add(newGuitar);
 
@@ -87,7 +87,7 @@ namespace Tests {
     [Test()]
     public void Updates_range_of_records_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new sqliteDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new SqliteDocumentStore<GuitarDocuments>(_db);
       var myBatch = new List<GuitarDocuments>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -110,7 +110,7 @@ namespace Tests {
     [Test()]
     public void Deletes_record_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new sqliteDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new SqliteDocumentStore<GuitarDocuments>(_db);
       var newGuitar = new GuitarDocuments { Sku = "USA123", Make = "Gibson", Model = "Les Paul Custom" };
       guitarstore.Add(newGuitar);
 
@@ -129,7 +129,7 @@ namespace Tests {
     [Test()]
     public void Deletes_range_of_records_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new sqliteDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new SqliteDocumentStore<GuitarDocuments>(_db);
       var myBatch = new List<GuitarDocuments>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {
@@ -157,7 +157,7 @@ namespace Tests {
     [Test()]
     public void Deletes_all_records_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new sqliteDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new SqliteDocumentStore<GuitarDocuments>(_db);
       var myBatch = new List<GuitarDocuments>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {

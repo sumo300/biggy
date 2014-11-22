@@ -10,11 +10,11 @@ namespace Tests {
   [Category("SQLite Relational Store")]
   public class sqliteRelationalStoreWithSerialKey {
 
-    sqliteDbCore _db;
+    SqliteDbCore _db;
 
     [SetUp]
     public void init() {
-      _db = new sqliteDbCore("BiggyTest");
+      _db = new SqliteDbCore("BiggyTest");
       DropCreateTestTables();
     }
 
@@ -27,7 +27,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Inserts_record_with_serial_id() {
-      var propertyStore = new sqliteRelationalStore<Property>(_db);
+      var propertyStore = new SqliteRelationalStore<Property>(_db);
       var newProperty = new Property { Name = "Watergate Apartments", Address = "2639 I St NW, Washington, D.C. 20037" };
       propertyStore.Add(newProperty);
 
@@ -37,7 +37,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Inserts_range_of_records_with_serial_id() {
-      var propertyStore = new sqliteRelationalStore<Property>(_db);
+      var propertyStore = new SqliteRelationalStore<Property>(_db);
       var myBatch = new List<Property>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -51,7 +51,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Updates_record_with_serial_id() {
-      var PropertyStore = new sqliteRelationalStore<Property>(_db);
+      var PropertyStore = new SqliteRelationalStore<Property>(_db);
       var newProperty = new Property { Name = "John's Luxury Apartments", Address = "16 Property Parkway, Portland, OR 97204" };
       PropertyStore.Add(newProperty);
 
@@ -69,7 +69,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Updates_range_of_records_with_serial_id() {
-      var PropertyStore = new sqliteRelationalStore<Property>(_db);
+      var PropertyStore = new SqliteRelationalStore<Property>(_db);
       var myBatch = new List<Property>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -91,7 +91,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Deletes_record_with_serial_id() {
-      var PropertyStore = new sqliteRelationalStore<Property>(_db);
+      var PropertyStore = new SqliteRelationalStore<Property>(_db);
       var newProperty = new Property { Name = "John's High-End Apartments", Address = "16 Property Parkway, Portland, OR 97204" };
       PropertyStore.Add(newProperty);
 
@@ -109,7 +109,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Deletes_range_of_records_with_serial_id() {
-      var PropertyStore = new sqliteRelationalStore<Property>(_db);
+      var PropertyStore = new SqliteRelationalStore<Property>(_db);
       var myBatch = new List<Property>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {
@@ -133,7 +133,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Deletes_all_records_with_serial_id() {
-      var PropertyStore = new sqliteRelationalStore<Property>(_db);
+      var PropertyStore = new SqliteRelationalStore<Property>(_db);
       var myBatch = new List<Property>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {

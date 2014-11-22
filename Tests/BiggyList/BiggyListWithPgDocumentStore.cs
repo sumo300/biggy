@@ -10,12 +10,12 @@ namespace Tests {
   [Category("Biggy List with PG Document Store")]
   public class BiggyListWithPgDocumentStore {
 
-    pgDbCore _db;
+    PpgDbCore _db;
     IDataStore<PropertyDocument> _PropertyDocumentStore;
 
     [SetUp]
     public void init() {
-      _db = new pgDbCore("biggy_test");
+      _db = new PpgDbCore("biggy_test");
       _db.TryDropTable("propertydocuments");
       _PropertyDocumentStore = _db.CreateDocumentStoreFor<PropertyDocument>();
     }

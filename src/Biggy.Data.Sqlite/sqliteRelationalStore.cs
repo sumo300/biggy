@@ -7,13 +7,13 @@ using Biggy.Extensions;
 
 namespace Biggy.Data.Sqlite
 {
-    public class sqliteRelationalStore<T> : RelationalStoreBase<T> where T : new()
+    public class SqliteRelationalStore<T> : RelationalStoreBase<T> where T : new()
     {
-        public sqliteRelationalStore(IDbCore dbCore) : base(dbCore)
+        public SqliteRelationalStore(IDbCore dbCore) : base(dbCore)
         {
         }
 
-        public sqliteRelationalStore(string connectionStringName) : base(new sqliteDbCore(connectionStringName))
+        public SqliteRelationalStore(string connectionStringName) : base(new SqliteDbCore(connectionStringName))
         {
         }
 

@@ -54,27 +54,27 @@ namespace Biggy.Data.Postgres {
     }
 
     public pgDocumentStore(string connectionStringName, string tableName) {
-      this._database = new pgDbCore(connectionStringName);
+      this._database = new PpgDbCore(connectionStringName);
       _keyProperty = this.GetKeyProperty();
       this.KeyIsAutoIncrementing = this.DecideKeyIsAutoIncrementing();
       TryLoadData();
     }
 
     public pgDocumentStore(string connectionStringName) {
-      this._database = new pgDbCore(connectionStringName);
+      this._database = new PpgDbCore(connectionStringName);
       _keyProperty = this.GetKeyProperty();
       this.KeyIsAutoIncrementing = this.DecideKeyIsAutoIncrementing();
       TryLoadData();
     }
 
-    public pgDocumentStore(pgDbCore dbCore) {
+    public pgDocumentStore(PpgDbCore dbCore) {
       this._database = dbCore;
       _keyProperty = this.GetKeyProperty();
       this.KeyIsAutoIncrementing = this.DecideKeyIsAutoIncrementing();
       TryLoadData();
     }
 
-    public pgDocumentStore(pgDbCore dbCore, string tableName) {
+    public pgDocumentStore(PpgDbCore dbCore, string tableName) {
       this.TableName = tableName;
       this._database = dbCore;
       _keyProperty = this.GetKeyProperty();

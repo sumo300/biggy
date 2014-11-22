@@ -21,16 +21,16 @@ using System.Data;
 
 namespace Biggy.Data.Sqlite
 {
-    public class sqliteDbCore : DbCore
+    public class SqliteDbCore : DbCore
     {
         public IDataStore<T> CreateRelationalStoreFor<T>() where T : new()
         {
-            return new sqliteRelationalStore<T>(this);
+            return new SqliteRelationalStore<T>(this);
         }
 
         public IDataStore<T> CreateDocumentStoreFor<T>() where T : new()
         {
-            return new sqliteDocumentStore<T>(this);
+            return new SqliteDocumentStore<T>(this);
         }
 
         private string _defaultDbName = "data.db";
@@ -51,7 +51,7 @@ namespace Biggy.Data.Sqlite
             }
         }
 
-        public sqliteDbCore()
+        public SqliteDbCore()
         {
             this.DBDirectory = this.GetDefaultDirectory();
             this.DBName = _defaultDbName;
@@ -59,7 +59,7 @@ namespace Biggy.Data.Sqlite
             this.LoadSchemaInfo();
         }
 
-        public sqliteDbCore(string connectionStringName)
+        public SqliteDbCore(string connectionStringName)
         {
             string connString = "";
             try
@@ -85,7 +85,7 @@ namespace Biggy.Data.Sqlite
             this.LoadSchemaInfo();
         }
 
-        public sqliteDbCore(string dbDirectory, string databaseName)
+        public SqliteDbCore(string dbDirectory, string databaseName)
         {
             this.DBDirectory = dbDirectory;
             this.DBName = databaseName;

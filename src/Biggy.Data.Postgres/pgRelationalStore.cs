@@ -7,13 +7,13 @@ using Biggy.Extensions;
 
 namespace Biggy.Data.Postgres
 {
-    public class pgRelationalStore<T> : RelationalStoreBase<T> where T : new()
+    public class PgRelationalStore<T> : RelationalStoreBase<T> where T : new()
     {
-        public pgRelationalStore(IDbCore dbCore) : base(dbCore)
+        public PgRelationalStore(IDbCore dbCore) : base(dbCore)
         {
         }
 
-        public pgRelationalStore(string connectionStringName) : base(new pgDbCore(connectionStringName))
+        public PgRelationalStore(string connectionStringName) : base(new PpgDbCore(connectionStringName))
         {
         }
 

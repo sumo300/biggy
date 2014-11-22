@@ -10,12 +10,12 @@ namespace Tests {
   [Category("Biggy List with SQLite Relational Store")]
   public class BiggyListWithSQliteRelationalStore {
 
-    sqliteDbCore _db;
+    SqliteDbCore _db;
     IDataStore<Property> _propertyStore;
 
     [SetUp]
     public void init() {
-      _db = new sqliteDbCore("BiggyTest");
+      _db = new SqliteDbCore("BiggyTest");
       DropCreateTestTables();
       _propertyStore = _db.CreateRelationalStoreFor<Property>();
     }

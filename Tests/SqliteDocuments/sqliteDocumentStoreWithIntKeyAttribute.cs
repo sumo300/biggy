@@ -11,11 +11,11 @@ namespace Tests {
   [Category("SQLite Document Store")]
   public class sqliteDocumentStoreWithIntKeyAttribute {
 
-    sqliteDbCore _db;
+    SqliteDbCore _db;
 
     [SetUp]
     public void init() {
-      _db = new sqliteDbCore("BiggyTest");
+      _db = new SqliteDbCore("BiggyTest");
     }
 
     [Test()]
@@ -26,7 +26,7 @@ namespace Tests {
       // the attribute IsAuto property is set to false, so the field will NOT be a serial key. 
 
       _db.TryDropTable("widgetdocuments");
-      var widgetstore = new sqliteDocumentStore<WidgetDocuments>(_db);
+      var widgetstore = new SqliteDocumentStore<WidgetDocuments>(_db);
       bool exists = _db.TableExists(widgetstore.TableName);
       Assert.IsTrue(exists);
     }
@@ -35,7 +35,7 @@ namespace Tests {
     [Test()]
     public void Inserts_record_with_int_id() {
       _db.TryDropTable("widgetdocuments");
-      var widgetstore = new sqliteDocumentStore<WidgetDocuments>(_db);
+      var widgetstore = new SqliteDocumentStore<WidgetDocuments>(_db);
       var newWidget = new WidgetDocuments { Identifier = 100, Category = "Brass"  };
       widgetstore.Add(newWidget);
 
@@ -46,7 +46,7 @@ namespace Tests {
     [Test()]
     public void Inserts_range_of_records_with_int_id() {
       _db.TryDropTable("widgetdocuments");
-      var widgetstore = new sqliteDocumentStore<WidgetDocuments>(_db);
+      var widgetstore = new SqliteDocumentStore<WidgetDocuments>(_db);
       var myBatch = new List<WidgetDocuments>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -60,7 +60,7 @@ namespace Tests {
     [Test()]
     public void Updates_record_with_int_id() {
       _db.TryDropTable("widgetdocuments");
-      var widgetstore = new sqliteDocumentStore<WidgetDocuments>(_db);
+      var widgetstore = new SqliteDocumentStore<WidgetDocuments>(_db);
       var newWidget = new WidgetDocuments { Identifier = 100, Category = "Brass" };
       widgetstore.Add(newWidget);
 
@@ -75,7 +75,7 @@ namespace Tests {
     [Test()]
     public void Updates_range_of_records_with_int_id() {
       _db.TryDropTable("widgetdocuments");
-      var widgetstore = new sqliteDocumentStore<WidgetDocuments>(_db);
+      var widgetstore = new SqliteDocumentStore<WidgetDocuments>(_db);
       var myBatch = new List<WidgetDocuments>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -98,7 +98,7 @@ namespace Tests {
     [Test()]
     public void Deletes_record_with_int_id() {
       _db.TryDropTable("widgetdocuments");
-      var widgetstore = new sqliteDocumentStore<WidgetDocuments>(_db);
+      var widgetstore = new SqliteDocumentStore<WidgetDocuments>(_db);
       var newWidget = new WidgetDocuments { Identifier = 100, Category = "Brass" };
       widgetstore.Add(newWidget);
 
@@ -117,7 +117,7 @@ namespace Tests {
     [Test()]
     public void Deletes_range_of_records_with_int_id() {
       _db.TryDropTable("widgetdocuments");
-      var widgetstore = new sqliteDocumentStore<WidgetDocuments>(_db);
+      var widgetstore = new SqliteDocumentStore<WidgetDocuments>(_db);
       var myBatch = new List<WidgetDocuments>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {
@@ -145,7 +145,7 @@ namespace Tests {
     [Test()]
     public void Deletes_all_records_with_int_id() {
       _db.TryDropTable("widgetdocuments");
-      var widgetstore = new sqliteDocumentStore<WidgetDocuments>(_db);
+      var widgetstore = new SqliteDocumentStore<WidgetDocuments>(_db);
       var myBatch = new List<WidgetDocuments>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {

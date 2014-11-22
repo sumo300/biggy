@@ -10,11 +10,11 @@ namespace Tests {
   [Category("PG Document Store")]
   public class PgDocumentStoreWithSerialKey {
 
-    pgDbCore _db;
+    PpgDbCore _db;
 
     [SetUp]
     public void init() {
-      _db = new pgDbCore("biggy_test");
+      _db = new PpgDbCore("biggy_test");
     }
 
     [Test()]

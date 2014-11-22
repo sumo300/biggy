@@ -10,11 +10,11 @@ namespace Tests {
   [Category("PG Relational Store")]
   public class PgRelationalStoreWithNameAttributes {
 
-    pgDbCore _db;
+    PpgDbCore _db;
 
     [SetUp]
     public void init() {
-      _db = new pgDbCore("biggy_test");
+      _db = new PpgDbCore("biggy_test");
       DropCreateTestTables();
     }
 
@@ -27,7 +27,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Inserts_record_with_name_attributes() {
-      var WorkOrderStore = new pgRelationalStore<WorkOrder>(_db);
+      var WorkOrderStore = new PgRelationalStore<WorkOrder>(_db);
       var newWorkOrder = new WorkOrder { Description = "Take out the Trash" };
       WorkOrderStore.Add(newWorkOrder);
 
@@ -37,7 +37,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Inserts_range_of_records_with_name_attributes() {
-      var WorkOrderStore = new pgRelationalStore<WorkOrder>(_db);
+      var WorkOrderStore = new PgRelationalStore<WorkOrder>(_db);
       var myBatch = new List<WorkOrder>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -51,7 +51,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Updates_record_with_name_attributes() {
-      var WorkOrderStore = new pgRelationalStore<WorkOrder>(_db);
+      var WorkOrderStore = new PgRelationalStore<WorkOrder>(_db);
       var newWorkOrder = new WorkOrder { Description = "Snake toilet" };
       WorkOrderStore.Add(newWorkOrder);
 
@@ -67,7 +67,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Updates_range_of_records_with_name_attributes() {
-      var WorkOrderStore = new pgRelationalStore<WorkOrder>(_db);
+      var WorkOrderStore = new PgRelationalStore<WorkOrder>(_db);
       var myBatch = new List<WorkOrder>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -90,7 +90,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Deletes_record_with_name_attributes() {
-      var WorkOrderStore = new pgRelationalStore<WorkOrder>(_db);
+      var WorkOrderStore = new PgRelationalStore<WorkOrder>(_db);
       var newWorkOrder = new WorkOrder { Description = "Eradicate bed bugs" };
       WorkOrderStore.Add(newWorkOrder);
 
@@ -108,7 +108,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Deletes_range_of_records_with_name_attributes() {
-      var WorkOrderStore = new pgRelationalStore<WorkOrder>(_db);
+      var WorkOrderStore = new PgRelationalStore<WorkOrder>(_db);
       var myBatch = new List<WorkOrder>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {
@@ -133,7 +133,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Deletes_all_records_with_name_attributes() {
-      var WorkOrderStore = new pgRelationalStore<WorkOrder>(_db);
+      var WorkOrderStore = new PgRelationalStore<WorkOrder>(_db);
       var myBatch = new List<WorkOrder>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {

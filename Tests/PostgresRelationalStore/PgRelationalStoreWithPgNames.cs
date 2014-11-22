@@ -10,11 +10,11 @@ namespace Tests {
   [Category("PG Relational Store")]
   public class PgRelationalStoreWithPgNames {
 
-    pgDbCore _db;
+    PpgDbCore _db;
 
     [SetUp]
     public void init() {
-      _db = new pgDbCore("biggy_test");
+      _db = new PpgDbCore("biggy_test");
       DropCreateTestTables();
     }
 
@@ -27,7 +27,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Inserts_record_with_pg_names() {
-      var UnitStore = new pgRelationalStore<Unit>(_db);
+      var UnitStore = new PgRelationalStore<Unit>(_db);
       var newUnit = new Unit { BIN = "OR03-01", UnitNo = "A-101" };
       UnitStore.Add(newUnit);
 
@@ -37,7 +37,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Inserts_range_of_records_with_pg_names() {
-      var UnitStore = new pgRelationalStore<Unit>(_db);
+      var UnitStore = new PgRelationalStore<Unit>(_db);
       var myBatch = new List<Unit>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -51,7 +51,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Updates_record_with_pg_names() {
-      var UnitStore = new pgRelationalStore<Unit>(_db);
+      var UnitStore = new PgRelationalStore<Unit>(_db);
       var newUnit = new Unit { BIN = "OR05-01", UnitNo = "C-101" };
       UnitStore.Add(newUnit);
 
@@ -65,7 +65,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Updates_range_of_records_with_pg_names() {
-      var UnitStore = new pgRelationalStore<Unit>(_db);
+      var UnitStore = new PgRelationalStore<Unit>(_db);
       var myBatch = new List<Unit>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -88,7 +88,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Deletes_record_with_pg_names() {
-      var UnitStore = new pgRelationalStore<Unit>(_db);
+      var UnitStore = new PgRelationalStore<Unit>(_db);
       var newUnit = new Unit { BIN = "OR07-01", UnitNo = "E-101" };
       UnitStore.Add(newUnit);
 
@@ -106,7 +106,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Deletes_range_of_records_with_pg_names() {
-      var UnitStore = new pgRelationalStore<Unit>(_db);
+      var UnitStore = new PgRelationalStore<Unit>(_db);
       var myBatch = new List<Unit>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {
@@ -131,7 +131,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Deletes_all_records_with_pg_names() {
-      var UnitStore = new pgRelationalStore<Unit>(_db);
+      var UnitStore = new PgRelationalStore<Unit>(_db);
       var myBatch = new List<Unit>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {

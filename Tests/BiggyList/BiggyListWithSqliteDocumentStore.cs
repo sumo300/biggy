@@ -10,12 +10,12 @@ namespace Tests {
   [Category("Biggy List with SQLite Document Store")]
   public class BiggyListWithSqliteDocumentStore {
 
-    sqliteDbCore _db;
+    SqliteDbCore _db;
     IDataStore<PropertyDocument> _PropertyDocumentStore;
 
     [SetUp]
     public void init() {
-      _db = new sqliteDbCore("BiggyTest");
+      _db = new SqliteDbCore("BiggyTest");
       _db.TryDropTable("propertydocuments");
       _PropertyDocumentStore = _db.CreateDocumentStoreFor<PropertyDocument>();
     }

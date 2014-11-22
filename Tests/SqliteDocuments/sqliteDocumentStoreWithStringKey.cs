@@ -11,11 +11,11 @@ namespace Tests {
   [Category("SQLite Document Store")]
   public class sqliteDocumentStoreWithStringKey {
 
-    sqliteDbCore _db;
+    SqliteDbCore _db;
 
     [SetUp]
     public void init() {
-      _db = new sqliteDbCore("BiggyTest");
+      _db = new SqliteDbCore("BiggyTest");
     }
 
     [Test()]
@@ -26,7 +26,7 @@ namespace Tests {
 
       // NOTE: Gotta go look to see if the field is a serial in or not...
       //var db = new CommandRunner("chinook");
-      var InstrumentStore = new sqliteDocumentStore<InstrumentDocuments>(_db);
+      var InstrumentStore = new SqliteDocumentStore<InstrumentDocuments>(_db);
       bool exists = _db.TableExists(InstrumentStore.TableName);
       Assert.IsTrue(exists);
     }
@@ -34,7 +34,7 @@ namespace Tests {
     [Test()]
     public void Inserts_record_with_string_id() {
       _db.TryDropTable("instrumentdocuments");
-      var InstrumentStore = new sqliteDocumentStore<InstrumentDocuments>(_db);
+      var InstrumentStore = new SqliteDocumentStore<InstrumentDocuments>(_db);
       var newInstrument = new InstrumentDocuments { Id = "USA123", Category = "String", Type = "Guitar" };
       InstrumentStore.Add(newInstrument);
 
@@ -45,7 +45,7 @@ namespace Tests {
     [Test()]
     public void Inserts_range_of_records_with_string_id() {
       _db.TryDropTable("instrumentdocuments");
-      var InstrumentStore = new sqliteDocumentStore<InstrumentDocuments>(_db);
+      var InstrumentStore = new SqliteDocumentStore<InstrumentDocuments>(_db);
       var myBatch = new List<InstrumentDocuments>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -59,7 +59,7 @@ namespace Tests {
     [Test()]
     public void Updates_record_with_string_id() {
       _db.TryDropTable("instrumentdocuments");
-      var InstrumentStore = new sqliteDocumentStore<InstrumentDocuments>(_db);
+      var InstrumentStore = new SqliteDocumentStore<InstrumentDocuments>(_db);
       var newInstrument = new InstrumentDocuments { Id = "USA123", Category = "String", Type = "Guitar" };
       InstrumentStore.Add(newInstrument);
 
@@ -74,7 +74,7 @@ namespace Tests {
     [Test()]
     public void Updates_range_of_records_with_string_id() {
       _db.TryDropTable("instrumentdocuments");
-      var InstrumentStore = new sqliteDocumentStore<InstrumentDocuments>(_db);
+      var InstrumentStore = new SqliteDocumentStore<InstrumentDocuments>(_db);
       var myBatch = new List<InstrumentDocuments>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -97,7 +97,7 @@ namespace Tests {
     [Test()]
     public void Deletes_record_with_string_id() {
       _db.TryDropTable("instrumentdocuments");
-      var InstrumentStore = new sqliteDocumentStore<InstrumentDocuments>(_db);
+      var InstrumentStore = new SqliteDocumentStore<InstrumentDocuments>(_db);
       var newInstrument = new InstrumentDocuments { Id = "USA123", Category = "String", Type = "Guitar" };
       InstrumentStore.Add(newInstrument);
 
@@ -116,7 +116,7 @@ namespace Tests {
     [Test()]
     public void Deletes_range_of_records_with_string_id() {
       _db.TryDropTable("instrumentdocuments");
-      var InstrumentStore = new sqliteDocumentStore<InstrumentDocuments>(_db);
+      var InstrumentStore = new SqliteDocumentStore<InstrumentDocuments>(_db);
       var myBatch = new List<InstrumentDocuments>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {
@@ -144,7 +144,7 @@ namespace Tests {
     [Test()]
     public void Deletes_all_records_with_string_id() {
       _db.TryDropTable("instrumentdocuments");
-      var InstrumentStore = new sqliteDocumentStore<InstrumentDocuments>(_db);
+      var InstrumentStore = new SqliteDocumentStore<InstrumentDocuments>(_db);
       var myBatch = new List<InstrumentDocuments>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {

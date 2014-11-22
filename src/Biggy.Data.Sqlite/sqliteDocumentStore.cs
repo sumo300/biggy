@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Biggy.Data.Sqlite
 {
-    public class sqliteDocumentStore<T> : IDataStore<T> where T : new()
+    public class SqliteDocumentStore<T> : IDataStore<T> where T : new()
     {
         private IDbCore _database;
 
@@ -69,17 +69,17 @@ namespace Biggy.Data.Sqlite
             return this.TableName;
         }
 
-        public sqliteDocumentStore()
-          : this(new sqliteDbCore("data.db"))
+        public SqliteDocumentStore()
+          : this(new SqliteDbCore("data.db"))
         {
         }
 
-        public sqliteDocumentStore(string tableName)
-          : this(tableName, new sqliteDbCore("data.db"))
+        public SqliteDocumentStore(string tableName)
+          : this(tableName, new SqliteDbCore("data.db"))
         {
         }
 
-        public sqliteDocumentStore(sqliteDbCore runner)
+        public SqliteDocumentStore(SqliteDbCore runner)
         {
             this._database = runner;
             _keyProperty = this.GetKeyProperty();
@@ -87,7 +87,7 @@ namespace Biggy.Data.Sqlite
             TryLoadData();
         }
 
-        public sqliteDocumentStore(string tableName, sqliteDbCore runner)
+        public SqliteDocumentStore(string tableName, SqliteDbCore runner)
         {
             this.TableName = tableName;
             this._database = runner;

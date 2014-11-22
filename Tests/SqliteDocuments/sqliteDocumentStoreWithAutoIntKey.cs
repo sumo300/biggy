@@ -10,11 +10,11 @@ namespace Tests {
   [Category("SQLite Document Store")]
   public class sqliteDocumentStoreWithAutoIntKey {
 
-    sqliteDbCore _db;
+    SqliteDbCore _db;
 
     [SetUp]
     public void init() {
-      _db = new sqliteDbCore("BiggyTest");
+      _db = new SqliteDbCore("BiggyTest");
     }
 
     [Test()]
@@ -27,7 +27,7 @@ namespace Tests {
       //var db = new CommandRunner("chinook");
 
       _db.TryDropTable("companydocuments");
-      var companyStore = new sqliteDocumentStore<CompanyDocuments>(_db);
+      var companyStore = new SqliteDocumentStore<CompanyDocuments>(_db);
       bool exists = _db.TableExists(companyStore.TableName);
       Assert.IsTrue(exists);
     }
@@ -35,7 +35,7 @@ namespace Tests {
     [Test()]
     public void Inserts_record_with_serial_id() {
       _db.TryDropTable("companydocuments");
-      var companyStore = new sqliteDocumentStore<CompanyDocuments>(_db);
+      var companyStore = new SqliteDocumentStore<CompanyDocuments>(_db);
       var newCompany = new CompanyDocuments { Name = "John's Coal Mining Supplies", Address = "16 Company Parkway, Portland, OR 97204" };
       companyStore.Add(newCompany);
 
@@ -46,7 +46,7 @@ namespace Tests {
     [Test()]
     public void Inserts_range_of_records_with_serial_id() {
       _db.TryDropTable("companydocuments");
-      var companyStore = new sqliteDocumentStore<CompanyDocuments>(_db);
+      var companyStore = new SqliteDocumentStore<CompanyDocuments>(_db);
       var myBatch = new List<CompanyDocuments>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -60,7 +60,7 @@ namespace Tests {
     [Test()]
     public void Updates_record_with_serial_id() {
       _db.TryDropTable("companydocuments");
-      var companyStore = new sqliteDocumentStore<CompanyDocuments>(_db);
+      var companyStore = new SqliteDocumentStore<CompanyDocuments>(_db);
       var newCompany = new CompanyDocuments { Name = "John's Coal Mining Supplies", Address = "16 Company Parkway, Portland, OR 97204" };
       companyStore.Add(newCompany);
 
@@ -75,7 +75,7 @@ namespace Tests {
     [Test()]
     public void Updates_range_of_records_with_serial_id() {
       _db.TryDropTable("companydocuments");
-      var companyStore = new sqliteDocumentStore<CompanyDocuments>(_db);
+      var companyStore = new SqliteDocumentStore<CompanyDocuments>(_db);
       var myBatch = new List<CompanyDocuments>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -98,7 +98,7 @@ namespace Tests {
     [Test()]
     public void Deletes_record_with_serial_id() {
       _db.TryDropTable("companydocuments");
-      var companyStore = new sqliteDocumentStore<CompanyDocuments>(_db);
+      var companyStore = new SqliteDocumentStore<CompanyDocuments>(_db);
       var newCompany = new CompanyDocuments { Name = "John's Coal Mining Supplies", Address = "16 Company Parkway, Portland, OR 97204" };
       companyStore.Add(newCompany);
 
@@ -117,7 +117,7 @@ namespace Tests {
     [Test()]
     public void Deletes_range_of_records_with_serial_id() {
       _db.TryDropTable("companydocuments");
-      var companyStore = new sqliteDocumentStore<CompanyDocuments>(_db);
+      var companyStore = new SqliteDocumentStore<CompanyDocuments>(_db);
       var myBatch = new List<CompanyDocuments>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {
@@ -142,7 +142,7 @@ namespace Tests {
     [Test()]
     public void Deletes_all_records_with_serial_id() {
       _db.TryDropTable("companydocuments");
-      var companyStore = new sqliteDocumentStore<CompanyDocuments>(_db);
+      var companyStore = new SqliteDocumentStore<CompanyDocuments>(_db);
       var myBatch = new List<CompanyDocuments>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {

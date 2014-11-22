@@ -14,7 +14,7 @@ namespace Tests {
 
     [SetUp]
     public void init() {
-      _db = new sqliteDbCore("BiggyTest");
+      _db = new SqliteDbCore("BiggyTest");
     }
 
     void DropCreateTestTables() {

@@ -10,12 +10,12 @@ namespace Tests {
   [Category("Biggy List with PG Relational Store")]
   public class BiggyListWithPgRelationalStore {
 
-    pgDbCore _db;
+    PpgDbCore _db;
     IDataStore<Property> _propertyStore;
 
     [SetUp]
     public void init() {
-      _db = new pgDbCore("biggy_test");
+      _db = new PpgDbCore("biggy_test");
       DropCreateTestTables();
       _propertyStore = _db.CreateRelationalStoreFor<Property>();
     }

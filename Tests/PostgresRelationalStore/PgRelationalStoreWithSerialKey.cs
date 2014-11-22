@@ -10,11 +10,11 @@ namespace Tests {
   [Category("PG Relational Store")]
   public class PgRelationalStoreWithSerialKey {
 
-    pgDbCore _db;
+    PpgDbCore _db;
 
     [SetUp]
     public void init() {
-      _db = new pgDbCore("biggy_test");
+      _db = new PpgDbCore("biggy_test");
       DropCreateTestTables();
     }
 
@@ -27,7 +27,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Inserts_record_with_serial_id() {
-      var propertyStore = new pgRelationalStore<Property>(_db);
+      var propertyStore = new PgRelationalStore<Property>(_db);
       var newProperty = new Property { Name = "Watergate Apartments", Address = "2639 I St NW, Washington, D.C. 20037" };
       propertyStore.Add(newProperty);
 
@@ -37,7 +37,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Inserts_range_of_records_with_serial_id() {
-      var propertyStore = new pgRelationalStore<Property>(_db);
+      var propertyStore = new PgRelationalStore<Property>(_db);
       var myBatch = new List<Property>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -51,7 +51,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Updates_record_with_serial_id() {
-      var PropertyStore = new pgRelationalStore<Property>(_db);
+      var PropertyStore = new PgRelationalStore<Property>(_db);
       var newProperty = new Property { Name = "John's Luxury Apartments", Address = "16 Property Parkway, Portland, OR 97204" };
       PropertyStore.Add(newProperty);
 
@@ -69,7 +69,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Updates_range_of_records_with_serial_id() {
-      var PropertyStore = new pgRelationalStore<Property>(_db);
+      var PropertyStore = new PgRelationalStore<Property>(_db);
       var myBatch = new List<Property>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -91,7 +91,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Deletes_record_with_serial_id() {
-      var PropertyStore = new pgRelationalStore<Property>(_db);
+      var PropertyStore = new PgRelationalStore<Property>(_db);
       var newProperty = new Property { Name = "John's High-End Apartments", Address = "16 Property Parkway, Portland, OR 97204" };
       PropertyStore.Add(newProperty);
 
@@ -109,7 +109,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Deletes_range_of_records_with_serial_id() {
-      var PropertyStore = new pgRelationalStore<Property>(_db);
+      var PropertyStore = new PgRelationalStore<Property>(_db);
       var myBatch = new List<Property>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {
@@ -133,7 +133,7 @@ namespace Tests {
 
     [Test()]
     public void Relational_Store_Deletes_all_records_with_serial_id() {
-      var PropertyStore = new pgRelationalStore<Property>(_db);
+      var PropertyStore = new PgRelationalStore<Property>(_db);
       var myBatch = new List<Property>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {
