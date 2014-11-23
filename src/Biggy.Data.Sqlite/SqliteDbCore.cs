@@ -4,6 +4,7 @@ using System.Configuration;
 using System.IO;
 using System.Linq;
 using Biggy.Core;
+using System.Data;
 
 // This is unfortunate, but it works:
 #if __MonoCS__
