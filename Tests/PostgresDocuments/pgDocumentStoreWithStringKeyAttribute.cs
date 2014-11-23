@@ -2,7 +2,7 @@ using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Biggy.Postgres;
+using Biggy.Data.Postgres;
 using Biggy.Core;
 
 namespace Tests.Postgres {
@@ -10,11 +10,11 @@ namespace Tests.Postgres {
   [Category("PG Document Store")]
   public class PgDocumentStoreWithStringKeyAttribute {
 
-    pgDbCore _db;
+    PgDbCore _db;
 
     [SetUp]
     public void init() {
-      _db = new pgDbCore("biggy_test");
+      _db = new PgDbCore("biggy_test");
     }
 
     [Test()]
@@ -24,7 +24,7 @@ namespace Tests.Postgres {
       // without an attribute decoration, and horrible plague and pesilence will result.
 
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new pgDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new PgDocumentStore<GuitarDocuments>(_db);
       bool exists = _db.TableExists(guitarstore.TableName);
       Assert.IsTrue(exists);
     }
@@ -40,13 +40,13 @@ namespace Tests.Postgres {
     }
 
     public void TryCreateWithAutoStringKey() {
-      var guitarstore = new pgDocumentStore<ErrorGuitarDocuments>(_db);
+      var guitarstore = new PgDocumentStore<ErrorGuitarDocuments>(_db);
     }
 
     [Test()]
     public void Inserts_record_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new pgDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new PgDocumentStore<GuitarDocuments>(_db);
       var newGuitar = new GuitarDocuments { Sku = "USA123", Make = "Gibson", Model = "Les Paul Custom"  };
       guitarstore.Add(newGuitar);
 
@@ -57,7 +57,7 @@ namespace Tests.Postgres {
     [Test()]
     public void Inserts_range_of_records_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new pgDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new PgDocumentStore<GuitarDocuments>(_db);
       var myBatch = new List<GuitarDocuments>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -71,7 +71,7 @@ namespace Tests.Postgres {
     [Test()]
     public void Updates_record_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new pgDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new PgDocumentStore<GuitarDocuments>(_db);
       var newGuitar = new GuitarDocuments { Sku = "USA123", Make = "Gibson", Model = "Les Paul Custom" };
       guitarstore.Add(newGuitar);
 
@@ -86,7 +86,7 @@ namespace Tests.Postgres {
     [Test()]
     public void Updates_range_of_records_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new pgDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new PgDocumentStore<GuitarDocuments>(_db);
       var myBatch = new List<GuitarDocuments>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -109,7 +109,7 @@ namespace Tests.Postgres {
     [Test()]
     public void Deletes_record_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new pgDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new PgDocumentStore<GuitarDocuments>(_db);
       var newGuitar = new GuitarDocuments { Sku = "USA123", Make = "Gibson", Model = "Les Paul Custom" };
       guitarstore.Add(newGuitar);
 
@@ -128,7 +128,7 @@ namespace Tests.Postgres {
     [Test()]
     public void Deletes_range_of_records_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new pgDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new PgDocumentStore<GuitarDocuments>(_db);
       var myBatch = new List<GuitarDocuments>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {
@@ -156,7 +156,7 @@ namespace Tests.Postgres {
     [Test()]
     public void Deletes_all_records_with_string_id() {
       _db.TryDropTable("guitardocuments");
-      var guitarstore = new pgDocumentStore<GuitarDocuments>(_db);
+      var guitarstore = new PgDocumentStore<GuitarDocuments>(_db);
       var myBatch = new List<GuitarDocuments>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {

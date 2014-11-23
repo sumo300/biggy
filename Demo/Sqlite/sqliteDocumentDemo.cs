@@ -4,15 +4,15 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Biggy.Core;
-using Biggy.Sqlite;
+using Biggy.Data.Postgres;
 using System.Diagnostics;
 using Demo.Models;
 
 namespace Demo {
   public class sqliteDocumentDemo {
 
-    sqliteChinookDb _testDb;
-    sqliteChinookDb _chinookDb;
+    SqliteChinookDb _testDb;
+    SqliteChinookDb _chinookDb;
 
     public void Run() {
       Console.WriteLine("SQlite Document Demo - TEST DATA");
@@ -22,7 +22,7 @@ namespace Demo {
       var sw = new Stopwatch();
 
       sw.Start();
-      _testDb = new sqliteChinookDb("BiggyTest", dropCreateTables: true);
+      _testDb = new SqliteChinookDb("BiggyTest", dropCreateTables: true);
       sw.Stop();
       Console.WriteLine("Initialized and reset SQLite database in {0} MS", sw.ElapsedMilliseconds);
 
@@ -60,7 +60,7 @@ namespace Demo {
 
       sw.Reset();
       sw.Start();
-      _chinookDb = new sqliteChinookDb("Chinook");
+      _chinookDb = new SqliteChinookDb("Chinook");
       sw.Stop();
       Console.WriteLine("Initialized Chinook data in {0} ms - loaded:", sw.ElapsedMilliseconds);
       Console.WriteLine("{0} Artists", _chinookDb.Artists.Count);

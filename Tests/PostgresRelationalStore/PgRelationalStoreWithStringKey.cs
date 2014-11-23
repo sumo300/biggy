@@ -2,7 +2,7 @@ using NUnit.Framework;
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using Biggy.Postgres;
+using Biggy.Data.Postgres;
 using Biggy.Core;
 
 namespace Tests.Postgres {
@@ -10,11 +10,11 @@ namespace Tests.Postgres {
   [Category("PG Relational Store")]
   public class PgRelationalStoreWithStringKey {
 
-    pgDbCore _db;
+    PgDbCore _db;
 
     [SetUp]
     public void init() {
-      _db = new pgDbCore("biggy_test");
+      _db = new PgDbCore("biggy_test");
       DropCreateTestTables();
     }
 
@@ -30,7 +30,7 @@ namespace Tests.Postgres {
     [Test()]
     public void Relational_Store_Inserts_record_with_string_id() {
       var theBin = "OR13-22";
-      var BuildingStore = new pgRelationalStore<Building>(_db);
+      var BuildingStore = new PgRelationalStore<Building>(_db);
       var newBuilding = new Building { BIN = "OR13-22", Identifier = "Building A", PropertyId = 1 };
       BuildingStore.Add(newBuilding);
 
@@ -40,7 +40,7 @@ namespace Tests.Postgres {
 
     [Test()]
     public void Relational_Store_Inserts_range_of_records_with_string_id() {
-      var BuildingStore = new pgRelationalStore<Building>(_db);
+      var BuildingStore = new PgRelationalStore<Building>(_db);
       var myBatch = new List<Building>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -54,7 +54,7 @@ namespace Tests.Postgres {
 
     [Test()]
     public void Relational_Store_Updates_record_with_string_id() {
-      var BuildingStore = new pgRelationalStore<Building>(_db);
+      var BuildingStore = new PgRelationalStore<Building>(_db);
       var newBuilding = new Building { BIN = "OR13-55", Identifier = "Building C", PropertyId = 1 };
       BuildingStore.Add(newBuilding);
 
@@ -70,7 +70,7 @@ namespace Tests.Postgres {
 
     [Test()]
     public void Relational_Store_Updates_range_of_records_with_string_id() {
-      var BuildingStore = new pgRelationalStore<Building>(_db);
+      var BuildingStore = new PgRelationalStore<Building>(_db);
       var myBatch = new List<Building>();
       int qtyToAdd = 10;
       for (int i = 1; i <= qtyToAdd; i++) {
@@ -93,7 +93,7 @@ namespace Tests.Postgres {
 
     [Test()]
     public void Relational_Store_Deletes_record_with_string_id() {
-      var BuildingStore = new pgRelationalStore<Building>(_db);
+      var BuildingStore = new PgRelationalStore<Building>(_db);
       var newBuilding = new Building { BIN = "OR300-01", Identifier = "Building D", PropertyId = 1 };
       BuildingStore.Add(newBuilding);
 
@@ -111,7 +111,7 @@ namespace Tests.Postgres {
 
     [Test()]
     public void Relational_Store_Deletes_range_of_records_with_string_id() {
-      var BuildingStore = new pgRelationalStore<Building>(_db);
+      var BuildingStore = new PgRelationalStore<Building>(_db);
       var myBatch = new List<Building>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {
@@ -139,7 +139,7 @@ namespace Tests.Postgres {
 
     [Test()]
     public void Relational_Store_Deletes_all_records_with_string_id() {
-      var BuildingStore = new pgRelationalStore<Building>(_db);
+      var BuildingStore = new PgRelationalStore<Building>(_db);
       var myBatch = new List<Building>();
       int qtyToAdd = 10;
       for (int i = 0; i < qtyToAdd; i++) {
