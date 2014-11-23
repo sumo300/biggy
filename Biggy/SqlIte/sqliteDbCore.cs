@@ -35,6 +35,10 @@ namespace Biggy.Sqlite {
     string _defaultDbName = "data.db";
     public string DBDirectory { get; set; }
     public string DBName { get; set; }
+    public string DBFilePath { 
+      get { return Path.Combine(DBDirectory, DBName); }
+    }
+
     public override string ConnectionString {
       get {
         return string.Format("Data Source = {0}", Path.Combine(DBDirectory, DBName));
