@@ -157,6 +157,7 @@ namespace Biggy.Core {
         while (rdr.Read()) {
           yield return rdr.RecordToExpando(); ;
         }
+        rdr.Dispose();
       }
     }
 
@@ -190,6 +191,7 @@ namespace Biggy.Core {
               cmd.Transaction = tx;
               cmd.Connection = conn;
               results.Add(cmd.ExecuteNonQuery());
+              cmd.Dispose();
             }
             tx.Commit();
           }

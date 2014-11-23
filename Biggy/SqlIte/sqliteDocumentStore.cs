@@ -197,14 +197,18 @@ namespace Biggy.Sqlite {
       }
 
       var sql = string.Format(sqlFormat, this.TableName, string.Join(",", parameterPlaceholders));
-      var cmd = _database.BuildCommand(sql, args.ToArray());
-      return _database.Transact(cmd);
+      using (var cmd = _database.BuildCommand(sql, args.ToArray())) {
+        var result = _database.Transact(cmd);
+        return result;
+      }
     }
 
     public virtual int DeleteAll() {
       string sql = string.Format("DELETE FROM {0}", this.TableName);
-      var cmd = _database.BuildCommand(sql);
-      return _database.Transact(cmd);
+      using (var cmd = _database.BuildCommand(sql)) {
+        var result = _database.Transact(cmd);
+        return result;
+      }
     }
 
     public virtual void SetKeyValue(T item, object value) {
