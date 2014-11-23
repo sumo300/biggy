@@ -9,7 +9,7 @@ using Newtonsoft.Json;
 
 namespace Biggy.Data.Postgres
 {
-    public class pgDocumentStore<T> : IDataStore<T> where T : new()
+    public class PgDocumentStore<T> : IDataStore<T> where T : new()
     {
         private IDbCore _database;
 
@@ -69,7 +69,7 @@ namespace Biggy.Data.Postgres
             return this.TableName;
         }
 
-        public pgDocumentStore(string connectionStringName, string tableName)
+        public PgDocumentStore(string connectionStringName, string tableName)
         {
             this._database = new PgDbCore(connectionStringName);
             _keyProperty = this.GetKeyProperty();
@@ -77,7 +77,7 @@ namespace Biggy.Data.Postgres
             TryLoadData();
         }
 
-        public pgDocumentStore(string connectionStringName)
+        public PgDocumentStore(string connectionStringName)
         {
             this._database = new PgDbCore(connectionStringName);
             _keyProperty = this.GetKeyProperty();
@@ -85,7 +85,7 @@ namespace Biggy.Data.Postgres
             TryLoadData();
         }
 
-        public pgDocumentStore(PgDbCore dbCore)
+        public PgDocumentStore(PgDbCore dbCore)
         {
             this._database = dbCore;
             _keyProperty = this.GetKeyProperty();
@@ -93,7 +93,7 @@ namespace Biggy.Data.Postgres
             TryLoadData();
         }
 
-        public pgDocumentStore(PgDbCore dbCore, string tableName)
+        public PgDocumentStore(PgDbCore dbCore, string tableName)
         {
             this.TableName = tableName;
             this._database = dbCore;

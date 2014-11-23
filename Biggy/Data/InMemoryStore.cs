@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using Biggy.Core;
 
-namespace Biggy.InMemory
+namespace Biggy.Data
 {
     public sealed class InMemoryStore<T> : IDataStore<T>
         where T : new()

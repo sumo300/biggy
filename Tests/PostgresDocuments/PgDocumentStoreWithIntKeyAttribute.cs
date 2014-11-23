@@ -26,7 +26,7 @@ namespace Tests
             // the attribute IsAuto property is set to false, so the field will NOT be a serial key.
 
             _db.TryDropTable("widgetdocuments");
-            var widgetstore = new pgDocumentStore<WidgetDocuments>(_db);
+            var widgetstore = new PgDocumentStore<WidgetDocuments>(_db);
             bool exists = _db.TableExists(widgetstore.TableName);
             Assert.IsTrue(exists);
         }
@@ -35,7 +35,7 @@ namespace Tests
         public void Inserts_record_with_int_id()
         {
             _db.TryDropTable("widgetdocuments");
-            var widgetstore = new pgDocumentStore<WidgetDocuments>(_db);
+            var widgetstore = new PgDocumentStore<WidgetDocuments>(_db);
             var newWidget = new WidgetDocuments { Identifier = 100, Category = "Brass" };
             widgetstore.Add(newWidget);
 
@@ -47,7 +47,7 @@ namespace Tests
         public void Inserts_range_of_records_with_int_id()
         {
             _db.TryDropTable("widgetdocuments");
-            var widgetstore = new pgDocumentStore<WidgetDocuments>(_db);
+            var widgetstore = new PgDocumentStore<WidgetDocuments>(_db);
             var myBatch = new List<WidgetDocuments>();
             int qtyToAdd = 10;
             for (int i = 1; i <= qtyToAdd; i++)
@@ -63,7 +63,7 @@ namespace Tests
         public void Updates_record_with_int_id()
         {
             _db.TryDropTable("widgetdocuments");
-            var widgetstore = new pgDocumentStore<WidgetDocuments>(_db);
+            var widgetstore = new PgDocumentStore<WidgetDocuments>(_db);
             var newWidget = new WidgetDocuments { Identifier = 100, Category = "Brass" };
             widgetstore.Add(newWidget);
 
@@ -79,7 +79,7 @@ namespace Tests
         public void Updates_range_of_records_with_int_id()
         {
             _db.TryDropTable("widgetdocuments");
-            var widgetstore = new pgDocumentStore<WidgetDocuments>(_db);
+            var widgetstore = new PgDocumentStore<WidgetDocuments>(_db);
             var myBatch = new List<WidgetDocuments>();
             int qtyToAdd = 10;
             for (int i = 1; i <= qtyToAdd; i++)
@@ -105,7 +105,7 @@ namespace Tests
         public void Deletes_record_with_int_id()
         {
             _db.TryDropTable("widgetdocuments");
-            var widgetstore = new pgDocumentStore<WidgetDocuments>(_db);
+            var widgetstore = new PgDocumentStore<WidgetDocuments>(_db);
             var newWidget = new WidgetDocuments { Identifier = 100, Category = "Brass" };
             widgetstore.Add(newWidget);
 
@@ -125,7 +125,7 @@ namespace Tests
         public void Deletes_range_of_records_with_int_id()
         {
             _db.TryDropTable("widgetdocuments");
-            var widgetstore = new pgDocumentStore<WidgetDocuments>(_db);
+            var widgetstore = new PgDocumentStore<WidgetDocuments>(_db);
             var myBatch = new List<WidgetDocuments>();
             int qtyToAdd = 10;
             for (int i = 0; i < qtyToAdd; i++)
@@ -156,7 +156,7 @@ namespace Tests
         public void Deletes_all_records_with_int_id()
         {
             _db.TryDropTable("widgetdocuments");
-            var widgetstore = new pgDocumentStore<WidgetDocuments>(_db);
+            var widgetstore = new PgDocumentStore<WidgetDocuments>(_db);
             var myBatch = new List<WidgetDocuments>();
             int qtyToAdd = 10;
             for (int i = 0; i < qtyToAdd; i++)

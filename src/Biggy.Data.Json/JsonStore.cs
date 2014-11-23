@@ -78,12 +78,6 @@ namespace Biggy.Json
             }
         }
 
-        //public JsonStore() {
-        //  this.DbDirectory = this.GetDefaultDirectory();
-        //  this.TableName = this.DecideTableName();
-        //  this.TryLoadData();
-        //}
-
         public JsonDbCore Database { get; set; }
 
         public JsonStore()
@@ -106,12 +100,6 @@ namespace Biggy.Json
             Database = dbCore;
             this.TryLoadData();
         }
-
-        //public JsonStore(string tableName) {
-        //  this.DbDirectory = this.GetDefaultDirectory();
-        //  this.TableName = tableName;
-        //  this.TryLoadData();
-        //}
 
         public JsonStore(string dbName, string tableName)
         {

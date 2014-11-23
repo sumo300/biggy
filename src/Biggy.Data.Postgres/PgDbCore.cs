@@ -14,7 +14,7 @@ namespace Biggy.Data.Postgres
 
         public IDataStore<T> CreateDocumentStoreFor<T>() where T : new()
         {
-            return new pgDocumentStore<T>(this);
+            return new PgDocumentStore<T>(this);
         }
 
         public PgDbCore(string connectionStringName) : base(connectionStringName)

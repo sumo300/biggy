@@ -20,6 +20,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = ".nuget", ".nuget", "{9F5011
 		.nuget\packages.config = .nuget\packages.config
 	EndProjectSection
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biggy.Data.Azure", "src\Biggy.Data.Azure\Biggy.Data.Azure.csproj", "{B46196BD-2F6D-470C-BA51-6E5B3839419B}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -70,6 +72,14 @@ Global
 		{E293E04A-2B12-4E31-93EC-62FF14FA2306}.Release|Any CPU.Build.0 = Release|Any CPU
 		{E293E04A-2B12-4E31-93EC-62FF14FA2306}.Release|x86.ActiveCfg = Release|Any CPU
 		{E293E04A-2B12-4E31-93EC-62FF14FA2306}.Release|x86.Build.0 = Release|Any CPU
+		{B46196BD-2F6D-470C-BA51-6E5B3839419B}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B46196BD-2F6D-470C-BA51-6E5B3839419B}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B46196BD-2F6D-470C-BA51-6E5B3839419B}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B46196BD-2F6D-470C-BA51-6E5B3839419B}.Debug|x86.Build.0 = Debug|Any CPU
+		{B46196BD-2F6D-470C-BA51-6E5B3839419B}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B46196BD-2F6D-470C-BA51-6E5B3839419B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B46196BD-2F6D-470C-BA51-6E5B3839419B}.Release|x86.ActiveCfg = Release|Any CPU
+		{B46196BD-2F6D-470C-BA51-6E5B3839419B}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

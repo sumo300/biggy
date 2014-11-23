@@ -1,21 +1,22 @@
 ﻿using System;
+using System.Collections.Generic;
 
 namespace Biggy.Core
 {
     public interface IDataStore<T>
-     where T : new()
+        where T : new()
     {
-        int Add(System.Collections.Generic.IEnumerable<T> items);
+        int Add(IEnumerable<T> items);
 
         int Add(T item);
 
-        int Delete(System.Collections.Generic.IEnumerable<T> items);
+        int Delete(IEnumerable<T> items);
 
         int Delete(T item);
 
         int DeleteAll();
 
-        System.Collections.Generic.List<T> TryLoadData();
+        List<T> TryLoadData();
 
         int Update(System.Collections.Generic.IEnumerable<T> items);
 

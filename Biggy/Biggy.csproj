@@ -59,7 +59,8 @@
     <Compile Include="Core\IDbCore.cs" />
     <Compile Include="Core\IDataStore.cs" />
     <Compile Include="Core\BiggyList.cs" />
-    <Compile Include="InMemory\InMemoryStore.cs" />
+    <Compile Include="Data\AggregateStore.cs" />
+    <Compile Include="Data\InMemoryStore.cs" />
     <Compile Include="Core\RelationalStoreBase.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

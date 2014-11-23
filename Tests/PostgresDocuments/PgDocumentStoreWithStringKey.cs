@@ -27,7 +27,7 @@ namespace Tests
             // NOTE: Gotta go look to see if the field is a serial in or not...
             //var db = new CommandRunner("chinook");
             _db.TryDropTable("instrumentdocuments");
-            var InstrumentStore = new pgDocumentStore<InstrumentDocuments>(_db);
+            var InstrumentStore = new PgDocumentStore<InstrumentDocuments>(_db);
             bool exists = _db.TableExists(InstrumentStore.TableName);
             Assert.IsTrue(exists);
         }
@@ -36,7 +36,7 @@ namespace Tests
         public void Inserts_record_with_string_id()
         {
             _db.TryDropTable("instrumentdocuments");
-            var InstrumentStore = new pgDocumentStore<InstrumentDocuments>(_db);
+            var InstrumentStore = new PgDocumentStore<InstrumentDocuments>(_db);
             var newInstrument = new InstrumentDocuments { Id = "USA123", Category = "String", Type = "Guitar" };
             InstrumentStore.Add(newInstrument);
 
@@ -48,7 +48,7 @@ namespace Tests
         public void Inserts_range_of_records_with_string_id()
         {
             _db.TryDropTable("instrumentdocuments");
-            var InstrumentStore = new pgDocumentStore<InstrumentDocuments>(_db);
+            var InstrumentStore = new PgDocumentStore<InstrumentDocuments>(_db);
             var myBatch = new List<InstrumentDocuments>();
             int qtyToAdd = 10;
             for (int i = 1; i <= qtyToAdd; i++)
@@ -64,7 +64,7 @@ namespace Tests
         public void Updates_record_with_string_id()
         {
             _db.TryDropTable("instrumentdocuments");
-            var InstrumentStore = new pgDocumentStore<InstrumentDocuments>(_db);
+            var InstrumentStore = new PgDocumentStore<InstrumentDocuments>(_db);
             var newInstrument = new InstrumentDocuments { Id = "USA123", Category = "String", Type = "Guitar" };
             InstrumentStore.Add(newInstrument);
 
@@ -80,7 +80,7 @@ namespace Tests
         public void Updates_range_of_records_with_string_id()
         {
             _db.TryDropTable("instrumentdocuments");
-            var InstrumentStore = new pgDocumentStore<InstrumentDocuments>(_db);
+            var InstrumentStore = new PgDocumentStore<InstrumentDocuments>(_db);
             var myBatch = new List<InstrumentDocuments>();
             int qtyToAdd = 10;
             for (int i = 1; i <= qtyToAdd; i++)
@@ -106,7 +106,7 @@ namespace Tests
         public void Deletes_record_with_string_id()
         {
             _db.TryDropTable("instrumentdocuments");
-            var InstrumentStore = new pgDocumentStore<InstrumentDocuments>(_db);
+            var InstrumentStore = new PgDocumentStore<InstrumentDocuments>(_db);
             var newInstrument = new InstrumentDocuments { Id = "USA123", Category = "String", Type = "Guitar" };
             InstrumentStore.Add(newInstrument);
 
@@ -126,7 +126,7 @@ namespace Tests
         public void Deletes_range_of_records_with_string_id()
         {
             _db.TryDropTable("instrumentdocuments");
-            var InstrumentStore = new pgDocumentStore<InstrumentDocuments>(_db);
+            var InstrumentStore = new PgDocumentStore<InstrumentDocuments>(_db);
             var myBatch = new List<InstrumentDocuments>();
             int qtyToAdd = 10;
             for (int i = 0; i < qtyToAdd; i++)
@@ -157,7 +157,7 @@ namespace Tests
         public void Deletes_all_records_with_string_id()
         {
             _db.TryDropTable("instrumentdocuments");
-            var InstrumentStore = new pgDocumentStore<InstrumentDocuments>(_db);
+            var InstrumentStore = new PgDocumentStore<InstrumentDocuments>(_db);
             var myBatch = new List<InstrumentDocuments>();
             int qtyToAdd = 10;
             for (int i = 0; i < qtyToAdd; i++)
