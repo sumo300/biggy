@@ -8,10 +8,10 @@ namespace Demo
         private static void Main(string[] args)
         {
             //// POSTGRES DEMOS: +++++++++++++++++++++++++++++++++++++++++++++++++++++
-            //pgRelationalDemo _pgRelationalDemo = new pgRelationalDemo();
+            pgRelationalDemo _pgRelationalDemo = new pgRelationalDemo();
             //pgDocumentDemo _pgDocumentDemo = new pgDocumentDemo();
 
-            //_pgRelationalDemo.Run();
+            _pgRelationalDemo.Run();
             //Console.WriteLine("");
 
             ////_pgDocumentDemo.Run();
