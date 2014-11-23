@@ -1,54 +1,57 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using Biggy.Core;
 
-namespace Tests {
+namespace Tests
+{
+    // Class and property names match Table and Column names
+    // Db Table has Auto-int PK
+    public class Property
+    {
+        public int Id { get; set; }
 
-  // Class and property names match Table and Column names
-  // Db Table has Auto-int PK
-  public class Property {
-    public int Id { get; set; }
-    public string Name { get; set; }
-    public string Address { get; set; }
-  }
+        public string Name { get; set; }
 
-  // Class with string PK:
-  public class Building {
-    public string BIN { get; set; }
-    public int PropertyId { get; set; }
-    public string Identifier { get; set; }
-  }
+        public string Address { get; set; }
+    }
 
-  // Class for table with pg-idiomatic names:
+    // Class with string PK:
+    public class Building
+    {
+        public string BIN { get; set; }
 
-  // Table name: unit
-  public class Unit {
+        public int PropertyId { get; set; }
 
-    // Column name: unit_id
-    public int UnitId { get; set; }
+        public string Identifier { get; set; }
+    }
 
-    // column name: building_id
-    public string BIN { get; set; }
+    // Class for table with pg-idiomatic names:
 
-    // Matches unit_no
-    public string UnitNo { get; set; }
+    // Table name: unit
+    public class Unit
+    {
+        // Column name: unit_id
+        public int UnitId { get; set; }
 
-  }
+        // column name: building_id
+        public string BIN { get; set; }
 
-  // Class for table with mis-matched names:
+        // Matches unit_no
+        public string UnitNo { get; set; }
+    }
 
-  // Table name: bedroom_size
-  [DbTable("wk_order")]
-  public class WorkOrder {
+    // Class for table with mis-matched names:
 
-    // Matches bedroom_size_id
-    [DbColumn("wo_id")]
-    public int WorkOrderId { get; set; }
+    // Table name: bedroom_size
+    [DbTable("wk_order")]
+    public class WorkOrder
+    {
+        // Matches bedroom_size_id
+        [DbColumn("wo_id")]
+        public int WorkOrderId { get; set; }
 
-    // matches qty_bedrooms
-    [DbColumn("desc")]
-    public string Description { get; set; }
-  }
+        // matches qty_bedrooms
+        [DbColumn("desc")]
+        public string Description { get; set; }
+    }
 }

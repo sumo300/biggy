@@ -1,46 +1,43 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace Demo {
+namespace Demo
+{
+    internal class Program
+    {
+        private static void Main(string[] args)
+        {
+            //// POSTGRES DEMOS: +++++++++++++++++++++++++++++++++++++++++++++++++++++
+            //pgRelationalDemo _pgRelationalDemo = new pgRelationalDemo();
+            //pgDocumentDemo _pgDocumentDemo = new pgDocumentDemo();
 
-  class Program {
-    static void Main(string[] args) {
+            //_pgRelationalDemo.Run();
+            //Console.WriteLine("");
 
-      //// POSTGRES DEMOS: +++++++++++++++++++++++++++++++++++++++++++++++++++++
-      //pgRelationalDemo _pgRelationalDemo = new pgRelationalDemo();
-      //pgDocumentDemo _pgDocumentDemo = new pgDocumentDemo();
+            ////_pgDocumentDemo.Run();
+            ////Console.WriteLine("");
 
-      //_pgRelationalDemo.Run();
-      //Console.WriteLine("");
+            //// SQL LITE DEMOS: ++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            //sqliteRelationalDemo _sqliteRelationalDemo = new sqliteRelationalDemo();
+            ////sqliteDocumentDemo _sqliteDocumentDemo = new sqliteDocumentDemo();
 
-      ////_pgDocumentDemo.Run();
-      ////Console.WriteLine("");
+            //_sqliteRelationalDemo.Run();
+            //Console.WriteLine("");
 
-      //// SQL LITE DEMOS: ++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      //sqliteRelationalDemo _sqliteRelationalDemo = new sqliteRelationalDemo();
-      ////sqliteDocumentDemo _sqliteDocumentDemo = new sqliteDocumentDemo();
+            //_sqliteDocumentDemo.Run();
+            //Console.WriteLine("");
 
-      //_sqliteRelationalDemo.Run();
-      //Console.WriteLine("");
+            // JSON DEMOS: ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+            //jsonPocoDemo _jsonPocoDemo = new jsonPocoDemo();
+            //jsonDocumentDemo _jsonDocumentDemo = new jsonDocumentDemo();
 
-      //_sqliteDocumentDemo.Run();
-      //Console.WriteLine("");
+            //_jsonPocoDemo.Run();
+            //Console.WriteLine("");
 
+            //_jsonDocumentDemo.Run();
+            //Console.WriteLine("");
 
-      // JSON DEMOS: ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
-      //jsonPocoDemo _jsonPocoDemo = new jsonPocoDemo();
-      //jsonDocumentDemo _jsonDocumentDemo = new jsonDocumentDemo();
-
-      //_jsonPocoDemo.Run();
-      //Console.WriteLine("");
-
-      //_jsonDocumentDemo.Run();
-      //Console.WriteLine("");
-
-      Console.Read();
+            Console.Read();
+        }
     }
-  }
 }
