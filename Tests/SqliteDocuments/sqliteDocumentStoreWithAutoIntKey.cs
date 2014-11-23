@@ -18,10 +18,10 @@ namespace Tests.Sqlite {
       _db = new sqliteDbCore("BiggyTestSQLiteDocuments");
       _filename = _db.DBFilePath;
     }
-
     [TearDown]
     public void Cleanup() {
       GC.Collect();
+      GC.WaitForPendingFinalizers();
       File.Delete(_filename);
     }
 

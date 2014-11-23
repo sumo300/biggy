@@ -23,6 +23,7 @@ namespace Tests.Sqlite {
     [TearDown]
     public void Cleanup() {
       GC.Collect();
+      GC.WaitForPendingFinalizers();
       File.Delete(_filename);
     }
 
