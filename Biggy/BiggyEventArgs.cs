@@ -2,7 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 
-namespace Biggy
+namespace Biggy.Core
 {
     public class BiggyEventArgs<T> : EventArgs
     {

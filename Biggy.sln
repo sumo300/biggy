@@ -1,11 +1,16 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 14
-VisualStudioVersion = 14.0.22310.1
+# Visual Studio 2013
+VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biggy", "Biggy\Biggy.csproj", "{539CDF13-4CD2-41C2-9284-A7020A2563D4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{B0BBD31B-49BC-42C5-806F-2D8B5F32C131}"
+	ProjectSection(ProjectDependencies) = postProject
+		{1ADC5E03-B5B8-4B59-A8DF-1F1A85E63558} = {1ADC5E03-B5B8-4B59-A8DF-1F1A85E63558}
+		{E293E04A-2B12-4E31-93EC-62FF14FA2306} = {E293E04A-2B12-4E31-93EC-62FF14FA2306}
+		{44FC2E62-4266-4054-B9C4-6E5546DA6352} = {44FC2E62-4266-4054-B9C4-6E5546DA6352}
+	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Demo", "Demo\Demo.csproj", "{732A2AD1-8BBB-47A9-A211-98AF4AD966B7}"
 EndProject
