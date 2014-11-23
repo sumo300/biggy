@@ -6,16 +6,24 @@ using System.IO;
 using Biggy.Sqlite;
 using Biggy.Core;
 
-namespace Tests {
+namespace Tests.Sqlite {
   [TestFixture()]
   [Category("SQLite Document Store")]
   public class sqliteDocumentStoreWithStringKeyAttribute {
 
-    sqliteDbCore _db;
+    sqliteDbCore _db;    
+    string _filename = "";
 
     [SetUp]
     public void init() {
-      _db = new sqliteDbCore("BiggyTest");
+      _db = new sqliteDbCore("BiggyTestSQLiteDocuments");
+      _filename = _db.DBFilePath;
+    }
+
+    [TearDown]
+    public void Cleanup() {
+      GC.Collect();
+      File.Delete(_filename);
     }
 
     [Test()]

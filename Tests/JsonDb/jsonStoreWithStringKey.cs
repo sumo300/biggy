@@ -6,7 +6,7 @@ using System.IO;
 using Biggy.Json;
 using Biggy.Core;
 
-namespace Tests {
+namespace Tests.Json {
   [TestFixture()]
   [Category("JSON Store")]
   public class jsonStoreWithStringKey {

@@ -4,18 +4,27 @@ using System.Linq;
 using System.Collections.Generic;
 using Biggy.Sqlite;
 using Biggy.Core;
+using System.IO;
 
-namespace Tests {
+namespace Tests.Sqlite {
   [TestFixture()]
   [Category("SQLite Relational Store")]
   public class sqliteRelationalStoreWithNameAttributes {
 
-    sqliteDbCore _db;
+    sqliteDbCore _db;    
+    string _filename = "";
 
     [SetUp]
     public void init() {
-      _db = new sqliteDbCore("BiggyTest");
-      DropCreateTestTables();
+      _db = new sqliteDbCore("BiggyTestSQLiteRelational");
+      _filename = _db.DBFilePath;
+      DropCreateTestTables ();
+    }
+
+    [TearDown]
+    public void Cleanup() {
+      GC.Collect();
+      File.Delete(_filename);
     }
 
     void DropCreateTestTables() {

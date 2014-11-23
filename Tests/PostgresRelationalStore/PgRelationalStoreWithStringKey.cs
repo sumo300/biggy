@@ -5,7 +5,7 @@ using System.Collections.Generic;
 using Biggy.Postgres;
 using Biggy.Core;
 
-namespace Tests {
+namespace Tests.Postgres {
   [TestFixture()]
   [Category("PG Relational Store")]
   public class PgRelationalStoreWithStringKey {

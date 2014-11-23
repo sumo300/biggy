@@ -6,7 +6,7 @@ using Biggy.Json;
 using Biggy.Core;
 using System.IO;
 
-namespace Tests {
+namespace Tests.Json {
   [TestFixture()]
   [Category("Json DbCore")]
   public class jsonDbCore_Tests {
