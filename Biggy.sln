@@ -3,7 +3,7 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biggy", "Biggy\Biggy.csproj", "{539CDF13-4CD2-41C2-9284-A7020A2563D4}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biggy.Core", "src\Biggy.Core\Biggy.Core.csproj", "{539CDF13-4CD2-41C2-9284-A7020A2563D4}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Tests", "Tests\Tests.csproj", "{B0BBD31B-49BC-42C5-806F-2D8B5F32C131}"
 	ProjectSection(ProjectDependencies) = postProject

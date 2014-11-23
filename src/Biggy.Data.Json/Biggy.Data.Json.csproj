@@ -53,9 +53,9 @@
     <Compile Include="Properties\AssemblyInfo.cs" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\..\Biggy\Biggy.csproj">
+    <ProjectReference Include="..\Biggy.Core\Biggy.Core.csproj">
       <Project>{539cdf13-4cd2-41c2-9284-a7020a2563d4}</Project>
-      <Name>Biggy</Name>
+      <Name>Biggy.Core</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

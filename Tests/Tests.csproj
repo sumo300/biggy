@@ -100,9 +100,9 @@
     <Folder Include="DbScripts\" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\Biggy\Biggy.csproj">
+    <ProjectReference Include="..\src\Biggy.Core\Biggy.Core.csproj">
       <Project>{539CDF13-4CD2-41C2-9284-A7020A2563D4}</Project>
-      <Name>Biggy</Name>
+      <Name>Biggy.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\src\Biggy.Data.Json\Biggy.Data.Json.csproj">
       <Project>{e293e04a-2b12-4e31-93ec-62ff14fa2306}</Project>
