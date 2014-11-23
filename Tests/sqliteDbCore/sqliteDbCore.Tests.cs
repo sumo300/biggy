@@ -15,30 +15,31 @@ namespace Tests {
     [SetUp]
     public void init() {
       _db = new sqliteDbCore("BiggyTest");
+      DropCreateTestTables();
     }
 
     void DropCreateTestTables() {
       string propertyTableSql = ""
         + "CREATE TABLE Property (Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, Name text, Address text)";
       _db.TryDropTable("Property");
-      _db.ExecuteScalar(propertyTableSql);
+      _db.TransactDDL(propertyTableSql);
 
       string BuildingTableSql = ""
         + "CREATE TABLE Building ( BIN text PRIMARY KEY NOT NULL, Identifier text, PropertyId int )";
       _db.TryDropTable("Building");
       if (!_db.TableExists("Building")) {
-        _db.ExecuteScalar(BuildingTableSql);
+        _db.TransactDDL(BuildingTableSql);
       }
 
       string UnitTableSql = ""
         + "CREATE TABLE unit ( unit_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, BIN TEXT, unit_no TEXT )";
       _db.TryDropTable("unit");
-      _db.ExecuteScalar(UnitTableSql);
+      _db.TransactDDL(UnitTableSql);
 
       string WorkOrderTableSql = ""
         + "CREATE TABLE wk_order ( wo_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \"desc\" text)";
       _db.TryDropTable("wk_order");
-      _db.ExecuteScalar(WorkOrderTableSql);
+      _db.TransactDDL(WorkOrderTableSql);
     }
 
     [Test()]
