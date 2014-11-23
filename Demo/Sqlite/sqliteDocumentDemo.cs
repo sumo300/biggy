@@ -15,7 +15,7 @@ namespace Demo {
     sqliteChinookDb _chinookDb;
 
     public void Run() {
-      Console.WriteLine("SQlite Relational Demo - TEST DATA");
+      Console.WriteLine("SQlite Document Demo - TEST DATA");
       Console.WriteLine("====================================");
       Console.WriteLine("Initialize Test Db");
 
@@ -53,7 +53,7 @@ namespace Demo {
 
 
       Console.WriteLine("");
-      Console.WriteLine("SQLite Relational Demo - CHINOOK DATA");
+      Console.WriteLine("SQLite Document Demo - CHINOOK DATA");
       Console.WriteLine("=======================================");
 
       Console.WriteLine("Now let's use some actual data from Chinook Db to build some documents...");
