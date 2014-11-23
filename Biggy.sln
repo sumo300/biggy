@@ -1,6 +1,6 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio 2013
+# Visual Studio 2012
 VisualStudioVersion = 12.0.30723.0
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Biggy", "Biggy\Biggy.csproj", "{539CDF13-4CD2-41C2-9284-A7020A2563D4}"
@@ -19,14 +19,39 @@ Global
 		{539CDF13-4CD2-41C2-9284-A7020A2563D4}.Debug|x86.Build.0 = Debug|x86
 		{539CDF13-4CD2-41C2-9284-A7020A2563D4}.Release|x86.ActiveCfg = Release|x86
 		{539CDF13-4CD2-41C2-9284-A7020A2563D4}.Release|x86.Build.0 = Release|x86
-		{B0BBD31B-49BC-42C5-806F-2D8B5F32C131}.Debug|x86.ActiveCfg = Debug|x86
-		{B0BBD31B-49BC-42C5-806F-2D8B5F32C131}.Debug|x86.Build.0 = Debug|x86
-		{B0BBD31B-49BC-42C5-806F-2D8B5F32C131}.Release|x86.ActiveCfg = Release|x86
-		{B0BBD31B-49BC-42C5-806F-2D8B5F32C131}.Release|x86.Build.0 = Release|x86
 		{732A2AD1-8BBB-47A9-A211-98AF4AD966B7}.Debug|x86.ActiveCfg = Debug|x86
 		{732A2AD1-8BBB-47A9-A211-98AF4AD966B7}.Debug|x86.Build.0 = Debug|x86
 		{732A2AD1-8BBB-47A9-A211-98AF4AD966B7}.Release|x86.ActiveCfg = Release|x86
 		{732A2AD1-8BBB-47A9-A211-98AF4AD966B7}.Release|x86.Build.0 = Release|x86
+		{B0BBD31B-49BC-42C5-806F-2D8B5F32C131}.Debug|x86.ActiveCfg = Debug|x86
+		{B0BBD31B-49BC-42C5-806F-2D8B5F32C131}.Debug|x86.Build.0 = Debug|x86
+		{B0BBD31B-49BC-42C5-806F-2D8B5F32C131}.Release|x86.ActiveCfg = Release|x86
+		{B0BBD31B-49BC-42C5-806F-2D8B5F32C131}.Release|x86.Build.0 = Release|x86
+	EndGlobalSection
+	GlobalSection(MonoDevelopProperties) = preSolution
+		StartupItem = Demo\Demo.csproj
+		Policies = $0
+		$0.TextStylePolicy = $1
+		$1.FileWidth = 120
+		$1.TabWidth = 2
+		$1.IndentWidth = 2
+		$1.inheritsSet = VisualStudio
+		$1.inheritsScope = text/plain
+		$1.scope = text/x-csharp
+		$0.CSharpFormattingPolicy = $2
+		$2.NamespaceBraceStyle = EndOfLine
+		$2.ClassBraceStyle = EndOfLine
+		$2.InterfaceBraceStyle = EndOfLine
+		$2.StructBraceStyle = EndOfLine
+		$2.EnumBraceStyle = EndOfLine
+		$2.MethodBraceStyle = EndOfLine
+		$2.ConstructorBraceStyle = EndOfLine
+		$2.DestructorBraceStyle = EndOfLine
+		$2.BeforeMethodDeclarationParentheses = False
+		$2.AfterDelegateDeclarationParameterComma = True
+		$2.inheritsSet = Mono
+		$2.inheritsScope = text/x-csharp
+		$2.scope = text/x-csharp
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
