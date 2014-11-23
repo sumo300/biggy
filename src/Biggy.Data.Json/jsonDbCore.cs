@@ -3,7 +3,7 @@ using System.IO;
 using System.Linq;
 using Biggy.Core;
 
-namespace Biggy.Json
+namespace Biggy.Data.Json
 {
     public class JsonDbCore
     {

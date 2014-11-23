@@ -1,21 +1,32 @@
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using Biggy.Data.Sqlite;
 using NUnit.Framework;
 
-namespace Tests
+namespace Tests.Sqlite
 {
     [TestFixture()]
     [Category("SQLite Document Store")]
-    public class sqliteDocumentStoreWithStringKeyAttribute
+    public class SqliteDocumentStoreWithStringKeyAttribute
     {
         private SqliteDbCore _db;
+        private string _filename = "";
 
         [SetUp]
         public void init()
         {
-            _db = new SqliteDbCore("BiggyTest");
+            _db = new SqliteDbCore("BiggyTestSQLiteDocuments");
+            _filename = _db.DBFilePath;
+        }
+
+        [TearDown]
+        public void Cleanup()
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            File.Delete(_filename);
         }
 
         [Test()]

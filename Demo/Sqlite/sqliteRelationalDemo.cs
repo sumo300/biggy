@@ -1,14 +1,15 @@
 ﻿using System;
 using System.Diagnostics;
 using System.Linq;
+using Biggy.Data.Sqlite;
 using Demo.Models;
 
 namespace Demo
 {
     public class sqliteRelationalDemo
     {
-        private sqliteChinookDb _testDb;
-        private sqliteChinookDb _chinookDb;
+        private SqliteChinookDb _testDb;
+        private SqliteChinookDb _chinookDb;
 
         public void Run()
         {
@@ -19,7 +20,7 @@ namespace Demo
             var sw = new Stopwatch();
 
             sw.Start();
-            _testDb = new sqliteChinookDb("BiggyTest", dropCreateTables: true);
+            _testDb = new SqliteChinookDb("BiggyTest", dropCreateTables: true);
             sw.Stop();
             Console.WriteLine("Initialized and reset SQLite database in {0} MS", sw.ElapsedMilliseconds);
 
@@ -66,9 +67,9 @@ namespace Demo
 
             sw.Reset();
             sw.Start();
-            _chinookDb = new sqliteChinookDb("Chinook");
-            var _tempDb = new sqliteDbCore("Chinook");
-            var _tempStore = new sqliteRelationalStore<Artist>(_tempDb);
+            _chinookDb = new SqliteChinookDb("Chinook");
+            var _tempDb = new SqliteDbCore("Chinook");
+            var _tempStore = new SqliteRelationalStore<Artist>(_tempDb);
             var tempArtists = _tempStore.TryLoadData();
             sw.Stop();
             Console.WriteLine("Initialized Chinook data in {0} ms - loaded:", sw.ElapsedMilliseconds);

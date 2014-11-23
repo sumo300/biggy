@@ -48,7 +48,16 @@
     <Reference Include="System.Configuration" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="Mono.Data.Sqlite" />
-    <Reference Include="System.XML" />
+    <Reference Include="System.Xml" />
+    <Reference Include="Mono.Security">
+      <HintPath>..\packages\Npgsql.2.2.2\lib\net40\Mono.Security.dll</HintPath>
+    </Reference>
+    <Reference Include="Npgsql">
+      <HintPath>..\packages\Npgsql.2.2.2\lib\net40\Npgsql.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Core\Attributes.cs" />
@@ -59,8 +68,6 @@
     <Compile Include="Core\IDbCore.cs" />
     <Compile Include="Core\IDataStore.cs" />
     <Compile Include="Core\BiggyList.cs" />
-    <Compile Include="Data\AggregateStore.cs" />
-    <Compile Include="Data\InMemoryStore.cs" />
     <Compile Include="Core\RelationalStoreBase.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

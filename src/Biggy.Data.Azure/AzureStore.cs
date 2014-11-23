@@ -5,7 +5,7 @@ using Biggy.Core;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace Biggy.Json
+namespace Biggy.Data.Json
 {
     public class AzureStore<T> : IDataStore<T> where T : new()
     {

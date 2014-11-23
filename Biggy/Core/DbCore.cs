@@ -58,10 +58,8 @@ namespace Biggy.Core
             var item = new T();
             var itemType = item.GetType();
             var properties = itemType.GetProperties();
-
             string replaceString = "[^a-zA-Z0-9]";
             var rgx = new Regex(replaceString);
-
             // Set up the default, trying to simple map type name to table name:
             string flattenedItemTypeName = rgx.Replace(itemType.Name.ToLower(), "");
             string plural = Inflector.Inflector.Pluralize(flattenedItemTypeName);
@@ -70,7 +68,6 @@ namespace Biggy.Core
             {
                 dbTableName = this.DbTableNames.FirstOrDefault(t => rgx.Replace(t.ToLower(), "") == plural);
             }
-
             // Override the default if the user specified a name with an attribute:
             var tableNameAttribute = itemType.GetCustomAttributes(false).FirstOrDefault(a => a.GetType() == typeof(DbTableAttribute)) as DbTableAttribute;
             if (tableNameAttribute != null)
@@ -82,16 +79,13 @@ namespace Biggy.Core
             {
                 throw new Exception(string.Format("Could not map class '{0}' to a table in the database.", itemType.Name));
             }
-
             result.DBTableName = dbTableName;
             result.MappedTypeName = itemType.Name;
-
             var dbColumnInfo = from c in this.DbColumnsList where c.TableName == dbTableName select c;
             foreach (var property in properties)
             {
                 var propertyType = property.PropertyType;
                 string flattenedPropertyName = rgx.Replace(property.Name.ToLower(), "");
-
                 DbColumnMapping columnMapping = dbColumnInfo.FirstOrDefault(c => rgx.Replace(c.ColumnName.ToLower(), "") == flattenedPropertyName);
                 if (columnMapping != null)
                 {
@@ -122,8 +116,8 @@ namespace Biggy.Core
             if (result.PrimaryKeyMapping.Count == 0)
             {
                 string keyNotDefinedMessageFormat = ""
-                  + "No primary key mapping found in table '{0}' for type '{1}'. "
-                  + "Please define a property which maps to a table primary key for objects of this type.";
+                + "No primary key mapping found in table '{0}' for type '{1}'. "
+                + "Please define a property which maps to a table primary key for objects of this type.";
                 throw new Exception(string.Format(keyNotDefinedMessageFormat, dbTableName, itemType.Name));
             }
             return result;
@@ -188,6 +182,7 @@ namespace Biggy.Core
                 {
                     yield return rdr.RecordToExpando(); ;
                 }
+                rdr.Dispose();
             }
         }
 
@@ -226,6 +221,7 @@ namespace Biggy.Core
                             cmd.Transaction = tx;
                             cmd.Connection = conn;
                             results.Add(cmd.ExecuteNonQuery());
+                            cmd.Dispose();
                         }
                         tx.Commit();
                     }

@@ -1,21 +1,32 @@
 using System;
+using System.IO;
 using System.Linq;
-using Biggy.Core;
 using Biggy.Data.Sqlite;
 using NUnit.Framework;
 
-namespace Tests
+namespace Tests.Sqlite
 {
     [TestFixture()]
     [Category("SQLite DbCore")]
-    public class sqliteDbCore_Tests
+    public class SqliteDbCore_Tests
     {
-        private IDbCore _db;
+        private SqliteDbCore _db;
+        private string _filename = "";
 
         [SetUp]
         public void init()
         {
-            _db = new SqliteDbCore("BiggyTest");
+            _db = new SqliteDbCore("BiggyTestSqliteDbCore");
+            _filename = _db.DBFilePath;
+            DropCreateTestTables();
+        }
+
+        [TearDown]
+        public void Cleanup()
+        {
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+            File.Delete(_filename);
         }
 
         private void DropCreateTestTables()
@@ -23,45 +34,42 @@ namespace Tests
             string propertyTableSql = ""
               + "CREATE TABLE Property (Id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, Name text, Address text)";
             _db.TryDropTable("Property");
-            _db.ExecuteScalar(propertyTableSql);
+            _db.TransactDDL(propertyTableSql);
 
             string BuildingTableSql = ""
               + "CREATE TABLE Building ( BIN text PRIMARY KEY NOT NULL, Identifier text, PropertyId int )";
             _db.TryDropTable("Building");
             if (!_db.TableExists("Building"))
             {
-                _db.ExecuteScalar(BuildingTableSql);
+                _db.TransactDDL(BuildingTableSql);
             }
 
             string UnitTableSql = ""
               + "CREATE TABLE unit ( unit_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, BIN TEXT, unit_no TEXT )";
             _db.TryDropTable("unit");
-            _db.ExecuteScalar(UnitTableSql);
+            _db.TransactDDL(UnitTableSql);
 
             string WorkOrderTableSql = ""
-              + "CREATE TABLE wk_order ( wo_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, \"desc\" text)";
+              + "CREATE TABLE wk_order ( wo_id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL, desc text)";
             _db.TryDropTable("wk_order");
-            _db.ExecuteScalar(WorkOrderTableSql);
+            _db.TransactDDL(WorkOrderTableSql);
         }
 
         [Test()]
         public void Loads_Table_Names_From_Db()
         {
-            //IDbCore _db = new sqliteDbCore("BiggyTest");
             Assert.True(_db.DbTableNames.Count > 0);
         }
 
         [Test()]
         public void Loads_Column_Data_From_Db()
         {
-            //IDbCore _db = new sqliteDbCore("BiggyTest");
             Assert.True(_db.DbColumnsList.Count > 0);
         }
 
         [Test()]
         public void Creates_Table_Mapping_for_Type()
         {
-            //IDbCore _db = new sqliteDbCore("BiggyTest");
             var testTableMapping = _db.getTableMappingFor<Property>();
             Assert.True(testTableMapping.MappedTypeName == "Property" && testTableMapping.ColumnMappings.Count() == 3);
         }
@@ -69,7 +77,6 @@ namespace Tests
         [Test()]
         public void Check_If_Table_Exists()
         {
-            //IDbCore _db = new sqliteDbCore("BiggyTest");
             bool existingTablePresent = _db.TableExists("Property");
             bool nonsenseTableExists = _db.TableExists("Nonsense");
             Assert.True(existingTablePresent && !nonsenseTableExists);
@@ -79,7 +86,6 @@ namespace Tests
         public void Maps_Properties_to_Proper_Cased_Columns()
         {
             bool allPropertiesMapped = false;
-            //IDbCore _db = new sqliteDbCore("BiggyTest");
             var testTableMapping = _db.getTableMappingFor<Property>();
             var properties = typeof(Property).GetProperties();
             foreach (var property in properties)
@@ -99,8 +105,6 @@ namespace Tests
         public void Maps_Properties_pg_Idiomatic_Columns()
         {
             bool allPropertiesMapped = false;
-            //IDbCore _db = new sqliteDbCore("BiggyTest");
-
             // Unit class should map to unit table, with pg-standard column names:
             // UnitId => unit_id
             // BuildingId => building_id
@@ -125,7 +129,6 @@ namespace Tests
         public void Maps_Properties_Using_Attributes()
         {
             bool allPropertiesMapped = false;
-            //IDbCore _db = new sqliteDbCore("BiggyTest");
 
             // WorkOrder class should map to unit wk_order table, with mis-matched table and column names handled by attributes:
             // WorkOrder => wk_order

@@ -2,13 +2,13 @@
 using System.Linq;
 using Biggy.Core;
 
-namespace Biggy.Json
+namespace Biggy.Data.Json
 {
     public class AzureTablesDbCore
     {
         public IDataStore<T> CreateStoreFor<T>() where T : new()
         {
-            return new AzureStore<T>(this);
+            return null;
         }
 
         //public AzureTablesDbCore(string dbName = "Data")

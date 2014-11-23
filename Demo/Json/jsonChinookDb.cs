@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Linq;
 using Biggy.Core;
+using Biggy.Data.Json;
 
 namespace Demo
 {
     public class jsonChinookDb : ChinookDbBase
     {
-        private jsonDbCore _db;
+        private JsonDbCore _db;
 
-        public jsonDbCore Database { get { return _db; } }
+        public JsonDbCore Database { get { return _db; } }
 
         public jsonChinookDb(bool dropCreateTables = false)
         {
-            _db = new jsonDbCore();
+            _db = new JsonDbCore();
             if (dropCreateTables)
             {
                 this.DropCreateAll();
@@ -22,7 +23,7 @@ namespace Demo
 
         public jsonChinookDb(string dbName, bool dropCreateTables = false)
         {
-            _db = new jsonDbCore(dbName);
+            _db = new JsonDbCore(dbName);
             if (dropCreateTables)
             {
                 this.DropCreateAll();

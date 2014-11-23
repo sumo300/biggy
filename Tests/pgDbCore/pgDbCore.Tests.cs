@@ -4,7 +4,7 @@ using Biggy.Core;
 using Biggy.Data.Postgres;
 using NUnit.Framework;
 
-namespace Tests
+namespace Tests.Postgres
 {
     [TestFixture()]
     [Category("PG DbCore")]
@@ -13,6 +13,33 @@ namespace Tests
         [SetUp]
         public void init()
         {
+            DropCreateTestTables();
+        }
+
+        private void DropCreateTestTables()
+        {
+            IDbCore _db = new PgDbCore("biggy_test");
+            string propertyTableSql = ""
+              + "CREATE TABLE \"Property\" ( \"Id\" serial NOT NULL, \"Name\" text, \"Address\" text, CONSTRAINT pk_property_id PRIMARY KEY (\"Id\"));";
+
+            string BuildingTableSql = ""
+              + "CREATE TABLE \"Building\" ( \"BIN\" text NOT NULL, \"Identifier\" text, \"PropertyId\" text, CONSTRAINT pk_building_bin PRIMARY KEY (\"BIN\"));";
+
+            string WorkOrderTableSql = ""
+              + "CREATE TABLE \"wk_order\" ( \"wo_id\" serial NOT NULL, \"desc\" text, CONSTRAINT pk_wk_order_wo_id PRIMARY KEY (\"wo_id\"));";
+
+            string UnitTableSql = ""
+              + "CREATE TABLE \"unit\" ( \"unit_id\" serial NOT NULL, \"BIN\" text, \"unit_no\" text, CONSTRAINT pk_unit_unit_id PRIMARY KEY (\"unit_id\"));";
+
+            _db.TryDropTable("Property");
+            _db.TryDropTable("Building");
+            _db.TryDropTable("wk_order");
+            _db.TryDropTable("unit");
+
+            _db.TransactDDL(UnitTableSql);
+            _db.TransactDDL(propertyTableSql);
+            _db.TransactDDL(BuildingTableSql);
+            _db.TransactDDL(WorkOrderTableSql);
         }
 
         [Test()]

@@ -39,6 +39,11 @@ namespace Biggy.Data.Sqlite
 
         public string DBName { get; set; }
 
+        public string DBFilePath
+        {
+            get { return Path.Combine(DBDirectory, DBName); }
+        }
+
         public override string ConnectionString
         {
             get

@@ -160,3 +160,4 @@ $RECYCLE.BIN/
 
 # Generated NuGet packages
 *.nupkg
+/Biggy.sln.ide

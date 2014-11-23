@@ -1,14 +1,14 @@
 using System;
 using System.IO;
 using System.Linq;
-using Biggy.Json;
+using Biggy.Data.Json;
 using NUnit.Framework;
 
-namespace Tests
+namespace Tests.Json
 {
     [TestFixture()]
     [Category("Json DbCore")]
-    public class jsonDbCore_Tests
+    public class JsonDbCore_Tests
     {
         private JsonDbCore _db;
 

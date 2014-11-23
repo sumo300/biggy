@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using Biggy.Core;
-using Biggy.Json;
+using Biggy.Data.Json;
 using NUnit.Framework;
 
 namespace Tests

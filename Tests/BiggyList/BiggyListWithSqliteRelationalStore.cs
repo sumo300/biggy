@@ -9,7 +9,7 @@ namespace Tests
 {
     [TestFixture()]
     [Category("Biggy List with SQLite Relational Store")]
-    public class BiggyListWithSQliteRelationalStore
+    public class BiggyListWithSqliteRelationalStore
     {
         private SqliteDbCore _db;
         private IDataStore<Property> _propertyStore;

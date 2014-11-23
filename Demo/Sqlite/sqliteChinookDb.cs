@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Linq;
 using Biggy.Core;
+using Biggy.Data.Sqlite;
 
 namespace Demo
 {
-    public class sqliteChinookDb : ChinookDbBase
+    public class SqliteChinookDb : ChinookDbBase
     {
-        private sqliteDbCore _db;
+        private SqliteDbCore _db;
 
         public IDbCore Database { get { return _db; } }
 
-        public sqliteChinookDb(string connectionstringName, bool dropCreateTables = false)
+        public SqliteChinookDb(string connectionstringName, bool dropCreateTables = false)
         {
-            _db = new sqliteDbCore(connectionstringName);
+            _db = new SqliteDbCore(connectionstringName);
             if (dropCreateTables)
             {
                 this.DropCreateAll();

@@ -4,7 +4,7 @@ using System.Linq;
 using Biggy.Data.Postgres;
 using NUnit.Framework;
 
-namespace Tests
+namespace Tests.Postgres
 {
     [TestFixture()]
     [Category("PG Relational Store")]

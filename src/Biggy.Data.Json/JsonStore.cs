@@ -8,7 +8,7 @@ using Biggy.Core;
 using Biggy.Extensions;
 using Newtonsoft.Json;
 
-namespace Biggy.Json
+namespace Biggy.Data.Json
 {
     public class JsonStore<T> : IDataStore<T> where T : new()
     {
