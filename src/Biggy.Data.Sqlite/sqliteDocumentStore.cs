@@ -83,6 +83,7 @@ namespace Biggy.Data.Sqlite {
     }
 
     public virtual int Add(IEnumerable<T> items) {
+      var results = new List<int>();
       if (items.Count() == 0) {
         return 0;
       }
@@ -102,81 +103,105 @@ namespace Biggy.Data.Sqlite {
         _database.Transact(sqlSeq);
       }
 
-      var sb = new StringBuilder();
-      string sqlFormat = "INSERT INTO {0} (id, body) VALUES ";
-      string valueGroupFormat = "({0})";
-      var args = new List<object>();
-      var paramIndex = 0;
+      string sqlFormat = "INSERT INTO {0} (id, body) VALUES ({1});";
 
-      var commands = new List<System.Data.IDbCommand>();
-      sb.AppendFormat(sqlFormat, this.TableName);
-      var valueGroups = new List<string>();
+      using(var conn = _database.CreateConnection(_database.ConnectionString)) {
+        conn.Open();
+        using(var tx = conn.BeginTransaction()) {
+          try {
+            foreach (var item in items) {
+              var args = new List<object>();
+              var paramIndex = 0;
 
-      foreach (var item in items) {
-        // Set the next Id for each object:
-        if (this.KeyIsAutoIncrementing) {
-          this.SetKeyValue(item, nextReservedId);
+              // Set the next Id for each object:
+              if (this.KeyIsAutoIncrementing) {
+                this.SetKeyValue(item, nextReservedId);
+              }
+              var ex = this.SetDataForDocument(item);
+              var itemAsDictionary = ex as IDictionary<string, object>;
+              var parameterPlaceholders = new List<string>();
+
+              // Gather paramter values and placeholders:
+              foreach (var kvp in itemAsDictionary) {
+                args.Add(kvp.Value);
+                parameterPlaceholders.Add("@" + paramIndex++.ToString());
+              }
+              string commaDelimitedParameters = string.Join(",", parameterPlaceholders);
+              nextReservedId++;
+
+              string sql = string.Format(sqlFormat, TableName, commaDelimitedParameters);
+              using (var cmd = _database.BuildCommand(sql, args.ToArray())) {
+                cmd.Connection = conn;
+                results.Add(cmd.ExecuteNonQuery());
+              }
+            }
+            tx.Commit();
+          }
+          catch (System.Data.Common.DbException x) {
+            tx.Rollback();
+            throw x;
+          }
+          finally {
+            conn.Close();
+          }
         }
-        var ex = this.SetDataForDocument(item);
-        var itemAsDictionary = ex as IDictionary<string, object>;
-        var parameterPlaceholders = new List<string>();
-
-        // SQLite has a limit on number of parameters per statement:
-        if (paramIndex + itemAsDictionary.Count() > 999) {
-          // Grab the sql statement from sb and add a command to the list:
-          sb.Append(string.Join(",", valueGroups));
-          commands.Add(_database.BuildCommand(sb.ToString(), args.ToArray()));
-
-          // Start over:
-          sb = new StringBuilder();
-          sb.AppendFormat(sqlFormat, this.TableName);
-          paramIndex = 0;
-          parameterPlaceholders.Clear();
-          valueGroups.Clear();
-          args.Clear();
-        }
-        foreach (var kvp in itemAsDictionary) {
-          args.Add(kvp.Value);
-          parameterPlaceholders.Add("@" + paramIndex++.ToString());
-        }
-        string valueGroup = string.Format(valueGroupFormat, string.Join(",", parameterPlaceholders));
-        valueGroups.Add(valueGroup);
-        nextReservedId++;
       }
-      sb.Append(string.Join(",", valueGroups));
-      commands.Add(_database.BuildCommand(sb.ToString(), args.ToArray()));
-      return _database.Transact(commands.ToArray());
+      return results.Sum();
     }
+
 
     public int Update(T item) {
       return this.Update(new T[] { item });
     }
 
     public virtual int Update(IEnumerable<T> items) {
-      var args = new List<object>();
-      var paramIndex = 0;
       string ParameterAssignmentFormat = "{0} = @{1}";
-      string sqlFormat = ""
-      + "UPDATE {0} SET {1} WHERE {2};";
-      var sb = new StringBuilder();
+      string sqlFormat = "UPDATE {0} SET {1} WHERE {2};";
+      var results = new List<int>();
 
-      foreach (var item in items) {
-        var ex = this.SetDataForDocument(item);
-        var dc = ex as IDictionary<string, object>;
-        var setValueStatements = new List<string>();
-        foreach (var kvp in dc) {
-          if (kvp.Key != this.KeyName) {
-            args.Add(kvp.Value);
-            string setItem = string.Format(ParameterAssignmentFormat, kvp.Key, paramIndex++.ToString());
-            setValueStatements.Add(setItem);
+      using (var conn = _database.CreateConnection(_database.ConnectionString)) {
+        conn.Open();
+        // SQLite performs WAAAAYYYY better inside a transaction:
+        using (var tx = conn.BeginTransaction()) {
+          try {
+            foreach (var item in items) {
+              var paramIndex = 0;
+              var args = new List<object>();
+
+              var ex = this.SetDataForDocument(item);
+              var dc = ex as IDictionary<string, object>;
+              var setValueStatements = new List<string>();
+
+              // Build the SET Statements:
+              foreach (var kvp in dc) {
+                if (kvp.Key != this.KeyName) {
+                  args.Add(kvp.Value);
+                  string setItem = string.Format(ParameterAssignmentFormat, kvp.Key, paramIndex++.ToString());
+                  setValueStatements.Add(setItem);
+                }
+              }
+              args.Add(this.GetKeyValue(item));
+              string commaDelimitedSetStatements = string.Join(",", setValueStatements);
+              string whereCriteria = string.Format(ParameterAssignmentFormat, "id", paramIndex++.ToString());
+              string updateSql = string.Format(sqlFormat, this.TableName, commaDelimitedSetStatements, whereCriteria);
+
+              using (var cmd = _database.BuildCommand(updateSql, args.ToArray())) {
+                cmd.Connection = conn;
+                results.Add(cmd.ExecuteNonQuery());
+              }
+            }
+            tx.Commit();
+          }
+          catch (System.Data.Common.DbException x) {
+            tx.Rollback();
+            throw x;
+          }
+          finally {
+            conn.Close();
           }
         }
-        args.Add(this.GetKeyValue(item));
-        string whereCriteria = string.Format(ParameterAssignmentFormat, "id", paramIndex++.ToString());
-        sb.AppendFormat(sqlFormat, this.TableName, string.Join(",", setValueStatements), whereCriteria);
       }
-      var batchedSQL = sb.ToString();
-      return _database.Transact(batchedSQL, args.ToArray());
+      return results.Sum();
     }
 
     public virtual int Delete(T item) {
