@@ -16,10 +16,7 @@ namespace Biggy.Data.Sqlite {
     }
 
     public override int Add(IEnumerable<T> items) {
-      const int MAGIC_SQLITE_PARAMETER_LIMIT = 999;
-      const int MAGIC_SQLITE_ROW_VALUE_LIMIT = 1000;
-
-      string insertBase = "INSERT INTO {0} ({1}) VALUES ";
+      string insertBase = "INSERT INTO {0} ({1}) VALUES ({2});";
       var model = new T();
       var properties = model.GetType().GetProperties();
       var insertColumns = new List<string>();
@@ -66,55 +63,54 @@ namespace Biggy.Data.Sqlite {
           insertColumns.Add(matchingColumn.DelimitedColumnName);
         }
       }
+      string commaDelimitedColumnNames = string.Join(", ", insertColumns.ToArray());
 
-      var sb = new StringBuilder();
-      string valueGroupFormat = "({0})";
-      var args = new List<object>();
-      var paramIndex = 0;
-      var rowValueCounter = 0;
+      using (var conn = Database.CreateConnection(Database.ConnectionString)) {
+      var results = new List<int>();
 
-      var commands = new List<System.Data.IDbCommand>();
-      sb.AppendFormat(insertBase, this.TableMapping.DelimitedTableName, string.Join(", ", insertColumns.ToArray()));
-      var valueGroups = new List<string>();
+        // Use one open connection for the whole iteration;
+        conn.Open();
+        using(var tx = conn.BeginTransaction()) {
+          try {
+            foreach (var item in items) {
+              var paramIndex = 0;
+              var args = new List<object>();
 
-      foreach (var item in items) {
-        // Set the next Id for each object:
-        if (this.KeyIsAutoIncrementing) {
-          var pkProperty = item.GetType().GetProperties().FirstOrDefault(p => p.Name == autoPkColumn.PropertyName);
-          pkProperty.SetValue(item, nextReservedId, null);
-          //itemSchema[autoPkColumn.PropertyName] = nextReservedId;
-          nextReservedId++;
+              // Set the next Id for each object:
+              if (this.KeyIsAutoIncrementing) {
+                var pkProperty = item.GetType().GetProperties().FirstOrDefault(p => p.Name == autoPkColumn.PropertyName);
+                pkProperty.SetValue(item, nextReservedId, null);
+                nextReservedId++;
+              }
+
+              var itemEx = item.ToExpando();
+              var itemSchema = itemEx as IDictionary<string, object>;
+
+              // Map properties values to param placeholders and values:
+              var parameterPlaceholders = new List<string>();
+              foreach (var validProp in this.TableMapping.ColumnMappings.ColumnsByPropertyName) {
+                var value = itemSchema[validProp.Key];
+                args.Add(value);
+                parameterPlaceholders.Add("@" + paramIndex++.ToString());
+              }
+              string commaDelimitedParameters = string.Join(", ", parameterPlaceholders.ToArray());
+              string sql = string.Format(insertBase, TableMapping.DelimitedTableName, commaDelimitedColumnNames, commaDelimitedParameters);
+
+              // Use the open connection to insert each item within the transaction scope:
+              using (var cmd = Database.BuildCommand(sql, args.ToArray())) {
+                cmd.Connection = conn;
+                results.Add(cmd.ExecuteNonQuery());
+              }
+            }
+            tx.Commit();
+          }
+          catch (System.Data.Common.DbException x) {
+            tx.Rollback();
+            throw x;
+          }
         }
-
-        var itemEx = item.ToExpando();
-        var itemSchema = itemEx as IDictionary<string, object>;
-        var parameterPlaceholders = new List<string>();
-
-        // pg imposes limits on the number of params and rows in a single statement:
-        if (paramIndex + itemSchema.Count >= MAGIC_SQLITE_PARAMETER_LIMIT || rowValueCounter >= MAGIC_SQLITE_ROW_VALUE_LIMIT) {
-          // Grab the sql statement from sb and add a command to the list:
-          sb.Append(string.Join(",", valueGroups));
-          commands.Add(this.Database.BuildCommand(sb.ToString(), args.ToArray()));
-
-          // Start over:
-          sb = new StringBuilder();
-          sb.AppendFormat(insertBase, this.TableMapping.DelimitedTableName, string.Join(", ", insertColumns.ToArray()));
-          paramIndex = 0;
-          parameterPlaceholders.Clear();
-          valueGroups.Clear();
-          args.Clear();
-        }
-        foreach (var validProp in this.TableMapping.ColumnMappings.ColumnsByPropertyName) {
-          var value = itemSchema[validProp.Key];
-          args.Add(value);
-          parameterPlaceholders.Add("@" + paramIndex++.ToString());
-        }
-        string valueGroup = string.Format(valueGroupFormat, string.Join(",", parameterPlaceholders));
-        valueGroups.Add(valueGroup);
+        return results.Sum();
       }
-      sb.Append(string.Join(",", valueGroups));
-      commands.Add(this.Database.BuildCommand(sb.ToString(), args.ToArray()));
-      return this.Database.Transact(commands.ToArray());
     }
 
     public override int Add(T item) {
