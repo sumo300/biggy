@@ -46,6 +46,18 @@ namespace Demo {
 
       Console.WriteLine("");
       Console.WriteLine("Re-Initialize Db and read all that data from back-end...");
+      Console.WriteLine("");
+      Console.WriteLine("Update a whole bunch of artist records...");
+
+      var updateArtists = _testDb.Artists.ToList();
+      foreach (var artist in updateArtists) {
+        artist.Name = "Updated Artist " + artist.ArtistId;
+      }
+      sw.Reset();
+      sw.Start();
+      _testDb.Artists.Update(updateArtists);
+      sw.Stop();
+      Console.WriteLine("Updated {0} artist records in {1} ms", updateArtists.Count, sw.ElapsedMilliseconds);
 
       sw.Reset();
       sw.Start();

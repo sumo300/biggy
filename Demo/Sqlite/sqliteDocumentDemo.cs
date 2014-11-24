@@ -51,6 +51,16 @@ namespace Demo {
       Console.WriteLine("Read all data from store in {0} ms", sw.ElapsedMilliseconds);
       Console.WriteLine("{0} complex artist documents", _testDb.ArtistDocuments.Count);
 
+      var updateArtistDocuments = _testDb.ArtistDocuments.ToList();
+      foreach (var artistDoc in updateArtistDocuments) {
+        artistDoc.Name = "Updated Artist " + artistDoc.ArtistDocumentId;
+      }
+      sw.Reset();
+      sw.Start();
+      _testDb.ArtistDocuments.Update(updateArtistDocuments);
+      sw.Stop();
+      Console.WriteLine("Updated {0} artist document records in {1} ms", updateArtistDocuments.Count, sw.ElapsedMilliseconds);
+
 
       Console.WriteLine("");
       Console.WriteLine("SQLite Document Demo - CHINOOK DATA");
