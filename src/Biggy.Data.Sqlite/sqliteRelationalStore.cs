@@ -97,6 +97,7 @@ namespace Biggy.Data.Sqlite {
               string sql = string.Format(insertBase, TableMapping.DelimitedTableName, commaDelimitedColumnNames, commaDelimitedParameters);
 
               // Use the open connection to insert each item within the transaction scope:
+              // (doing it this way works an order of magnitude faster than batching SQL in a single command for SQLite):
               using (var cmd = Database.BuildCommand(sql, args.ToArray())) {
                 cmd.Connection = conn;
                 results.Add(cmd.ExecuteNonQuery());
@@ -210,33 +211,61 @@ namespace Biggy.Data.Sqlite {
     }
 
     public override int Update(IEnumerable<T> items) {
-      var args = new List<object>();
-      var paramIndex = 0;
       string ParameterAssignmentFormat = "{0} = @{1}";
-      string sqlFormat = ""
-      + "UPDATE {0} SET {1} WHERE {2};";
-      var sb = new StringBuilder();
+      string updateSqlFormat = "UPDATE {0} SET {1} WHERE {2};";
+      var results = new List<int>();
 
-      foreach (var item in items) {
-        var ex = item.ToExpando();
-        var dc = ex as IDictionary<string, object>;
-        var setValueStatements = new List<string>();
-        var pkColumnMapping = this.TableMapping.PrimaryKeyMapping[0];
-        foreach (var kvp in dc) {
-          if (kvp.Key != pkColumnMapping.PropertyName) {
-            args.Add(kvp.Value);
-            string delimitedColumnName = this.TableMapping.ColumnMappings.FindByProperty(kvp.Key).ColumnName;
-            string setItem = string.Format(ParameterAssignmentFormat, delimitedColumnName, paramIndex++.ToString());
-            setValueStatements.Add(setItem);
+      // Use a single open connection for the entire iteration (doing it this way 
+      // works an order of magnitude faster than batching SQL in a single command for SQLite):
+      using (var conn = Database.CreateConnection(Database.ConnectionString)) {
+        conn.Open();
+
+        // SQLite performs WAAAAYYYY better inside a transaction:
+        using (var tx = conn.BeginTransaction()) {
+          try {
+            foreach (var item in items) {
+              var paramIndex = 0;
+              var args = new List<object>();
+              var sb = new StringBuilder();
+
+              var ex = item.ToExpando();
+              var dc = ex as IDictionary<string, object>;
+              var setValueStatements = new List<string>();
+              var pkColumnMapping = this.TableMapping.PrimaryKeyMapping[0];
+
+              // Build the SET statements:
+              foreach (var kvp in dc) {
+                if (kvp.Key != pkColumnMapping.PropertyName) {
+                  args.Add(kvp.Value);
+                  string delimitedColumnName = this.TableMapping.ColumnMappings.FindByProperty(kvp.Key).ColumnName;
+                  string setItem = string.Format(ParameterAssignmentFormat, delimitedColumnName, paramIndex++.ToString());
+                  setValueStatements.Add(setItem);
+                }
+              }
+              var pkValue = dc[pkColumnMapping.PropertyName];
+              args.Add(pkValue);
+
+              string commaDelimitedSetStatements = string.Join(",", setValueStatements);
+              string whereCriteria = string.Format(ParameterAssignmentFormat, pkColumnMapping.DelimitedColumnName, paramIndex++.ToString());
+              sb.AppendFormat(updateSqlFormat, this.TableMapping.DelimitedTableName, commaDelimitedSetStatements, whereCriteria);
+
+              using (var cmd = Database.BuildCommand(sb.ToString(), args.ToArray())) {
+                cmd.Connection = conn;
+                results.Add(cmd.ExecuteNonQuery());
+              }
+            }
+            tx.Commit();
+          }
+          catch (System.Data.Common.DbException x) {
+            tx.Rollback();
+            throw x;
+          }
+          finally {
+            conn.Close();
           }
         }
-        var pkValue = dc[pkColumnMapping.PropertyName];
-        args.Add(pkValue);
-        string whereCriteria = string.Format(ParameterAssignmentFormat, pkColumnMapping.DelimitedColumnName, paramIndex++.ToString());
-        sb.AppendFormat(sqlFormat, this.TableMapping.DelimitedTableName, string.Join(",", setValueStatements), whereCriteria);
       }
-      var batchedSQL = sb.ToString();
-      return this.Database.Transact(batchedSQL, args.ToArray());
+      return results.Sum();
     }
 
     public override int Update(T item) {
