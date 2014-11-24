@@ -110,7 +110,7 @@ artists.Update(someArtist);
 ```
 
 ## Relational Database Engines
-If your needs grow beyond storage to a flat JSON file, you can easily use SQLite or Posgres as a backing store for both document structures and standard relational table data. 
+If your needs grow beyond storage to a flat JSON file, you can easily use SQLite or Postgres as a backing store for **both document structures and standard relational table data.** 
 
 If we use `pgDocumentStore` or `sqliteDocumentstore`, our objects are serialilzed into JSON and stored in the `body` field of a record. 
 
