@@ -22,7 +22,7 @@ namespace Tests.Postgres {
       string UnitTableSql = ""
         + "CREATE TABLE \"unit\" ( \"unit_id\" serial NOT NULL, \"BIN\" text, \"unit_no\" text, CONSTRAINT pk_unit_unit_id PRIMARY KEY (\"unit_id\"))";
       _db.TryDropTable("unit");
-      _db.TransactDDL(UnitTableSql);     
+      _db.TransactDDL(UnitTableSql);
     }
 
     [Test()]

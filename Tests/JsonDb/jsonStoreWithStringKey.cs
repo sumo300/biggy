@@ -135,7 +135,7 @@ namespace Tests.Json {
       // Re-load from back-end:
       var companies = InstrumentStore.TryLoadData();
       int qtyAdded = companies.Count;
-      
+
       // Delete:
       InstrumentStore.DeleteAll();
       int remaining = InstrumentStore.TryLoadData().Count;

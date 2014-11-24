@@ -24,7 +24,7 @@ namespace Tests.Postgres {
       _db.TryDropTable("Building");
       if (!_db.TableExists("Building")) {
         _db.TransactDDL(BuildingTableSql);
-      }     
+      }
     }
 
     [Test()]

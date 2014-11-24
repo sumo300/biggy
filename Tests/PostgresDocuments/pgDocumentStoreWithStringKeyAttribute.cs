@@ -47,7 +47,7 @@ namespace Tests.Postgres {
     public void Inserts_record_with_string_id() {
       _db.TryDropTable("guitardocuments");
       var guitarstore = new PgDocumentStore<GuitarDocuments>(_db);
-      var newGuitar = new GuitarDocuments { Sku = "USA123", Make = "Gibson", Model = "Les Paul Custom"  };
+      var newGuitar = new GuitarDocuments { Sku = "USA123", Make = "Gibson", Model = "Les Paul Custom" };
       guitarstore.Add(newGuitar);
 
       var foundGuitar = guitarstore.TryLoadData().FirstOrDefault();
@@ -167,7 +167,7 @@ namespace Tests.Postgres {
       // Re-load from back-end:
       var companies = guitarstore.TryLoadData();
       int qtyAdded = companies.Count;
-      
+
       // Delete:
       guitarstore.DeleteAll();
       int remaining = guitarstore.TryLoadData().Count;

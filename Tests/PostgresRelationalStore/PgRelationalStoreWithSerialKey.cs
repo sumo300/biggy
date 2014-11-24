@@ -22,7 +22,7 @@ namespace Tests.Postgres {
       string propertyTableSql = ""
         + "CREATE TABLE \"Property\" ( \"Id\" serial NOT NULL, \"Name\" text, \"Address\" text, CONSTRAINT pk_property_id PRIMARY KEY (\"Id\"))";
       _db.TryDropTable("Property");
-      _db.TransactDDL(propertyTableSql);     
+      _db.TransactDDL(propertyTableSql);
     }
 
     [Test()]
