@@ -58,6 +58,7 @@
     <Compile Include="Json\jsonChinookDb.cs" />
     <Compile Include="Json\jsonDocumentDemo.cs" />
     <Compile Include="Json\jsonPocoDemo.cs" />
+    <Compile Include="Playground.cs" />
     <Compile Include="Postgres\pgDocumentDemo.cs" />
     <Compile Include="Postgres\pgRelationalDemo.cs" />
     <Compile Include="Program.cs" />
