@@ -2,6 +2,7 @@
 using System.IO;
 using System.Linq;
 using Biggy.Core;
+using System.Reflection;
 
 namespace Biggy.Data.Json {
   public class JsonDbCore {
@@ -9,7 +10,13 @@ namespace Biggy.Data.Json {
       return new JsonStore<T>(this);
     }
 
-    public JsonDbCore(string dbName = "Data") {
+    public JsonDbCore() {
+      this.DatabaseName = GetDefaultDbName();
+      this.DbDirectory = GetDefaultDirectory();
+      Directory.CreateDirectory(this.DbDirectory);
+    }
+
+    public JsonDbCore(string dbName) {
       this.DatabaseName = dbName;
       this.DbDirectory = GetDefaultDirectory();
       Directory.CreateDirectory(this.DbDirectory);
@@ -22,7 +29,6 @@ namespace Biggy.Data.Json {
     }
 
     public virtual string DbDirectory { get; set; }
-
     public virtual string DatabaseName { get; set; }
 
     public virtual string GetDefaultDirectory() {
@@ -30,10 +36,16 @@ namespace Biggy.Data.Json {
       var currentDir = Directory.GetCurrentDirectory();
       if (currentDir.EndsWith("Debug") || currentDir.EndsWith("Release")) {
         var projectRoot = Directory.GetParent(@"..\..\").FullName;
-        defaultDirectory = Path.Combine(projectRoot, this.DatabaseName);
+        defaultDirectory = Path.Combine(projectRoot, @"Data\Json", this.DatabaseName);
       }
       return defaultDirectory;
     }
+
+    protected virtual string GetDefaultDbName() {
+      return System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
+    }
+
+
 
     public virtual int TryDropTable(string tableName) {
       if (!tableName.Contains(".")) {
