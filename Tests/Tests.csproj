@@ -53,6 +53,7 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="Mono.Data.Sqlite" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.SQLite, Version=1.0.94.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
       <SpecificVersion>False</SpecificVersion>
@@ -60,6 +61,7 @@
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AzureStore\AzureStorageTest.cs" />
     <Compile Include="BiggyList\BiggyListWithJsonStore.cs" />
     <Compile Include="BiggyList\BiggyListWithSqliteDocumentStore.cs" />
     <Compile Include="BiggyList\BiggyListWithPgDocumentStore.cs" />
@@ -103,6 +105,10 @@
     <ProjectReference Include="..\src\Biggy.Core\Biggy.Core.csproj">
       <Project>{539CDF13-4CD2-41C2-9284-A7020A2563D4}</Project>
       <Name>Biggy.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\src\Biggy.Data.Azure\Biggy.Data.Azure.csproj">
+      <Project>{b46196bd-2f6d-470c-ba51-6e5b3839419b}</Project>
+      <Name>Biggy.Data.Azure</Name>
     </ProjectReference>
     <ProjectReference Include="..\src\Biggy.Data.Json\Biggy.Data.Json.csproj">
       <Project>{e293e04a-2b12-4e31-93ec-62ff14fa2306}</Project>

@@ -5,17 +5,16 @@ using Biggy.Core;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 
-namespace Biggy.Data.Json
+namespace Biggy.Data.Azure
 {
     public class AzureStore<T> : IDataStore<T> where T : new()
     {
         private readonly CloudStorageAccount storageAccount;
         private readonly CloudTableClient tableAccount;
+        private AzureBlobCore azureTablesDbCore;
 
         public AzureStore(string connectionString)
         {
-            this.storageAccount = CloudStorageAccount.Parse(connectionString);
-            this.tableAccount = this.storageAccount.CreateCloudTableClient();
         }
 
         public int Add(T item)
