@@ -6,8 +6,18 @@ namespace Biggy.Core {
   public class BiggyList<T> : ICollection<T> where T : new() {
 
     public BiggyList(IDataStore<T> store, bool inMemory = false) {
+      _items = new List<T>();
       this.InMemory = inMemory;
       _store = store;
+      if (UpdateLiveDataAllowed) {
+        _items = _store.TryLoadData();
+      }
+    }
+
+    public BiggyList() {
+      this.InMemory = true;
+      _items = new List<T>();
+      _store = null;
       if (UpdateLiveDataAllowed) {
         _items = _store.TryLoadData();
       }
@@ -16,7 +26,7 @@ namespace Biggy.Core {
     protected List<T> _items = null;
     protected IDataStore<T> _store;
 
-    public virtual bool InMemory { get; set; }
+    public virtual bool InMemory { get; protected set; }
     public IDataStore<T> Store { get { return _store; } }
 
     public event EventHandler ItemRemoved;
