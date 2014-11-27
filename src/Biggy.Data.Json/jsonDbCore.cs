@@ -42,7 +42,12 @@ namespace Biggy.Data.Json {
     }
 
     protected virtual string GetDefaultDbName() {
-      return System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
+      try {
+        return System.Reflection.Assembly.GetEntryAssembly().GetName().Name;
+      }
+      catch (Exception) {
+        return System.Reflection.Assembly.GetExecutingAssembly().GetName().Name;
+      }
     }
 
 

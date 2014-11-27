@@ -16,30 +16,41 @@ namespace Tests.Json {
 
     [Test()]
     public void Initializes_JsonDb_In_Project_Root_In_Defeault_Folder() {
-      _db = new JsonDbCore();
       string projectRoot = Directory.GetParent(@"..\..\").FullName;
-      string expectedDirectory = Path.Combine(projectRoot, "Data");
-      Assert.True(_db.DbDirectory == expectedDirectory);
+      string expectedDirectory = Path.Combine(projectRoot, @"Data\Json\Biggy.Data.Json");
+
+      Directory.Delete(expectedDirectory, true);
+      _db = new JsonDbCore();
+      bool directoryExists = Directory.Exists(expectedDirectory);
+      
+      Assert.True(_db.DbDirectory == expectedDirectory && directoryExists);
     }
 
     [Test()]
     public void Initializes_JsonDb_With_Project_Root_With_Folder_Option() {
       string alternateDbFolder = "SillyTestDbName";
-      _db = new JsonDbCore(alternateDbFolder);
       string projectRoot = Directory.GetParent(@"..\..\").FullName;
-      string expectedDirectory = Path.Combine(projectRoot, alternateDbFolder);
-      Assert.True(_db.DbDirectory == expectedDirectory);
+      string expectedDirectory = Path.Combine(projectRoot, @"Data\Json\", alternateDbFolder);
+
+      Directory.Delete(expectedDirectory, true);
+      _db = new JsonDbCore(alternateDbFolder);
+      bool directoryExists = Directory.Exists(expectedDirectory);
+
+      Assert.True(_db.DbDirectory == expectedDirectory && directoryExists);
     }
 
     [Test()]
     public void Initializes_JsonDb_With_Alternate_Directory() {
       string alternateDbFolder = "SillyTestDbName";
       string alternateDbDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
-
-      _db = new JsonDbCore(alternateDbDirectory, alternateDbFolder);
       string targetDirectoryRoot = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
       string expectedDirectory = Path.Combine(targetDirectoryRoot, alternateDbFolder);
-      Assert.True(_db.DbDirectory == expectedDirectory);
+
+      Directory.Delete(expectedDirectory, true);
+      _db = new JsonDbCore(alternateDbDirectory, alternateDbFolder);
+      bool directoryExists = Directory.Exists(expectedDirectory);
+
+      Assert.True(_db.DbDirectory == expectedDirectory && directoryExists);
     }
   }
 }
