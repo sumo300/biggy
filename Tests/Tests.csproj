@@ -61,6 +61,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="AzureStore\AzureBlobTest.cs" />
+    <Compile Include="AzureStore\AzureStoreUsingBlobWithStringKey.cs" />
     <Compile Include="BiggyList\BiggyListWithJsonStore.cs" />
     <Compile Include="BiggyList\BiggyListWithSqliteDocumentStore.cs" />
     <Compile Include="BiggyList\BiggyListWithPgDocumentStore.cs" />

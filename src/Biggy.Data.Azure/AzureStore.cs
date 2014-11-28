@@ -9,6 +9,7 @@ namespace Biggy.Data.Azure
         where T : new()
     {
         private readonly IAzureDataProvider dataProvider;
+        private List<T> items;
 
         public AzureStore(string connectionString)
             : this(new AzureBlobCore(connectionString))
@@ -18,56 +19,103 @@ namespace Biggy.Data.Azure
         internal AzureStore(IAzureDataProvider prodataProvidervider)
         {
             this.dataProvider = dataProvider;
+            this.items = this.TryLoadData();
         }
 
         public int Add(T item)
         {
-            throw new NotImplementedException();
+            this.items.Add(item);
+
+            return 1;
         }
 
         public int Add(IEnumerable<T> items)
         {
-            throw new NotImplementedException();
+            this.items.AddRange(items);
+
+            return items.Count();
         }
 
         public int Delete(T item)
         {
-            throw new NotImplementedException();
+            this.items.Remove(item);
+
+            return 1;
         }
 
         public int Delete(IEnumerable<T> items)
         {
-            throw new NotImplementedException();
+            var count = 0;
+
+            foreach (var item in items)
+            {
+                this.Delete(item);
+                count++;
+            }
+
+            return count;
         }
 
         public int DeleteAll()
         {
-            throw new NotImplementedException();
+            var count = this.items.Count;
+            this.items.Clear();
+            return count;
         }
 
         public List<T> TryLoadData()
         {
-            throw new NotImplementedException();
+            var result = new List<T>();
+            try
+            {
+                result = this.dataProvider
+                    .GetAll<T>()
+                    .ToList();
+            }
+            catch
+            {
+            }
+
+            return result;
         }
 
         public int Update(T item)
         {
-            throw new NotImplementedException();
+            if (this.items.Contains(item))
+            {
+                var itemFromList = this.items.ElementAt(this.items.IndexOf(item));
+                CompareReferencesToItem(item, itemFromList);
+            }
+            return 1;
         }
 
         public int Update(IEnumerable<T> items)
         {
-            throw new NotImplementedException();
+            foreach (var item in items)
+            {
+                this.Update(item);
+            }
         }
 
-        public void UpdateFromStore()
+        public void SynchroniseWithStore()
         {
-            throw new NotImplementedException();
+            this.dataProvider.SaveAll<T>(this.items.ToArray());
         }
 
-        public void UpdateStore()
+        private void CompareReferencesToItem(T item, T itemFromList)
         {
-            throw new NotImplementedException();
+            if (!ReferenceEquals(itemFromList, item))
+            {
+                // The items are "equal" but do not refer to the same instance.                    // Somebody overrode Equals on the type passed as an argument. Replace:
+                ReplaceItemInList(item);
+            }
+        }
+
+        private void ReplaceItemInList(T item)
+        {
+            int index = this.items.IndexOf(item);
+            this.items.RemoveAt(index);
+            this.items.Insert(index, item);
         }
     }
 }
