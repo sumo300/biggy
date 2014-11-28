@@ -1,11 +1,11 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Biggy.Core.Interfaces;
+using Biggy.Core;
 
 namespace Biggy.Data.Azure
 {
-    public sealed class AzureStore<T> : ISynchronisedDataStore<T>
+    public sealed class AzureStore<T> : IDataStore<T>
         where T : new()
     {
         private readonly IAzureDataProvider dataProvider;
@@ -26,6 +26,8 @@ namespace Biggy.Data.Azure
         {
             this.items.Add(item);
 
+            this.SynchroniseWithStore();
+
             return 1;
         }
 
@@ -33,12 +35,16 @@ namespace Biggy.Data.Azure
         {
             this.items.AddRange(items);
 
+            this.SynchroniseWithStore();
+
             return items.Count();
         }
 
         public int Delete(T item)
         {
-            this.items.Remove(item);
+            this.DeleteItem(item);
+
+            this.SynchroniseWithStore();
 
             return 1;
         }
@@ -49,9 +55,11 @@ namespace Biggy.Data.Azure
 
             foreach (var item in items)
             {
-                this.Delete(item);
+                this.DeleteItem(item);
                 count++;
             }
+
+            this.SynchroniseWithStore();
 
             return count;
         }
@@ -59,7 +67,32 @@ namespace Biggy.Data.Azure
         public int DeleteAll()
         {
             var count = this.items.Count;
+
             this.items.Clear();
+            this.SynchroniseWithStore();
+
+            return count;
+        }
+
+        public int Update(T item)
+        {
+            this.UpdateItem(item);
+
+            this.SynchroniseWithStore();
+
+            return 1;
+        }
+
+        public int Update(IEnumerable<T> items)
+        {
+            var count = items.Count();
+            foreach (var item in items)
+            {
+                this.Update(item);
+            }
+
+            this.SynchroniseWithStore();
+
             return count;
         }
 
@@ -79,29 +112,23 @@ namespace Biggy.Data.Azure
             return result;
         }
 
-        public int Update(T item)
+        private void SynchroniseWithStore()
+        {
+            this.dataProvider.SaveAll<T>(this.items.ToArray());
+        }
+
+        private void UpdateItem(T item)
         {
             if (this.items.Contains(item))
             {
                 var itemFromList = this.items.ElementAt(this.items.IndexOf(item));
                 CompareReferencesToItem(item, itemFromList);
             }
-            return 1;
         }
 
-        public int Update(IEnumerable<T> items)
+        private void DeleteItem(T item)
         {
-            var count = items.Count();
-            foreach (var item in items)
-            {
-                this.Update(item);
-            }
-            return count;
-        }
-
-        public void SynchroniseWithStore()
-        {
-            this.dataProvider.SaveAll<T>(this.items.ToArray());
+            this.items.Remove(item);
         }
 
         private void CompareReferencesToItem(T item, T itemFromList)
