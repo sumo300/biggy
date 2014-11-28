@@ -1,13 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using Biggy.Core;
+using Biggy.Core.Interfaces;
 
 namespace Biggy.Data.Azure
 {
-    public class AzureStore<T> : IDataStore<T> where T : new()
+    public sealed class AzureStore<T> : ISynchronisedDataStore<T>
+        where T : new()
     {
-        private readonly object dataProvider;
+        private readonly IAzureDataProvider dataProvider;
 
         public AzureStore(string connectionString)
             : this(new AzureBlobCore(connectionString))
@@ -55,6 +56,16 @@ namespace Biggy.Data.Azure
         }
 
         public int Update(IEnumerable<T> items)
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateFromStore()
+        {
+            throw new NotImplementedException();
+        }
+
+        public void UpdateStore()
         {
             throw new NotImplementedException();
         }

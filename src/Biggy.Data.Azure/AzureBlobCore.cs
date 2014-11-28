@@ -23,7 +23,8 @@ namespace Biggy.Data.Azure
             this.containerName = "biggy";
         }
 
-        public IDataStore<T> CreateStoreFor<T>() where T : new()
+        public IDataStore<T> CreateStoreFor<T>()
+            where T : new()
         {
             return new AzureStore<T>(this);
         }

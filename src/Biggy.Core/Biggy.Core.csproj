@@ -57,6 +57,7 @@
     <Compile Include="Interfaces\IDbCore.cs" />
     <Compile Include="Interfaces\IDataStore.cs" />
     <Compile Include="BiggyList.cs" />
+    <Compile Include="Interfaces\ISynchronisedDataStore.cs" />
     <Compile Include="RelationalStoreBase.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

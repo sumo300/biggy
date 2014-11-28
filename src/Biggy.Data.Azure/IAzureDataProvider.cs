@@ -7,7 +7,8 @@ namespace Biggy.Data.Azure
 {
     internal interface IAzureDataProvider
     {
-        IDataStore<T> CreateStoreFor<T>();
+        IDataStore<T> CreateStoreFor<T>()
+            where T : new();
 
         IEnumerable<T> GetAll<T>();
 

@@ -12,7 +12,7 @@ namespace Tests.AzureStore
         private int quantityToAdd;
 
         [Test]
-        public void Azure_SaveToAzureExampleData()
+        public void Azure_Blob_SaveToAzureExampleData()
         {
             // Given
             var azureCore = new AzureBlobCore("azure_dev");
@@ -25,7 +25,7 @@ namespace Tests.AzureStore
         }
 
         [Test]
-        public void Azure_ReadFromBlob()
+        public void Azure_Blob_ReadFromBlob()
         {
             // Given
             var azureCore = new AzureBlobCore("azure_dev");
@@ -37,6 +37,19 @@ namespace Tests.AzureStore
 
             // Then
             Assert.AreEqual(this.quantityToAdd, result.Count());
+        }
+
+        [Test]
+        public void Azure_Blob_CreateStoreFromCore()
+        {
+            // Given
+            var azureBlobCore = new AzureBlobCore("azure_dev");
+
+            // When
+            var store = azureBlobCore.CreateStoreFor<InstrumentDocuments>();
+
+            // Then
+            Assert.IsTrue(store is AzureStore<InstrumentDocuments>);
         }
 
         [SetUp]
