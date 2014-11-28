@@ -25,7 +25,7 @@ namespace Biggy.Data.Azure
 
         public IDataStore<T> CreateStoreFor<T>() where T : new()
         {
-            return null;
+            return new AzureStore<T>(this);
         }
 
         public IEnumerable<T> GetAll<T>()

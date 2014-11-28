@@ -2,19 +2,21 @@
 using System.Collections.Generic;
 using System.Linq;
 using Biggy.Core;
-using Microsoft.WindowsAzure.Storage;
-using Microsoft.WindowsAzure.Storage.Table;
 
 namespace Biggy.Data.Azure
 {
     public class AzureStore<T> : IDataStore<T> where T : new()
     {
-        private readonly CloudStorageAccount storageAccount;
-        private readonly CloudTableClient tableAccount;
-        private AzureBlobCore azureTablesDbCore;
+        private readonly object dataProvider;
 
         public AzureStore(string connectionString)
+            : this(new AzureBlobCore(connectionString))
         {
+        }
+
+        internal AzureStore(IAzureDataProvider prodataProvidervider)
+        {
+            this.dataProvider = dataProvider;
         }
 
         public int Add(T item)

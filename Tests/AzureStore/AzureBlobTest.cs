@@ -7,12 +7,12 @@ using NUnit.Framework;
 namespace Tests.AzureStore
 {
     [TestFixture]
-    public class AzureStorageTest
+    public class AzureBlobTest
     {
         private int quantityToAdd;
 
         [Test]
-        public void Azure_Connect_To_Storage_And_Save()
+        public void Azure_SaveToAzureExampleData()
         {
             // Given
             var azureCore = new AzureBlobCore("azure_dev");
