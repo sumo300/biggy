@@ -67,6 +67,7 @@
     <Compile Include="BiggyList\BiggyListWithPgDocumentStore.cs" />
     <Compile Include="BiggyList\BiggyListWithSqliteRelationalStore.cs" />
     <Compile Include="BiggyList\BiggyListWithPgRelationalStore.cs" />
+    <Compile Include="InMemory\ItemsAreEqualsByReferenceTests.cs" />
     <Compile Include="JsonDb\jsonStoreWithStringKey.cs" />
     <Compile Include="JsonDb\jsonDbCore.Tests.cs" />
     <Compile Include="pgDbCore\pgDbCore.Tests.cs" />

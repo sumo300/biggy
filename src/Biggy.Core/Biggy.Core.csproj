@@ -29,6 +29,13 @@
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
   <ItemGroup>
+    <Reference Include="Inflector, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL">
+      <SpecificVersion>False</SpecificVersion>
+      <HintPath>..\..\packages\Inflector.1.0.0.0\lib\net40\Inflector.dll</HintPath>
+    </Reference>
+    <Reference Include="Newtonsoft.Json">
+      <HintPath>..\..\packages\Newtonsoft.Json.6.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
+    </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
     <Reference Include="System.Configuration" />
@@ -38,15 +45,6 @@
     <Reference Include="Mono.Security">
       <HintPath>..\packages\Npgsql.2.2.2\lib\net40\Mono.Security.dll</HintPath>
     </Reference>
-    <Reference Include="Npgsql">
-      <HintPath>..\packages\Npgsql.2.2.2\lib\net40\Npgsql.dll</HintPath>
-    </Reference>
-    <Reference Include="Newtonsoft.Json">
-      <HintPath>..\packages\Newtonsoft.Json.6.0.6\lib\net40\Newtonsoft.Json.dll</HintPath>
-    </Reference>
-    <Reference Include="Inflector">
-      <HintPath>..\..\packages\Inflector.1.0.0.0\lib\net40\Inflector.dll</HintPath>
-    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Attributes.cs" />
@@ -54,9 +52,13 @@
     <Compile Include="DbColumnMappingLookUp.cs" />
     <Compile Include="DbCore.cs" />
     <Compile Include="DbTableMapping.cs" />
+    <Compile Include="InMemory\IItemsAreEquals.cs" />
+    <Compile Include="InMemory\ItemsAreEqualsByReference.cs" />
+    <Compile Include="InMemory\ItemsAreEqualsByKey.cs" />
     <Compile Include="Interfaces\IDbCore.cs" />
     <Compile Include="Interfaces\IDataStore.cs" />
     <Compile Include="BiggyList.cs" />
+    <Compile Include="InMemory\ItemComparer.cs" />
     <Compile Include="RelationalStoreBase.cs" />
     <Compile Include="Extensions\ObjectExtensions.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />

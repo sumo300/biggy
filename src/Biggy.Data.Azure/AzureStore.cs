@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using Biggy.Core;
+using Biggy.Core.InMemory;
 
 namespace Biggy.Data.Azure
 {
@@ -88,7 +89,7 @@ namespace Biggy.Data.Azure
             var count = items.Count();
             foreach (var item in items)
             {
-                this.Update(item);
+                this.UpdateItem(item);
             }
 
             this.SynchroniseWithStore();
@@ -119,11 +120,10 @@ namespace Biggy.Data.Azure
 
         private void UpdateItem(T item)
         {
-            if (this.items.Contains(item))
-            {
-                var itemFromList = this.items.ElementAt(this.items.IndexOf(item));
-                CompareReferencesToItem(item, itemFromList);
-            }
+            var comparer = ItemComparer.CreateItemsComparer<T>(item);
+            var itemFormStore = this.items.FirstOrDefault(comparer.IsMatch);
+
+            this.ReplaceItemInList(itemFormStore);
         }
 
         private void DeleteItem(T item)
