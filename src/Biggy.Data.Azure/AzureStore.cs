@@ -91,10 +91,12 @@ namespace Biggy.Data.Azure
 
         public int Update(IEnumerable<T> items)
         {
+            var count = items.Count();
             foreach (var item in items)
             {
                 this.Update(item);
             }
+            return count;
         }
 
         public void SynchroniseWithStore()
