@@ -38,8 +38,8 @@ namespace Demo {
       _testDb.ArtistDocuments.Add(sampleArtistDocuments);
       sw.Stop();
       Console.WriteLine("Wrote {0} artist document records in {1} ms", sampleArtistDocuments.Count, sw.ElapsedMilliseconds);
-      Console.WriteLine("Total of {0} artists, with {1} albums, and {2} tracks nested in each artist document", 
-        qtyArtists, qtyArtists * qtyAlbumsPerArtist, qtyArtists * qtyAlbumsPerArtist * qtyTracksPerAlbum );
+      Console.WriteLine("Total of {0} artists, with {1} albums, and {2} tracks nested in each artist document",
+        qtyArtists, qtyArtists * qtyAlbumsPerArtist, qtyArtists * qtyAlbumsPerArtist * qtyTracksPerAlbum);
 
       Console.WriteLine("");
       Console.WriteLine("Re-Initialize Db and read all that data from back-end...");
@@ -50,6 +50,16 @@ namespace Demo {
       sw.Stop();
       Console.WriteLine("Read all data from store in {0} ms", sw.ElapsedMilliseconds);
       Console.WriteLine("{0} complex artist documents", _testDb.ArtistDocuments.Count);
+
+      var updateArtistDocuments = _testDb.ArtistDocuments.ToList();
+      foreach (var artistDoc in updateArtistDocuments) {
+        artistDoc.Name = "Updated Artist " + artistDoc.ArtistDocumentId;
+      }
+      sw.Reset();
+      sw.Start();
+      _testDb.ArtistDocuments.Update(updateArtistDocuments);
+      sw.Stop();
+      Console.WriteLine("Updated {0} artist document records in {1} ms", updateArtistDocuments.Count, sw.ElapsedMilliseconds);
 
 
       Console.WriteLine("");

@@ -39,15 +39,14 @@
   <ItemGroup>
     <Reference Include="System" />
     <Reference Include="System.Core" />
-    <Reference Include="System.Data.SQLite, Version=1.0.94.0, Culture=neutral, PublicKeyToken=db937bc2d44ff139, processorArchitecture=MSIL">
-      <SpecificVersion>False</SpecificVersion>
-      <HintPath>..\packages\System.Data.SQLite.Core.1.0.94.0\lib\net40\System.Data.SQLite.dll</HintPath>
-    </Reference>
     <Reference Include="System.Xml.Linq" />
     <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Data" />
     <Reference Include="System.Xml" />
+    <Reference Include="System.Data.SQLite">
+      <HintPath>..\packages\System.Data.SQLite.Core.1.0.94.0\lib\net40\System.Data.SQLite.dll</HintPath>
+    </Reference>
   </ItemGroup>
   <ItemGroup>
     <Compile Include="ChinookDbBase.cs" />
@@ -59,7 +58,6 @@
     <Compile Include="Json\jsonChinookDb.cs" />
     <Compile Include="Json\jsonDocumentDemo.cs" />
     <Compile Include="Json\jsonPocoDemo.cs" />
-    <Compile Include="Postgres\PgChinookDb.cs" />
     <Compile Include="Postgres\pgDocumentDemo.cs" />
     <Compile Include="Postgres\pgRelationalDemo.cs" />
     <Compile Include="Program.cs" />
@@ -67,7 +65,8 @@
     <Compile Include="SampleData.cs" />
     <Compile Include="Sqlite\sqliteDocumentDemo.cs" />
     <Compile Include="Sqlite\sqliteRelationalDemo.cs" />
-    <Compile Include="Sqlite\SqliteChinookDb.cs" />
+    <Compile Include="Postgres\pgChinookDb.cs" />
+    <Compile Include="Sqlite\sqliteChinookDb.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="App.config" />
@@ -79,15 +78,15 @@
       <Name>Biggy.Core</Name>
     </ProjectReference>
     <ProjectReference Include="..\src\Biggy.Data.Json\Biggy.Data.Json.csproj">
-      <Project>{e293e04a-2b12-4e31-93ec-62ff14fa2306}</Project>
+      <Project>{E293E04A-2B12-4E31-93EC-62FF14FA2306}</Project>
       <Name>Biggy.Data.Json</Name>
     </ProjectReference>
     <ProjectReference Include="..\src\Biggy.Data.Postgres\Biggy.Data.Postgres.csproj">
-      <Project>{44fc2e62-4266-4054-b9c4-6e5546da6352}</Project>
+      <Project>{44FC2E62-4266-4054-B9C4-6E5546DA6352}</Project>
       <Name>Biggy.Data.Postgres</Name>
     </ProjectReference>
     <ProjectReference Include="..\src\Biggy.Data.Sqlite\Biggy.Data.Sqlite.csproj">
-      <Project>{1adc5e03-b5b8-4b59-a8df-1f1a85e63558}</Project>
+      <Project>{1ADC5E03-B5B8-4B59-A8DF-1F1A85E63558}</Project>
       <Name>Biggy.Data.Sqlite</Name>
     </ProjectReference>
   </ItemGroup>
