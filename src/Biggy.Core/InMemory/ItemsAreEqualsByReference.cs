@@ -15,7 +15,7 @@ namespace Biggy.Core.InMemory
         public bool IsMatch(T item)
         {
             return this.itemToSearch.Equals(item)
-                && !ReferenceEquals(this.itemToSearch, item);
+                && ReferenceEquals(this.itemToSearch, item);
         }
     }
 }
