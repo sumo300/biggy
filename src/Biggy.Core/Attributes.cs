@@ -1,28 +1,35 @@
 ﻿using System;
 using System.Linq;
 
-namespace Biggy.Core {
-  public class PrimaryKeyAttribute : Attribute {
-    public bool IsAutoIncrementing { get; private set; }
+namespace Biggy.Core
+{
+    public class PrimaryKeyAttribute : Attribute
+    {
+        public PrimaryKeyAttribute(bool Auto)
+        {
+            this.IsAutoIncrementing = Auto;
+        }
 
-    public PrimaryKeyAttribute(bool Auto) {
-      this.IsAutoIncrementing = Auto;
+        public bool IsAutoIncrementing { get; private set; }
     }
-  }
 
-  public class DbColumnAttribute : Attribute {
-    public string Name { get; protected set; }
+    public class DbColumnAttribute : Attribute
+    {
+        public DbColumnAttribute(string name)
+        {
+            this.Name = name;
+        }
 
-    public DbColumnAttribute(string name) {
-      this.Name = name;
+        public string Name { get; protected set; }
     }
-  }
 
-  public class DbTableAttribute : Attribute {
-    public string Name { get; protected set; }
+    public class DbTableAttribute : Attribute
+    {
+        public DbTableAttribute(string name)
+        {
+            this.Name = name;
+        }
 
-    public DbTableAttribute(string name) {
-      this.Name = name;
+        public string Name { get; protected set; }
     }
-  }
 }
