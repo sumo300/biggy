@@ -18,12 +18,12 @@ namespace Demo {
       //// SQL LITE DEMOS: ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
       //sqliteRelationalDemo _sqliteRelationalDemo = new sqliteRelationalDemo();
-      //sqliteDocumentDemo _sqliteDocumentDemo = new sqliteDocumentDemo();
+      sqliteDocumentDemo _sqliteDocumentDemo = new sqliteDocumentDemo();
 
       //_sqliteRelationalDemo.Run();
       //Console.WriteLine("");
 
-      //_sqliteDocumentDemo.Run();
+      _sqliteDocumentDemo.Run();
       //Console.WriteLine("");
 
       // JSON DEMOS: ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
@@ -39,8 +39,8 @@ namespace Demo {
 
       // Playground/Spike: ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-      Playground _playground = new Playground();
-      _playground.Run();
+      //Playground _playground = new Playground();
+      //_playground.Run();
 
       Console.Read();
     }

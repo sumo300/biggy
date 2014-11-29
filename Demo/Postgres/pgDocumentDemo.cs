@@ -45,6 +45,23 @@ namespace Demo {
       Console.WriteLine("Read all data from store in {0} ms", sw.ElapsedMilliseconds);
       Console.WriteLine("{0} complex artist documents", _testDb.ArtistDocuments.Count);
 
+      foreach (var artist in sampleArtistDocuments) {
+        artist.Name = "UPDATED " + artist.ArtistDocumentId;
+        artist.Albums.FirstOrDefault().Title = "UPDATED ALBUM";
+      }
+
+      sw.Reset();
+      sw.Start();
+      _testDb.ArtistDocuments.Update(sampleArtistDocuments);
+      sw.Stop();
+      Console.WriteLine("Updated {0} artist documents in {1} ms", sampleArtistDocuments.Count, sw.ElapsedMilliseconds);
+
+      sw.Reset();
+      sw.Start();
+      _testDb.ArtistDocuments.Remove(sampleArtistDocuments);
+      sw.Stop();
+      Console.WriteLine("Removed {0} artist documents in {1} ms", sampleArtistDocuments.Count, sw.ElapsedMilliseconds);
+
       Console.WriteLine("");
       Console.WriteLine("Postgres Document Demo - CHINOOK DATA");
       Console.WriteLine("=======================================");
