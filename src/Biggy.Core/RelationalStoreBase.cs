@@ -13,15 +13,44 @@ namespace Biggy.Core {
       this.Database = dbCore;
       this.TableMapping = this.Database.getTableMappingFor<T>();
     }
-
-    public abstract int Add(IEnumerable<T> items);
-    public abstract int Add(T item);
-    public abstract int Delete(IEnumerable<T> items);
-    public abstract int Delete(T item);
-    public abstract int DeleteAll();
     public abstract List<T> TryLoadData();
-    public abstract int Update(IEnumerable<T> items);
-    public abstract int Update(T item);
+
+    public abstract IEnumerable<IDbCommand> CreateInsertCommands(IEnumerable<T> items);
+    public abstract IEnumerable<IDbCommand> CreateUpdateCommands(IEnumerable<T> items);
+    public abstract IEnumerable<IDbCommand> CreateDeleteCommands(IEnumerable<T> items);
+    public abstract IDbCommand CreateDeleteAllCommand();
+
+    public virtual int Add(IEnumerable<T> items) {
+      var commands = CreateInsertCommands(items);
+      return Database.Transact(commands.ToArray());
+    }
+
+    public virtual int Add(T item) {
+      return Add(new T[] { item });
+    }
+
+    public virtual int Update(IEnumerable<T> items) {
+      var commands = CreateUpdateCommands(items);
+      return Database.Transact(commands.ToArray());
+    }
+
+    public virtual int Update(T item) {
+      return this.Update(new T[] { item });
+    }
+
+    public virtual int Delete(IEnumerable<T> items) {
+      var commands = CreateDeleteCommands(items);
+      return Database.Transact(commands.ToArray());
+    }
+
+    public virtual int Delete(T item) {
+      return this.Delete(new T[] { item });
+    }
+
+    public virtual int DeleteAll() {
+      return Database.Transact(CreateDeleteAllCommand());
+    }
+
 
     public bool KeyIsAutoIncrementing {
       get {

@@ -16,17 +16,16 @@ using System.Data;
 using SQLiteConnectionAlias = System.Data.SQLite.SQLiteConnection;
 using SQLiteCommandAlias = System.Data.SQLite.SQLiteCommand;
 using SQLiteExceptionAlias = System.Data.SQLite.SQLiteException;
-using System.Data;
 
 #endif
 
 namespace Biggy.Data.Sqlite {
   public class SqliteDbCore : DbCore {
-    public IDataStore<T> CreateRelationalStoreFor<T>() where T : new() {
+    public override IDataStore<T> CreateRelationalStoreFor<T>() {
       return new SqliteRelationalStore<T>(this);
     }
 
-    public IDataStore<T> CreateDocumentStoreFor<T>() where T : new() {
+    public override IDataStore<T> CreateDocumentStoreFor<T>() {
       return new SqliteDocumentStore<T>(this);
     }
 

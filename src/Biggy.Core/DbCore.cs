@@ -249,5 +249,8 @@ namespace Biggy.Core {
       this.LoadSchemaInfo();
       return result;
     }
+
+    public abstract IDataStore<T> CreateRelationalStoreFor<T>() where T : new();
+    public abstract IDataStore<T> CreateDocumentStoreFor<T>() where T : new();
   }
 }

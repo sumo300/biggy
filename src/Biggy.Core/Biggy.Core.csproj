@@ -54,6 +54,7 @@
     <Compile Include="DbColumnMappingLookUp.cs" />
     <Compile Include="DbCore.cs" />
     <Compile Include="DbTableMapping.cs" />
+    <Compile Include="DocumentStoreBase.cs" />
     <Compile Include="Interfaces\IDbCore.cs" />
     <Compile Include="Interfaces\IDataStore.cs" />
     <Compile Include="BiggyList.cs" />

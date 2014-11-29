@@ -30,5 +30,8 @@ namespace Biggy.Core {
     int TryDropTable(string tableName);
     int TransactDDL(string sql, params object[] args);
     int TransactDDL(params System.Data.IDbCommand[] cmds);
+
+    IDataStore<T> CreateRelationalStoreFor<T>() where T : new();
+    IDataStore<T> CreateDocumentStoreFor<T>() where T : new();
   }
 }

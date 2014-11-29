@@ -5,11 +5,11 @@ using Biggy.Core;
 
 namespace Biggy.Data.Postgres {
   public class PgDbCore : DbCore {
-    public IDataStore<T> CreateRelationalStoreFor<T>() where T : new() {
+    public override IDataStore<T> CreateRelationalStoreFor<T>() {
       return new PgRelationalStore<T>(this);
     }
 
-    public IDataStore<T> CreateDocumentStoreFor<T>() where T : new() {
+    public override IDataStore<T> CreateDocumentStoreFor<T>() {
       return new PgDocumentStore<T>(this);
     }
 

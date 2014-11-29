@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using Biggy.Core;
 using Biggy.Extensions;
+using System.Data;
 
 namespace Biggy.Data.Postgres {
   public class PgRelationalStore<T> : RelationalStoreBase<T> where T : new() {
@@ -15,43 +16,37 @@ namespace Biggy.Data.Postgres {
       : base(new PgDbCore(connectionStringName)) {
     }
 
-    public override int Add(IEnumerable<T> items) {
+    public override List<T> TryLoadData() {
+      string sql = string.Format("SELECT * FROM {0}", this.TableMapping.DelimitedTableName);
+      var result = new List<T>();
+      using (var dr = this.Database.OpenReader(sql)) {
+        while (dr.Read()) {
+          var newItem = this.MapReaderToObject<T>(dr);
+          result.Add(newItem);
+        }
+      }
+      return result;
+    }
+
+    public override IEnumerable<IDbCommand> CreateInsertCommands(IEnumerable<T> items) {
       const int MAGIC_PG_PARAMETER_LIMIT = 2100;
       const int MAGIC_PG_ROW_VALUE_LIMIT = 1000;
+      var commands = new List<System.Data.IDbCommand>();
 
       if (items.Count() > 0) {
         string insertBase = "INSERT INTO {0} ({1}) VALUES ";
         var model = new T();
         var properties = model.GetType().GetProperties();
         var insertColumns = new List<string>();
-        DbColumnMapping autoPkColumn = null;
+
+        if (TableMapping.PrimaryKeyMapping[0].IsAutoIncementing) {
+          ReserveAutoIdsForItems(items);
+        }
 
         // Build the static part of the INSERT, with the column names:
         foreach (var property in properties) {
           var matchingColumn = this.TableMapping.ColumnMappings.FindByProperty(property.Name);
           if (matchingColumn != null) {
-            if (matchingColumn.IsAutoIncementing) {
-              // We need this later:
-              autoPkColumn = matchingColumn;
-
-              // We have to use some tricks to batch insert the proper sequence values:
-              string sequenceName = string.Format("{0}_{1}_seq", this.TableMapping.DBTableName, autoPkColumn.ColumnName);
-              int itemCount = items.Count();
-              string sqlReservedSequenceValues = string.Format("SELECT nextval('\"{0}\"') FROM generate_series( 1, {1} ) n", sequenceName, itemCount);
-
-              // Load up the reserved values into the Id field for each item:
-              using (var dr = this.Database.OpenReader(sqlReservedSequenceValues)) {
-                int row = 0;
-                while (dr.Read()) {
-                  var curr = items.ElementAt(row);
-                  var props = curr.GetType().GetProperties();
-                  var pkProp = props.FirstOrDefault(p => p.Name == autoPkColumn.PropertyName);
-                  var converted = Convert.ChangeType(dr[0], pkProp.PropertyType);
-                  pkProp.SetValue(curr, converted, null);
-                  row++;
-                }
-              }
-            }
             insertColumns.Add(matchingColumn.DelimitedColumnName);
           }
         }
@@ -62,7 +57,6 @@ namespace Biggy.Data.Postgres {
         var paramIndex = 0;
         var rowValueCounter = 0;
 
-        var commands = new List<System.Data.IDbCommand>();
         sb.AppendFormat(insertBase, this.TableMapping.DelimitedTableName, string.Join(", ", insertColumns.ToArray()));
         var valueGroups = new List<string>();
 
@@ -95,107 +89,40 @@ namespace Biggy.Data.Postgres {
         }
         sb.Append(string.Join(",", valueGroups));
         commands.Add(this.Database.BuildCommand(sb.ToString(), args.ToArray()));
-        return this.Database.Transact(commands.ToArray());
       }
-      return 0;
+      return commands;
     }
 
-    public override int Add(T item) {
-      var properties = item.GetType().GetProperties();
-      var itemEx = item.ToExpando();
-      var itemSchema = itemEx as IDictionary<string, object>;
-      string returnInsertedId = "";
-      System.Reflection.PropertyInfo autoPkProperty = null;
-
-      var insertColumns = new List<string>();
-      var args = new List<object>();
-      var paramIndex = 0;
-      var parameterPlaceholders = new List<string>();
-
-      foreach (var property in properties) {
-        var matchingColumn = this.TableMapping.ColumnMappings.FindByProperty(property.Name);
-        if (matchingColumn != null) {
-          if (!matchingColumn.IsAutoIncementing) {
-            insertColumns.Add(matchingColumn.DelimitedColumnName);
-            args.Add(itemSchema[property.Name]);
-            parameterPlaceholders.Add("@" + paramIndex++.ToString());
-          } else {
-            // We want the new ID back:
-            returnInsertedId = string.Format("RETURNING {0} AS newId", matchingColumn.DelimitedColumnName);
-            autoPkProperty = property;
-          }
-        }
-      }
-      string insertBase = "INSERT INTO {0} ({1}) VALUES ({2}) {3}";
-      string sql = string.Format(
-        insertBase,
-        this.TableMapping.DelimitedTableName,
-        string.Join(", ", insertColumns.ToArray()),
-        string.Join(", ", parameterPlaceholders.ToArray()),
-        returnInsertedId
-      );
-      if (autoPkProperty != null) {
-        var result = this.Database.ExecuteScalar(sql, args.ToArray());
-        autoPkProperty.SetValue(item, result, null);
-        return 1;
-      } else {
-        return this.Database.Transact(this.Database.BuildCommand(sql, args.ToArray()));
-      }
-    }
-
-    public override int Delete(IEnumerable<T> items) {
+    public void ReserveAutoIdsForItems(IEnumerable<T> items) {
       if (items.Count() > 0) {
-        string keyColumnNames;
-        var keyList = new List<string>();
+        DbColumnMapping autoPkColumn = null;
+        if (TableMapping.PrimaryKeyMapping[0].IsAutoIncementing) {
+          // We need this later:
+          autoPkColumn = TableMapping.PrimaryKeyMapping[0];
 
-        // The first pk in the list is what we want, to build a standard IN statement
-        // like this: DELETE FROM myTable WHERE pk1 IN (value1, value2, value3, value4, ...)
-        keyColumnNames = this.TableMapping.PrimaryKeyMapping[0].DelimitedColumnName;
-        foreach (var item in items) {
-          var expando = item.ToExpando();
-          var dict = (IDictionary<string, object>)expando;
-          var pk = this.TableMapping.PrimaryKeyMapping[0];
-          if (pk.DataType == typeof(string)) {
-            // Wrap in single quotes
-            keyList.Add(string.Format("'{0}'", dict[pk.PropertyName].ToString()));
-          } else {
-            // Don't wrap:
-            keyList.Add(dict[pk.PropertyName].ToString());
+          // We have to use some tricks to batch insert the proper sequence values:
+          string sequenceName = string.Format("{0}_{1}_seq", this.TableMapping.DBTableName, autoPkColumn.ColumnName);
+          int itemCount = items.Count();
+          string sqlReservedSequenceValues = string.Format("SELECT nextval('\"{0}\"') FROM generate_series( 1, {1} ) n", sequenceName, itemCount);
+
+          // Load up the reserved values into the Id field for each item:
+          using (var dr = this.Database.OpenReader(sqlReservedSequenceValues)) {
+            int row = 0;
+            while (dr.Read()) {
+              var curr = items.ElementAt(row);
+              var props = curr.GetType().GetProperties();
+              var pkProp = props.FirstOrDefault(p => p.Name == autoPkColumn.PropertyName);
+              var converted = Convert.ChangeType(dr[0], pkProp.PropertyType);
+              pkProp.SetValue(curr, converted, null);
+              row++;
+            }
           }
         }
-        string sqlFormat = "DELETE FROM {0} Where {1} ";
-        var keySet = String.Join(",", keyList.ToArray());
-        var inStatement = keyColumnNames + "IN (" + keySet + ")";
-        string sql = string.Format(sqlFormat, this.TableMapping.DelimitedTableName, inStatement);
-        return this.Database.Transact(sql);
       }
-      return 0;
     }
 
-    public override int Delete(T item) {
-      // Calling the override for update is functionally the same
-      // as how we would code for a single update:
-      return this.Delete(new T[] { item });
-    }
-
-    public override int DeleteAll() {
-      string sql = string.Format("DELETE FROM {0}", this.TableMapping.DelimitedTableName);
-      return this.Database.Transact(sql);
-    }
-
-    public override List<T> TryLoadData() {
-      string sql = string.Format("SELECT * FROM {0}", this.TableMapping.DelimitedTableName);
-      var result = new List<T>();
-      using (var dr = this.Database.OpenReader(sql)) {
-        while (dr.Read()) {
-          var newItem = this.MapReaderToObject<T>(dr);
-          result.Add(newItem);
-        }
-      }
-      return result;
-    }
-
-    public override int Update(IEnumerable<T> items) {
+    public override IEnumerable<IDbCommand> CreateUpdateCommands(IEnumerable<T> items) {
+      var commands = new List<IDbCommand>();
       var args = new List<object>();
       var paramIndex = 0;
       string ParameterAssignmentFormat = "{0} = @{1}";
@@ -222,13 +149,43 @@ namespace Biggy.Data.Postgres {
         sb.AppendFormat(sqlFormat, this.TableMapping.DelimitedTableName, string.Join(",", setValueStatements), whereCriteria);
       }
       var batchedSQL = sb.ToString();
-      return this.Database.Transact(batchedSQL, args.ToArray());
+      commands.Add(Database.BuildCommand(batchedSQL, args.ToArray()));
+      return commands;
     }
 
-    public override int Update(T item) {
-      // Calling the override for update is functionally the same
-      // as how we would code for a single update:
-      return this.Update(new T[] { item });
+    public override IEnumerable<IDbCommand> CreateDeleteCommands(IEnumerable<T> items) {
+      var commands = new List<IDbCommand>();
+      if (items.Count() > 0) {
+        string keyColumnNames;
+        var keyList = new List<string>();
+
+        // The first pk in the list is what we want, to build a standard IN statement
+        // like this: DELETE FROM myTable WHERE pk1 IN (value1, value2, value3, value4, ...)
+        keyColumnNames = this.TableMapping.PrimaryKeyMapping[0].DelimitedColumnName;
+        foreach (var item in items) {
+          var expando = item.ToExpando();
+          var dict = (IDictionary<string, object>)expando;
+          var pk = this.TableMapping.PrimaryKeyMapping[0];
+          if (pk.DataType == typeof(string)) {
+            // Wrap in single quotes
+            keyList.Add(string.Format("'{0}'", dict[pk.PropertyName].ToString()));
+          } else {
+            // Don't wrap:
+            keyList.Add(dict[pk.PropertyName].ToString());
+          }
+        }
+        string sqlFormat = "DELETE FROM {0} Where {1} ";
+        var keySet = String.Join(",", keyList.ToArray());
+        var inStatement = keyColumnNames + "IN (" + keySet + ")";
+        string sql = string.Format(sqlFormat, this.TableMapping.DelimitedTableName, inStatement);
+        commands.Add(Database.BuildCommand(sql));
+      }
+      return commands;
+    }
+
+    public override IDbCommand CreateDeleteAllCommand() {
+      string sql = string.Format("DELETE FROM {0}", this.TableMapping.DelimitedTableName);
+      return Database.BuildCommand(sql);
     }
   }
 }
