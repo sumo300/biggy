@@ -53,17 +53,21 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="Mono.Data.Sqlite" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Data.SQLite">
       <HintPath>..\packages\System.Data.SQLite.Core.1.0.94.0\lib\net40\System.Data.SQLite.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="AzureStore\AzureBlobTest.cs" />
+    <Compile Include="AzureStore\AzureStoreUsingBlobWithStringKey.cs" />
     <Compile Include="BiggyList\BiggyListWithJsonStore.cs" />
     <Compile Include="BiggyList\BiggyListWithSqliteDocumentStore.cs" />
     <Compile Include="BiggyList\BiggyListWithPgDocumentStore.cs" />
     <Compile Include="BiggyList\BiggyListWithSqliteRelationalStore.cs" />
     <Compile Include="BiggyList\BiggyListWithPgRelationalStore.cs" />
+    <Compile Include="InMemory\ItemsAreEqualsByReferenceTests.cs" />
     <Compile Include="JsonDb\jsonStoreWithStringKey.cs" />
     <Compile Include="JsonDb\jsonDbCore.Tests.cs" />
     <Compile Include="pgDbCore\pgDbCore.Tests.cs" />
@@ -102,6 +106,10 @@
     <ProjectReference Include="..\src\Biggy.Core\Biggy.Core.csproj">
       <Project>{539CDF13-4CD2-41C2-9284-A7020A2563D4}</Project>
       <Name>Biggy.Core</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\src\Biggy.Data.Azure\Biggy.Data.Azure.csproj">
+      <Project>{b46196bd-2f6d-470c-ba51-6e5b3839419b}</Project>
+      <Name>Biggy.Data.Azure</Name>
     </ProjectReference>
     <ProjectReference Include="..\src\Biggy.Data.Json\Biggy.Data.Json.csproj">
       <Project>{E293E04A-2B12-4E31-93EC-62FF14FA2306}</Project>

@@ -39,7 +39,6 @@ namespace Biggy.Core {
     public event EventHandler Loaded;
     public event EventHandler Saved;
 
-
     protected virtual bool UpdateLiveDataAllowed {
       get {
         if (this.InMemory == false && this.Store != null) {
