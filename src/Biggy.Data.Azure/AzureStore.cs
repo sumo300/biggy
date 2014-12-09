@@ -17,7 +17,7 @@ namespace Biggy.Data.Azure
         {
         }
 
-        internal AzureStore(IAzureDataProvider prodataProvidervider)
+        internal AzureStore(IAzureDataProvider dataProvider)
         {
             this.dataProvider = dataProvider;
             this.items = this.TryLoadData();
@@ -128,7 +128,9 @@ namespace Biggy.Data.Azure
 
         private void DeleteItem(T item)
         {
-            this.items.Remove(item);
+            var itemComparer = ItemComparer.CreateItemsComparer<T>(item);
+            var itemToRemove = this.items.First(itemComparer.IsMatch);
+            this.items.Remove(itemToRemove);
         }
 
         private void CompareReferencesToItem(T item, T itemFromList)

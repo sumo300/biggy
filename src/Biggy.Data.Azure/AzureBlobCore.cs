@@ -23,6 +23,13 @@ namespace Biggy.Data.Azure
             this.containerName = "biggy";
         }
 
+        public static IDataStore<T> CreateStoreFor<T>(string connectionStringName)
+            where T : new()
+        {
+            return new AzureBlobCore(connectionStringName)
+                .CreateStoreFor<T>();
+        }
+
         public IDataStore<T> CreateStoreFor<T>()
             where T : new()
         {
