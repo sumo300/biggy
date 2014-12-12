@@ -54,6 +54,7 @@
     <Compile Include="DbTableMapping.cs" />
     <Compile Include="DocumentStoreBase.cs" />
     <Compile Include="InMemory\IItemsAreEquals.cs" />
+    <Compile Include="InMemory\ItemsAreEqualsById.cs" />
     <Compile Include="InMemory\ItemsAreEqualsByReference.cs" />
     <Compile Include="InMemory\ItemsAreEqualsByKey.cs" />
     <Compile Include="Interfaces\IDbCore.cs" />
