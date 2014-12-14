@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package>
+  <metadata>
+    <id>Biggy.Data.Sqlite</id>
+    <version>0.1.0.0</version>
+    <authors>Biggy</authors>
+    <owners>Biggy</owners>
+    <licenseUrl>https://github.com/xivSolutions/biggy/blob/master/LICENSE</licenseUrl>
+    <projectUrl>https://github.com/xivSolutions/biggy</projectUrl>
+    <requireLicenseAcceptance>false</requireLicenseAcceptance>
+    <description>In Memory DocumentDatabase. Sqlite extension.</description>
+    <releaseNotes>Summary of changes made in this release of the package.</releaseNotes>
+    <copyright>Copyright 2014</copyright>
+    <tags>documentDb biggy sqllite</tags>
+    <dependencies>
+      <dependency id="Inflector" version="1.0.0.0" />
+      <dependency id="Newtonsoft.Json" version="6.0.6" />
+      <dependency id="System.Data.SQLite.Core" version="1.0.94.0" />
+    </dependencies>
+  </metadata>
+</package>
