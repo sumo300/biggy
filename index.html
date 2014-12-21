@@ -1,156 +1,319 @@
----
-layout: default 
-title: Welcome to Biggy
----
+<!DOCTYPE html>
+<html>
 
-<div class="container">
+  <head>
+    <meta charset='utf-8'>
+    <meta http-equiv="X-UA-Compatible" content="chrome=1">
+    <meta name="description" content="Biggy : A Fast, In-Memory Document/Relational Query Tool for .NET">
 
-    <div class="starter-template">
-        <h1>Biggy</h1>
-        <p class="lead">A very fast document/relational query tool
-            <br>with Full LINQ Compliance.
-        </p>
-        <p>source code can be found at <a href="http://github.com/robconery/biggy">Github</a></p>
+    <link rel="stylesheet" type="text/css" media="screen" href="stylesheets/stylesheet.css">
+
+    <title>Biggy</title>
+  </head>
+
+  <body>
+
+    <!-- HEADER -->
+    <div id="header_wrap" class="outer">
+        <header class="inner">
+          <a id="forkme_banner" href="https://github.com/xivSolutions/biggy">View on GitHub</a>
+
+          <h1 id="project_title">Biggy</h1>
+          <h2 id="project_tagline">A Fast, In-Memory Document/Relational Query Tool for .NET</h2>
+
+            <section id="downloads">
+              <a class="zip_download_link" href="https://github.com/xivSolutions/biggy/zipball/master">Download this project as a .zip file</a>
+              <a class="tar_download_link" href="https://github.com/xivSolutions/biggy/tarball/master">Download this project as a tar.gz file</a>
+            </section>
+        </header>
     </div>
 
-    <div class="row">
-        <div class="col-md-12">
+    <!-- MAIN CONTENT -->
+    <div id="main_content_wrap" class="outer">
+      <section id="main_content" class="inner">
+        <h2>
+<a id="biggy---a-fast-syncronized-documentrelational-query-tool-for-net" class="anchor" href="#biggy---a-fast-syncronized-documentrelational-query-tool-for-net" aria-hidden="true"><span class="octicon octicon-link"></span></a>Biggy - A Fast, Syncronized Document/RElational Query Tool for .NET</h2>
 
-            <h2>Quick Start</h2>
+<h3>
+<a id="note-biggy-is-in-pre-release-expect-things-to-change-and-use-in-production-at-your-own-risk" class="anchor" href="#note-biggy-is-in-pre-release-expect-things-to-change-and-use-in-production-at-your-own-risk" aria-hidden="true"><span class="octicon octicon-link"></span></a>Note: Biggy is in PRE-RELEASE. Expect things to change, and use in production at your own risk!</h3>
 
-            <p>We know you want to get started as fast as possible, so follow these steps to get Biggy into your application.</p>
+<p>This project started life as an implementation of <code>ICollection</code> that persisted itself to a file using JSON seriliazation. That quickly evolved into using Postgres as a JSON store, and then a host of other data stores. What we ended up with is the fastest data tool you can use.</p>
 
-            <h3>Installation</h3>
+<p>Data is loaded into memory when your application starts, and you query it with Linq. That's it. It loads incredibly fast (100,000 records in about 1 second) and from there will sync your in-memory list with whatever store you choose.</p>
 
-            <p>We suggest you install Biggy using <a href="http://nuget.org">Nuget</a>. It is the fastest way to get started. You may utilize the visual package manager that is part of Visual Studio or use the following command in your package manager console.</p>
+<p>Out of the box, Biggy supports <a href="http://www.postgresql.org/">PostgreSql</a> and <a href="http://www.sqlite.org/">SQLite</a>, as well as persistence to simple file-based JSON storage. However, Biggy is designed to be extensible, and you can use the <code>IDataStore</code> interface to support any other store you need.</p>
 
-            <pre>PM> Install-Package Biggy</pre>
+<p>What Biggy does is represent an <code>ICollection</code> over your datastore. You define your store, and inject the store into the list at initialization.</p>
 
-            <p>Awesome! You are ready to write your first Biggy app</p>
+<h2>
+<a id="file-based-json-store" class="anchor" href="#file-based-json-store" aria-hidden="true"><span class="octicon octicon-link"></span></a>File-Based JSON Store</h2>
 
-            <h3>Your First Application</h3>
+<p>At the simplest level, Biggy can be used against a simple JSON file. The performance of the JSON Store is lickety-split fast.</p>
 
-            <p>Start off by creating a new <strong>Console Application</strong> in Visual Studio. Then reference Biggy using Nuget, see installation section for help. You should have an empty console application now.</p>
+<div class="highlight highlight-csharp"><pre><span class="pl-s">public</span> <span class="pl-s">partial</span> <span class="pl-s">class</span> <span class="pl-en">Artist</span> {
+  <span class="pl-s">public</span> <span class="pl-st">int</span> <span class="pl-en">ArtistId</span> { <span class="pl-k">get</span>; <span class="pl-k">set</span>; }
+  <span class="pl-s">public</span> <span class="pl-st">string</span> <span class="pl-en">Name</span> { <span class="pl-k">get</span>; <span class="pl-k">set</span>; }
+}
 
-            <pre>
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+<span class="pl-k">var</span> store = <span class="pl-s">new</span> JsonStore&lt;Artist&gt;();
+<span class="pl-k">var</span> artists = <span class="pl-s">new</span> BiggyList&lt;Artist&gt;(store);
 
-namespace ConsoleApplication3
-{
-    class Program
-    {
-        static void Main(string[] args)
-        {
-        }
-    }
-}</pre>
+artists.Add(<span class="pl-s">new</span> Artist { ArtistId = <span class="pl-c1">1</span>, Name = <span class="pl-s1"><span class="pl-pds">"</span>The Wipers<span class="pl-pds">"</span></span> });
+artists.Add(<span class="pl-s">new</span> Artist { ArtistId = <span class="pl-c1">2</span>, Name = <span class="pl-s1"><span class="pl-pds">"</span>The Fastbacks<span class="pl-pds">"</span></span> });
 
-            <p> Your next step is to create a storage class. These classes are plain old C-Sharp objects, more commonly referred to as POCOs. Paste the following code into your class into your console application.</p>
+<span class="pl-k">foreach</span>(<span class="pl-k">var</span> artist <span class="pl-k">in</span> artists) { 
+  Console.WriteLine(<span class="pl-s1"><span class="pl-pds">"</span>Id: {0} Name: {1}<span class="pl-pds">"</span></span>, artist.ArtistId, artist.Name);
+}
+</pre></div>
 
-<pre>
-class Product {
-  public String Sku { get; set; }
-  public String Name { get; set; }
-  public Decimal Price { get; set; }
-  public DateTime CreatedAt { get; set; }
+<p>The above code will do a number of things:</p>
 
-  public Product() {
-    this.CreatedAt = DateTime.Now;
+<ul>
+<li>Creates a file named "artists.json" in a default directory in your project root named "Data."</li>
+<li>Add each artist to the ICollection implementation <code>artists</code> as well as to the file artists.json.</li>
+</ul>
+
+<p>If we go to the ../../Data folder, we find artists.json:</p>
+
+<div class="highlight highlight-js"><pre>[{<span class="pl-s1"><span class="pl-pds">"</span>ArtistId<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-c1">1</span>,<span class="pl-s1"><span class="pl-pds">"</span>Name<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s1"><span class="pl-pds">"</span>The Wipers<span class="pl-pds">"</span></span>},{<span class="pl-s1"><span class="pl-pds">"</span>ArtistId<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-c1">2</span>,<span class="pl-s1"><span class="pl-pds">"</span>Name<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s1"><span class="pl-pds">"</span>The Fastbacks<span class="pl-pds">"</span></span>}]</pre></div>
+
+<p>When Biggy loads the data it deserializes it from the backing store and you can access it just like any <code>ICollection&lt;T&gt;</code>. Similarly, Modifications to the items in the <code>ICollection</code> are persisted back into the backing store. </p>
+
+<h2>
+<a id="complex-documents" class="anchor" href="#complex-documents" aria-hidden="true"><span class="octicon octicon-link"></span></a>Complex Documents</h2>
+
+<p>Above we saw a couple very simple documents stored as a JSON file. We could just as easily work with a more complex object:</p>
+
+<div class="highlight highlight-csharp"><pre><span class="pl-s">public</span> <span class="pl-s">class</span> <span class="pl-en">ArtistDocument</span> {
+  <span class="pl-s">public</span> <span class="pl-en">ArtistDocument</span>() {
+    <span class="pl-c1">this</span>.Albums = <span class="pl-s">new</span> List&lt;Album&gt;();
   }
+  <span class="pl-s">public</span> <span class="pl-st">int</span> <span class="pl-en">ArtistDocumentId</span> { <span class="pl-k">get</span>; <span class="pl-k">set</span>; }
+  <span class="pl-s">public</span> <span class="pl-st">string</span> <span class="pl-en">Name</span> { <span class="pl-k">get</span>; <span class="pl-k">set</span>; }
+  <span class="pl-s">public</span> List&lt;Album&gt; Albums;
+}
 
-  public override bool Equals(object obj) {
-    var p1 = (Product)obj;
-    return this.Sku == p1.Sku;
+<span class="pl-s">public</span> <span class="pl-s">partial</span> <span class="pl-s">class</span> <span class="pl-en">Album</span> {
+  <span class="pl-s">public</span> <span class="pl-en">Album</span>() {
+    <span class="pl-c">//this.Tracks = new HashSet&lt;Track&gt;();</span>
   }
-}</pre>
+  <span class="pl-s">public</span> <span class="pl-st">int</span> <span class="pl-en">AlbumId</span> { <span class="pl-k">get</span>; <span class="pl-k">set</span>; }
+  <span class="pl-s">public</span> <span class="pl-st">string</span> <span class="pl-en">Title</span> { <span class="pl-k">get</span>; <span class="pl-k">set</span>; }
+  <span class="pl-s">public</span> <span class="pl-st">int</span> <span class="pl-en">ArtistId</span> { <span class="pl-k">get</span>; <span class="pl-k">set</span>; }
+}</pre></div>
 
-          <p>Finally, let's interact with Biggy. Paste the following code into your project.</p>
+<p>Here, we might use another JSON store with our <code>BiggyList</code>:</p>
 
-<pre>
-static void Main(string[] args)
-{
-    //add and save to this list as above
-    //this will create a Data/products.json file in your project/site root
-    var products = new BiggyList&lt;Product&gt;();
+<div class="highlight highlight-csharp"><pre>  <span class="pl-c">//this will create a Data/artistdocuments.json file in your project/site root:</span>
+  <span class="pl-k">var</span> newArtist = <span class="pl-s">new</span> ArtistDocument { ArtistDocumentId = <span class="pl-c1">3</span>, Name = <span class="pl-s1"><span class="pl-pds">"</span>Nirvana<span class="pl-pds">"</span></span> };
+  newArtist.Albums.Add(<span class="pl-s">new</span> Album { AlbumId = <span class="pl-c1">1</span>, ArtistId = <span class="pl-c1">3</span>, Title = <span class="pl-s1"><span class="pl-pds">"</span>Bleach<span class="pl-pds">"</span></span> });
+  newArtist.Albums.Add(<span class="pl-s">new</span> Album { AlbumId = <span class="pl-c1">2</span>, ArtistId = <span class="pl-c1">3</span>, Title = <span class="pl-s1"><span class="pl-pds">"</span>Incesticide<span class="pl-pds">"</span></span> });
+</pre></div>
 
-    var newProduct = new Product { Sku = "STUFF", Name = "A new product", Price = 120.00m };
+<p>Here, we created an artist document, and nested a couple of albums in the <code>Albums</code> property. This is persisted to our JSON store in a file named artistdocuments.json like so:</p>
 
-    //gets appended immediately in a single line-write to file
-    products.Add(newProduct);
+<div class="highlight highlight-js"><pre>[{<span class="pl-s1"><span class="pl-pds">"</span>Albums<span class="pl-pds">"</span></span><span class="pl-k">:</span>[{<span class="pl-s1"><span class="pl-pds">"</span>AlbumId<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-c1">1</span>,<span class="pl-s1"><span class="pl-pds">"</span>Title<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s1"><span class="pl-pds">"</span>Bleach<span class="pl-pds">"</span></span>,<span class="pl-s1"><span class="pl-pds">"</span>ArtistId<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-c1">3</span>},
+{<span class="pl-s1"><span class="pl-pds">"</span>AlbumId<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-c1">2</span>,<span class="pl-s1"><span class="pl-pds">"</span>Title<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s1"><span class="pl-pds">"</span>Incesticide<span class="pl-pds">"</span></span>,<span class="pl-s1"><span class="pl-pds">"</span>ArtistId<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-c1">3</span>}],
+<span class="pl-s1"><span class="pl-pds">"</span>ArtistDocumentId<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-c1">3</span>,<span class="pl-s1"><span class="pl-pds">"</span>Name<span class="pl-pds">"</span></span><span class="pl-k">:</span><span class="pl-s1"><span class="pl-pds">"</span>Nirvana<span class="pl-pds">"</span></span>}]</pre></div>
 
-    //this won't hit the disk as you're querying in-memory only
-    var p = products.FirstOrDefault(x => x.Sku == "STUFF");
-    p.Name = "Something Fun";
+<p>You can query using LINQ:</p>
 
-    //this writes to disk in a single asynchronous flush - so it's fast too
-    products.Update(p);
+<div class="highlight highlight-csharp"><pre>
+<span class="pl-c">// This immediately load any existing artist documents from the json file:</span>
+<span class="pl-k">var</span> artists = <span class="pl-s">new</span> BiggyList&lt;ArtistDocument&gt;(store);
 
-    Console.ReadLine();
-}  
-</pre>
+<span class="pl-c">// This query never hits the disk - it uses LINQ directly in memory:</span>
+<span class="pl-k">var</span> someArtist = artists.FirstOrDefault(a =&gt; a.Name == <span class="pl-s1"><span class="pl-pds">"</span>Nirvana<span class="pl-pds">"</span></span>);
+<span class="pl-k">var</span> someAlbum = someArtist.Albums.FirstOrDefault(a =&gt; a.Title.Contains(<span class="pl-s1"><span class="pl-pds">"</span>Incest<span class="pl-pds">"</span></span>));
 
-      <p>Hooray! If you place some breakpoints in the application you will notice that we have an IEnumerable of products. You might also notice we were able to utilize LINQ to query the product. In addition, this example is saving the product to disk asynchornously so you don't lose any data. All of this is done for you transparently.</p>
+<span class="pl-c">// Update:</span>
+someAlbum.Title = <span class="pl-s1"><span class="pl-pds">"</span>In Utero<span class="pl-pds">"</span></span>;
 
-      <p>Welcome to Biggy, please continue reading to learn about the other features of the library and please follow us on <a href="http://github.com/robconery/biggy">Github</a>. If you struggled with the sample, see the full source below to help you.
-      </p>
+<span class="pl-c">//this writes to disk in a single flush - so it's fast too</span>
+artists.Update(someArtist);</pre></div>
 
-        </div>
+<h2>
+<a id="relational-database-engines" class="anchor" href="#relational-database-engines" aria-hidden="true"><span class="octicon octicon-link"></span></a>Relational Database Engines</h2>
+
+<p>If your needs grow beyond storage to a flat JSON file, you can easily use SQLite or Postgres as a backing store for <strong>both document structures and standard relational table data.</strong> </p>
+
+<p>If we use <code>pgDocumentStore</code> or <code>sqliteDocumentstore</code>, our objects are serialilzed into JSON and stored in the <code>body</code> field of a record. </p>
+
+<p>if we use <code>pgRelationalStore</code> or <code>sqliteRelationalStore</code>, data is read/written to the source table as we would expect. </p>
+
+<p>Our primary relational store of choice is, and has been, Postgresql. Not only is Postgres an amzing database, it has a JSON datatype right out of the box, which lends itself easily to the document storage aspects of Biggy. </p>
+
+<p>In between the flat JSON file and a full-blown Posgres install is SQLite. SQLite is a file-based local relational storate option offering some really nice performance characteristics. </p>
+
+<p>Best part for both, they are FREE, cross-platform, and open source. </p>
+
+<h2>
+<a id="sqlite" class="anchor" href="#sqlite" aria-hidden="true"><span class="octicon octicon-link"></span></a>SQLite</h2>
+
+<p>Using SQLite with Biggy is almost as simple as using a flat JSON file:</p>
+
+<div class="highlight highlight-csharp"><pre>      <span class="pl-c">// This will create a new SQLite database file named "TestDb.db in ../../Data</span>
+      <span class="pl-c">// if a database file b y that name doesn;t already exist:</span>
+      <span class="pl-k">var</span> store = <span class="pl-s">new</span> sqliteDocumentStore&lt;ArtistDocument&gt;(<span class="pl-s1"><span class="pl-pds">"</span>TestDb<span class="pl-pds">"</span></span>);
+
+      <span class="pl-c">// This will create a table named artistdocuments in TestDb if one doesn't already exist:</span>
+      <span class="pl-k">var</span> artistDocs = <span class="pl-s">new</span> BiggyList&lt;ArtistDocument&gt;(store);
+
+      <span class="pl-k">var</span> newArtist = <span class="pl-s">new</span> ArtistDocument { ArtistDocumentId = <span class="pl-c1">1</span>, Name = <span class="pl-s1"><span class="pl-pds">"</span>Metallica<span class="pl-pds">"</span></span> };
+      newArtist.Albums.Add(<span class="pl-s">new</span> Album { AlbumId = <span class="pl-c1">1</span>, ArtistId = newArtist.ArtistDocumentId, Title = <span class="pl-s1"><span class="pl-pds">"</span>Kill 'Em All<span class="pl-pds">"</span></span> });
+      newArtist.Albums.Add(<span class="pl-s">new</span> Album { AlbumId = <span class="pl-c1">2</span>, ArtistId = newArtist.ArtistDocumentId, Title = <span class="pl-s1"><span class="pl-pds">"</span>Ride the Lightning<span class="pl-pds">"</span></span> });
+
+      <span class="pl-c">// This will add a record to the artistdocuments table:</span>
+      artistDocs.Add(newArtist);</pre></div>
+
+<p>The code above will create a SQLite database file named <code>TestDb.db</code> in our /Data directory if a db by that name does not already exist, and then also create a table named artistdocuments (again, if one doesn't already exist). </p>
+
+<h2>
+<a id="get-all-relational-with-it" class="anchor" href="#get-all-relational-with-it" aria-hidden="true"><span class="octicon octicon-link"></span></a>Get All Relational With It...</h2>
+
+<p>Biggy works with relational data too. When we want to read/write standard relational data, we use the <code>RelationalStore</code> implementation instead of <code>DocumentStore</code>. </p>
+
+<p>We could pull down the SQLite version of <a href="http://chinookdatabase.codeplex.com/">Chinook Database</a>, drop it in our ../../Data directory, and work with some ready-to-use sample data to do some fancy querying with LINQ:</p>
+
+<div class="highlight highlight-csharp"><pre><span class="pl-k">var</span> artistStore = <span class="pl-s">new</span> sqliteRelationalStore&lt;Artist&gt;(<span class="pl-s1"><span class="pl-pds">"</span>Chinook<span class="pl-pds">"</span></span>);
+<span class="pl-k">var</span> albumStore = <span class="pl-s">new</span> sqliteRelationalStore&lt;Album&gt;(<span class="pl-s1"><span class="pl-pds">"</span>Chinook<span class="pl-pds">"</span></span>);
+
+<span class="pl-c">// Loads all data from the Artist table into memory:</span>
+<span class="pl-k">var</span> artists = <span class="pl-s">new</span> BiggyList&lt;Artist&gt;(artistStore);
+
+<span class="pl-c">// Loads all data from the Album table into memory:</span>
+<span class="pl-k">var</span> albums = <span class="pl-s">new</span> BiggyList&lt;Album&gt;(albumStore);
+
+<span class="pl-c">// Find all the albums by a particular artist using LINQ:</span>
+<span class="pl-k">var</span> artistAlbums = <span class="pl-k">from</span> a <span class="pl-k">in</span> albums
+                    <span class="pl-k">join</span> ar <span class="pl-k">in</span> artists <span class="pl-k">on</span> a.ArtistId <span class="pl-k">equals</span> ar.ArtistId
+                    <span class="pl-k">where</span> ar.Name == <span class="pl-s1"><span class="pl-pds">"</span>AC/DC<span class="pl-pds">"</span></span>
+                    <span class="pl-k">select</span> a;</pre></div>
+
+<h2>
+<a id="postgresql" class="anchor" href="#postgresql" aria-hidden="true"><span class="octicon octicon-link"></span></a>Postgresql</h2>
+
+<p>All of the above works with Postgres as well, except that Postgres, of course, doesn't store files in your project. </p>
+
+<p>If we want to use Biggy with a Postgres store, all we need to do is pass it the name of the connection string as defined in the <code>App.config</code> or <code>Web.config</code> file in our project.</p>
+
+<h3>
+<a id="define-a-connection-string-in-appconfig" class="anchor" href="#define-a-connection-string-in-appconfig" aria-hidden="true"><span class="octicon octicon-link"></span></a>Define a connection string in App.config:</h3>
+
+<div class="highlight highlight-xml"><pre>&lt;<span class="pl-ent">configuration</span>&gt;
+  &lt;<span class="pl-ent">startup</span>&gt;
+    &lt;<span class="pl-ent">supportedRuntime</span> <span class="pl-e">version</span>=<span class="pl-s1"><span class="pl-pds">"</span>v4.0<span class="pl-pds">"</span></span> <span class="pl-e">sku</span>=<span class="pl-s1"><span class="pl-pds">"</span>.NETFramework,Version=v4.0<span class="pl-pds">"</span></span>/&gt;
+  &lt;/<span class="pl-ent">startup</span>&gt;
+  &lt;<span class="pl-ent">connectionStrings</span>&gt;
+    &lt;<span class="pl-ent">add</span> <span class="pl-e">name</span>=<span class="pl-s1"><span class="pl-pds">"</span>chinook-pg<span class="pl-pds">"</span></span> <span class="pl-e">connectionString</span>=<span class="pl-s1"><span class="pl-pds">"</span>server=localhost;user id=biggy;password=password;database=chinook<span class="pl-pds">"</span></span>/&gt;
+  &lt;/<span class="pl-ent">connectionStrings</span>&gt;
+&lt;/<span class="pl-ent">configuration</span>&gt;</pre></div>
+
+<p>Now, assuming we have the Chinook Database for Postgres defined in our PG database, we can do the following:</p>
+
+<div class="highlight highlight-csharp"><pre><span class="pl-k">var</span> artistStore = <span class="pl-s">new</span> pgRelationalStore&lt;Artist&gt;(<span class="pl-s1"><span class="pl-pds">"</span>chinook-pg<span class="pl-pds">"</span></span>);
+<span class="pl-k">var</span> albumStore = <span class="pl-s">new</span> pgRelationalStore&lt;Album&gt;(<span class="pl-s1"><span class="pl-pds">"</span>chinook-pg<span class="pl-pds">"</span></span>);
+<span class="pl-k">var</span> trackStore = <span class="pl-s">new</span> pgRelationalStore&lt;Track&gt;(<span class="pl-s1"><span class="pl-pds">"</span>chinook-pg<span class="pl-pds">"</span></span>);
+
+<span class="pl-c">// Loads all data from the Artist table into memory:</span>
+<span class="pl-k">var</span> artists = <span class="pl-s">new</span> BiggyList&lt;Artist&gt;(artistStore);
+
+<span class="pl-c">// Loads all data from the Album table into memory:</span>
+<span class="pl-k">var</span> albums = <span class="pl-s">new</span> BiggyList&lt;Album&gt;(albumStore);
+
+<span class="pl-c">// Loads all data from the Album table into memory:</span>
+<span class="pl-k">var</span> tracks = <span class="pl-s">new</span> BiggyList&lt;Track&gt;(trackStore);
+
+
+<span class="pl-c">// Find all the tracks by a particular artist using LINQ:</span>
+<span class="pl-k">var</span> artistTracks = (<span class="pl-k">from</span> t <span class="pl-k">in</span> tracks
+                    <span class="pl-k">join</span> al <span class="pl-k">in</span> albums <span class="pl-k">on</span> t.AlbumId <span class="pl-k">equals</span> al.AlbumId
+                    <span class="pl-k">join</span> ar <span class="pl-k">in</span> artists <span class="pl-k">on</span> al.ArtistId <span class="pl-k">equals</span> ar.ArtistId
+                    <span class="pl-k">where</span> ar.Name == <span class="pl-s1"><span class="pl-pds">"</span>Black Sabbath<span class="pl-pds">"</span></span>
+                    <span class="pl-k">select</span> t).ToList();</pre></div>
+
+<h2>
+<a id="cache-schema-info" class="anchor" href="#cache-schema-info" aria-hidden="true"><span class="octicon octicon-link"></span></a>Cache Schema Info</h2>
+
+<p>Of course, the idea behind Biggy is to load data in memory once, and then read/write away as your application needs. The only time Biggy hits the disk is during Writes, which makes things extremely fast (the tripe-joined LINQ query above returns in a less than 5 milliseconds). </p>
+
+<p>Biggy works against standard relational tables by reading and caching schema info. Instead of doing this three times like we did above, we can use the <code>DBCore</code> object, and load all that once, during initialization. Then we can inject each store into our separate BiggyLists, and all reference the same schema info:</p>
+
+<div class="highlight highlight-csharp"><pre><span class="pl-c">// Loads and caches connection and schema info needed for all tables and columns</span>
+<span class="pl-k">var</span> _db = <span class="pl-s">new</span> pgDbCore(<span class="pl-s1"><span class="pl-pds">"</span>chinook-pg<span class="pl-pds">"</span></span>);
+
+<span class="pl-k">var</span> artists = <span class="pl-s">new</span> BiggyList&lt;Artist&gt;(_db.CreateRelationalStoreFor&lt;Artist&gt;());
+<span class="pl-k">var</span> albums = <span class="pl-s">new</span> BiggyList&lt;Album&gt;(_db.CreateRelationalStoreFor&lt;Album&gt;());
+<span class="pl-k">var</span> tracks = <span class="pl-s">new</span> BiggyList&lt;Track&gt;(_db.CreateRelationalStoreFor&lt;Track&gt;());
+
+
+<span class="pl-c">// Find all the tracks by a particular artist using LINQ:</span>
+<span class="pl-k">var</span> artistTracks = (<span class="pl-k">from</span> t <span class="pl-k">in</span> tracks
+                    <span class="pl-k">join</span> al <span class="pl-k">in</span> albums <span class="pl-k">on</span> t.AlbumId <span class="pl-k">equals</span> al.AlbumId
+                    <span class="pl-k">join</span> ar <span class="pl-k">in</span> artists <span class="pl-k">on</span> al.ArtistId <span class="pl-k">equals</span> ar.ArtistId
+                    <span class="pl-k">where</span> ar.Name == <span class="pl-s1"><span class="pl-pds">"</span>Black Sabbath<span class="pl-pds">"</span></span>
+                    <span class="pl-k">select</span> t).ToList();</pre></div>
+
+<h2>
+<a id="what-its-good-for" class="anchor" href="#what-its-good-for" aria-hidden="true"><span class="octicon octicon-link"></span></a>What It's Good For</h2>
+
+<p>A document-centric, "NoSQL"-style of development is great for high-read, quick changing things. Products, Customers, Promotions and Coupons - these things get read from the database continually and it's sort of silly. Querying in-memory makes perfect sense for this use case. For these you could use one of the document storage ideas above.could </p>
+
+<p>A relational, write-oriented transactional situation is great for "slowly changing over time" records - like Orders, Invoices, SecurityLogs, etc. For this you could use a regular relational table using the PGTable or SQLServerTable as you see fit.</p>
+
+<h2>
+<a id="strategies" class="anchor" href="#strategies" aria-hidden="true"><span class="octicon octicon-link"></span></a>Strategies</h2>
+
+<p>. . . This section will be updated shortly . . .</p>
+
+<h2>
+<a id="a-note-on-speed-and-memory" class="anchor" href="#a-note-on-speed-and-memory" aria-hidden="true"><span class="octicon octicon-link"></span></a>A Note on Speed and Memory</h2>
+
+<p>Some applications have a ton of data and for that, Biggy might not be the best fit if you need to read from that ton of data consistently. We've focused on prying apart data into two camps: High Read, and High Write.</p>
+
+<p>We're still solidifying our benchmarks, but in-memory read is about as fast as you can get. Our writes are getting there too - currently we can drop 100,000 documents to disk in about 2 seconds - which isn't so bad. We can write 10,000 records to Postgres and SQL Server in about 500ms - again not bad.</p>
+
+<p>So if you want to log with Biggy - go for it! Just understand that if you use a <code>DBList&lt;T&gt;</code>, it assumes you want to read too so it will store the contents in memory as well as on disk. If you don't need this, just use a <code>DBTable&lt;T&gt;</code> (Postgres or SQLServer) and write your heart out.</p>
+
+<p>You might also wonder about memory use. Since you're storing everything in memory - for a small web app this might be a concern. Currently the smallest, free sites on Azure allow you 1G RAM. Is this enough space for your data? <a href="http://openmymind.net/redis.pdf">Borrowing from Karl Seguin</a>:</p>
+
+<blockquote>
+<p>I do feel that some developers have lost touch with how little space data can take. The Complete Works of William
+Shakespeare takes roughly 5.5MB of storage</p>
+</blockquote>
+
+<p>The entire customer, catalog, logging, and sales history of Tekpub was around 6MB. If you're bumping up against your data limit - just move from an in-memory list to a regular table object (as shown above) and you're good to go.</p>
+
+<h2>
+<a id="wanna-help" class="anchor" href="#wanna-help" aria-hidden="true"><span class="octicon octicon-link"></span></a>Wanna Help?</h2>
+
+<p>Please do! Here's what we ask of you:</p>
+
+<ul>
+<li>If you've found a bug, please log it in the Issue list. </li>
+<li>If you want to fork and fix (thanks!) - please fork then open a branch on your fork specifically for this issue. Give it a nice name.</li>
+<li>Make the fix and then in your final commit message please use the Github magic syntax ("Closes #X" or Fixes etc) so we can tie your PR to you and your issue</li>
+<li>Please please please verify your bug or issue with a test (we use NUnit and it's simple to get going)</li>
+</ul>
+
+<p>Thanks so much!</p>
+
+<h3>
+<a id="authors" class="anchor" href="#authors" aria-hidden="true"><span class="octicon octicon-link"></span></a>Authors</h3>
+
+<p>The concepts underlying Biggy were originally created by Rob Conery (<a href="https://github.com/robconery" class="user-mention">@robconery</a>) in February 2014. John Atten (<a href="https://github.com/xivSolutions" class="user-mention">@xivSolutions</a>) joined the project early on that same month, and has since assumed responsibility for the project. </p>
+      </section>
     </div>
 
-<pre>
-using System;
-using System.Linq;
-using Biggy.JSON;
+    <!-- FOOTER  -->
+    <div id="footer_wrap" class="outer">
+      <footer class="inner">
+        <p class="copyright">Biggy maintained by <a href="https://github.com/xivSolutions">xivSolutions</a></p>
+        <p>Published with <a href="http://pages.github.com">GitHub Pages</a></p>
+      </footer>
+    </div>
 
-namespace ConsoleApplication3
-{
-    class Product
-    {
-        public String Sku { get; set; }
-        public String Name { get; set; }
-        public Decimal Price { get; set; }
-        public DateTime CreatedAt { get; set; }
+    
 
-        public Product()
-        {
-            this.CreatedAt = DateTime.Now;
-        }
-
-        public override bool Equals(object obj)
-        {
-            var p1 = (Product)obj;
-            return this.Sku == p1.Sku;
-        }
-    }
-
-    class Program
-    {
-        static void Main(string[] args)
-        {
-            //add and save to this list as above
-            //this will create a Data/products.json file in your project/site root
-            var products = new BiggyList&lt;Product&gt;();
-
-            var newProduct = new Product { Sku = "STUFF", Name = "A new product", Price = 120.00m };
-
-            //gets appended immediately in a single line-write to file
-            products.Add(newProduct);
-
-            //this won't hit the disk as you're querying in-memory only
-            var p = products.FirstOrDefault(x => x.Sku == "STUFF");
-            p.Name = "Something Fun";
-
-            //this writes to disk in a single asynchronous flush - so it's fast too
-            products.Update(p);
-
-            Console.ReadLine();
-        }
-    }
-}</pre>
-
-
-</div>
+  </body>
+</html>
