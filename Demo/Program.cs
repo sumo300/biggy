@@ -6,34 +6,34 @@ namespace Demo {
     private static void Main(string[] args) {
       //// POSTGRES DEMOS: +++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-      //pgRelationalDemo _pgRelationalDemo = new pgRelationalDemo();
+
+      pgRelationalDemo _pgRelationalDemo = new pgRelationalDemo();
+      _pgRelationalDemo.Run();
+      Console.WriteLine("");
+
       //pgDocumentDemo _pgDocumentDemo = new pgDocumentDemo();
-
-      //_pgRelationalDemo.Run();
-      //Console.WriteLine("");
-
       //_pgDocumentDemo.Run();
       //Console.WriteLine("");
 
       //// SQL LITE DEMOS: ++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-      //sqliteRelationalDemo _sqliteRelationalDemo = new sqliteRelationalDemo();
-      sqliteDocumentDemo _sqliteDocumentDemo = new sqliteDocumentDemo();
 
+      //sqliteRelationalDemo _sqliteRelationalDemo = new sqliteRelationalDemo();
       //_sqliteRelationalDemo.Run();
       //Console.WriteLine("");
 
-      _sqliteDocumentDemo.Run();
+      //sqliteDocumentDemo _sqliteDocumentDemo = new sqliteDocumentDemo();
+      //_sqliteDocumentDemo.Run();
       //Console.WriteLine("");
 
       // JSON DEMOS: ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
-      //jsonPocoDemo _jsonPocoDemo = new jsonPocoDemo();
-      //jsonDocumentDemo _jsonDocumentDemo = new jsonDocumentDemo();
 
+      //jsonPocoDemo _jsonPocoDemo = new jsonPocoDemo();
       //_jsonPocoDemo.Run();
       //Console.WriteLine("");
 
+      //jsonDocumentDemo _jsonDocumentDemo = new jsonDocumentDemo();
       //_jsonDocumentDemo.Run();
       //Console.WriteLine("");
 

@@ -54,6 +54,17 @@ namespace Demo {
       Console.WriteLine("{0} Albums", _testDb.Albums.Count);
       Console.WriteLine("{0} Tracks", _testDb.Tracks.Count);
 
+      Console.WriteLine("Update a whole bunch of artist records...");
+      var updateArtists = _testDb.Artists.ToList();
+      foreach (var artist in updateArtists) {
+        artist.Name = "Updated Artist " + artist.ArtistId;
+      }
+      sw.Reset();
+      sw.Start();
+      _testDb.Artists.Update(updateArtists);
+      sw.Stop();
+      Console.WriteLine("Updated {0} artist records in {1} ms", updateArtists.Count, sw.ElapsedMilliseconds);
+
       Console.WriteLine("");
       Console.WriteLine("Postgres Relational Demo - CHINOOK DATA");
       Console.WriteLine("=======================================");
