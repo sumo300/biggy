@@ -78,12 +78,15 @@ namespace Biggy.Data.Json
             }
         }
 
+        public bool IsFlushing { get; set; }
+
         public JsonDbCore Database { get; set; }
 
         public JsonStore()
         {
             this.DecideTableName();
             Database = new JsonDbCore();
+            IsFlushing = false;
             this.TryLoadData();
         }
 
@@ -91,6 +94,7 @@ namespace Biggy.Data.Json
         {
             this.TableName = tableName;
             Database = new JsonDbCore();
+            IsFlushing = false;
             this.TryLoadData();
         }
 
@@ -98,6 +102,7 @@ namespace Biggy.Data.Json
         {
             this.DecideTableName();
             Database = dbCore;
+            IsFlushing = false;
             this.TryLoadData();
         }
 
@@ -105,6 +110,7 @@ namespace Biggy.Data.Json
         {
             Database = new JsonDbCore(dbName);
             this.TableName = tableName;
+            IsFlushing = false;
             this.TryLoadData();
         }
 
@@ -112,6 +118,7 @@ namespace Biggy.Data.Json
         {
             Database = new JsonDbCore(dbDirectory, dbName);
             this.TableName = tableName;
+            IsFlushing = false;
             this.TryLoadData();
         }
 
@@ -488,6 +495,7 @@ namespace Biggy.Data.Json
         public bool FlushToDisk()
         {
             var completed = false;
+            IsFlushing = true;
             // Serialize json directly to the output stream
             var tries = 20;
             for (int numTries = 0; numTries <= tries; numTries++)
@@ -514,7 +522,7 @@ namespace Biggy.Data.Json
                     }
                 }
             }
-
+            IsFlushing = false;
             return completed;
         }
     }
