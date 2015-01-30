@@ -30,11 +30,11 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Inflector">
-      <HintPath>..\..\..\FluxBot\packages\Inflector.1.0.0.0\lib\net40\Inflector.dll</HintPath>
+      <HintPath>..\..\packages\Inflector.1.0.0.0\lib\net40\Inflector.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="Newtonsoft.Json">
-      <HintPath>..\..\..\FluxBot\packages\Newtonsoft.Json.6.0.7\lib\net40\Newtonsoft.Json.dll</HintPath>
+      <HintPath>..\..\packages\Newtonsoft.Json.6.0.7\lib\net40\Newtonsoft.Json.dll</HintPath>
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
@@ -44,7 +44,7 @@
     <Reference Include="Mono.Data.Sqlite" />
     <Reference Include="System.Xml" />
     <Reference Include="Mono.Security">
-      <HintPath>..\packages\Npgsql.2.2.2\lib\net40\Mono.Security.dll</HintPath>
+      <HintPath>..\..\packages\Npgsql.2.2.2\lib\net40\Mono.Security.dll</HintPath>
     </Reference>
   </ItemGroup>
   <ItemGroup>
