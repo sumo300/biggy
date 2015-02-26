@@ -507,6 +507,7 @@ namespace Biggy.Data.Json
                         var writer = new JsonTextWriter(outstream);
                         var serializer = JsonSerializer.CreateDefault();
                         serializer.Serialize(writer, _items);
+                        outstream.Close();
                         completed = true;
                     }
                 }
