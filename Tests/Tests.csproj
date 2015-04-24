@@ -106,6 +106,7 @@
     <Compile Include="sqliteDbCore\sqliteDbCore.Tests.cs" />
     <Compile Include="SqliteDocuments\sqliteDocumentStoreWithAutoIntKey.cs" />
     <Compile Include="SqliteDocuments\sqliteDocumentStoreWithIntKeyAttribute.cs" />
+    <Compile Include="SqliteDocuments\SqliteDocumentStoreWithLongKeyAttribute.cs" />
     <Compile Include="SqliteDocuments\sqliteDocumentStoreWithStringKey.cs" />
     <Compile Include="SqliteDocuments\sqliteDocumentStoreWithStringKeyAttribute.cs" />
     <Compile Include="DocumentTestObjects.cs" />

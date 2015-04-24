@@ -40,4 +40,11 @@ namespace Tests {
     public string Category { get; set; }
     public string Type { get; set; }
   }
+
+    public class BowlingDocuments {
+        [PrimaryKey(Auto: false)]
+        public long Id { get; set; }
+        public string Name { get; set; }
+        public string Score { get; set; }
+    }
 }

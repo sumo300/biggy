@@ -76,18 +76,18 @@ namespace Biggy.Data.Sqlite {
     public override IEnumerable<IDbCommand> CreateInsertCommands(IEnumerable<T> items) {
       var commands = new List<IDbCommand>();
       if(items.Count() > 0) { 
-        int nextReservedId = 0;
+        long nextReservedId = 0;
         if (this.KeyIsAutoIncrementing) {
           // We need to do this in order to keep the serialized Id in the JSON in sync with the relational record Id:
 
           // Find the last inserted id value:
           string sqlLastVal = string.Format("SELECT seq FROM sqlite_sequence WHERE name = '{0}'", this.TableName);
           object val = Database.ExecuteScalar(sqlLastVal);
-          int lastVal = val == null ? 0 : (int)Convert.ChangeType(Database.ExecuteScalar(sqlLastVal), typeof(int));
+          long lastVal = val == null ? 0 : (long)Convert.ChangeType(Database.ExecuteScalar(sqlLastVal), typeof(long));
           nextReservedId = lastVal + 1;
 
           // Update the SQLite Sequence table:
-          int qtyToAdd = items.Count();
+          long qtyToAdd = items.LongCount();
           string sqlSeq = string.Format("UPDATE sqlite_sequence SET seq = {0} WHERE name = '{1}'", lastVal + qtyToAdd, this.TableName);
           Database.Transact(sqlSeq);
         }

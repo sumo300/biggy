@@ -172,8 +172,9 @@ namespace Biggy.Core {
       var info = this.GetKeyProperty();
       var propertyType = info.PropertyType;
 
-      // Key needs to be int, string:
+      // Key needs to be int, long, or string:
       if (propertyType != typeof(int)
+        && propertyType != typeof(long)
         && propertyType != typeof(string)) {
         throw new Exception("key must be either int or string");
       }
